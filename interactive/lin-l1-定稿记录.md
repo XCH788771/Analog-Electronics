@@ -91,3 +91,8 @@
 - **2026-09-27：计算推导按参数分段（Av / Ri / Ro 三段按钮）**。推导 16 句拆成 CALC_PARTS 三段（Av 8 句 / Ri 5 句 / Ro 3 句），语音与逐句动画内容不变；面板标题右侧新增三个参数按钮（Aᵥ/Rᵢ/Rₒ，rect y=168 h=50 w=78 间距 14，文本 34px 带下标，样式 .calc-btn：默认半透明白、悬停增亮、播段中 .active 黄色高亮），点击 startCalcSegment(key) 触发对应段（stopSpeak + resetCalc 后播该段，onDone 收尾恢复完整电路、按钮取消高亮）；演示中可点其它按钮随时切换。面板标题不再悬停/点击触发。Ro 段独立触发时在 startCalcSegment 预置图面（信号源置零 src-hidden+src-text-hidden、黄虚线框、输入接地）。_template.html 已同步（CALC_PARTS 骨架 + 按钮框架）。
 - **2026-09-27：Ri/Ro 结论语音微调**。"所以输入电阻阿尔埃等于无穷" → "**趋于无穷**"；"所以输出电阻还是等于0" → "**还是为0**"（口语更顺，面板公式 Rᵢ → ∞ / Rₒ → 0 不变）。定稿记录表同步。
 - **2026-09-27：页面顶部校徽 + 全宽分隔线（lin-l1 完全定稿标志）**。用户提供 WMF 源文件（D:\图形设计\素材\学校\校徽源文件\新校徽--2025.wmf），Pillow（venv envs/default，Windows GDI 渲染，dpi=384）出 4098×624 彩色横版；因深绿底上深蓝对比度不足，按亮度→alpha 反向映射重上色为**白色透明底**，裁边缩至 620×94 存为资产 `校徽-白.png`；base64 内嵌 `<image x="569" y="36" width="462" height="70">` 居中 x=800，下方全宽分隔线 `<line y="113" x="0→1600">`（标题下方、计算面板上方）。_template.html 已同步。注意：本会话工具回显严重错乱，文件操作一律以 Read/ls 复核为准；PowerShell stdout 本会话不可用；Windows venv 布局是 Scripts/ 而非 bin/。
+
+### 第27轮（2026-10-07）下标缩小1/4 + 元件标注字号统一
+- **下标 75%**：`.calc-step tspan.sub, tspan.sub { font-size: 75%; baseline-shift: -20%; }`（用户要求下标减小1/4），全站 9 个 HTML 同步；`tools/svg-layout-check.py` 的 SUB_SCALE 1.0→0.75 同步。
+- **元件标注两级字号（新标准）**：元件标注（代号/信号源/＋−极性/节点字母/β/运放内 A）= **37px**；电量标注（q-* 电量、fx-tmodel 的 rbe/i_b/βi_b、lin-l1 演示标注）= **28px**。已写入制作规范.md 第三节。
+- 本页改动：运放内 A(560,412) 28→37；8 处计算演示标注（Vp/Ip/Vn/In/I1/I2/Ri/Ro）52→28。布局检查通过；截图目检无碰撞；缩略图已重截。

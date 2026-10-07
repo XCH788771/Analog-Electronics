@@ -129,7 +129,7 @@
 
     /* ===== 计算过程演示 ===== */
     .calc-step text, text.calc-step { font-size: 46px; }
-    .calc-step tspan.sub, tspan.sub { font-size: 100%; baseline-shift: -20%; }
+    .calc-step tspan.sub, tspan.sub { font-size: 75%; baseline-shift: -20%; }   /* 下标缩小1/4（2026-10-07 定稿），同步布局工具 SUB_SCALE=0.75 */
     @keyframes stepIn {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -348,7 +348,7 @@
         </g>
 
         <g id="calc-vo1" style="visibility:hidden" pointer-events="none">
-            <text x="530" y="268" fill="#ffe66d" font-size="34" font-weight="bold" text-anchor="middle">V<tspan class="sub">o1</tspan></text>
+            <text x="530" y="268" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">o1</tspan></text>
         </g>
 
         <!-- ====== 底部提示 ====== -->

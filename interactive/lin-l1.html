@@ -141,7 +141,7 @@
 
     /* ===== 计算过程演示 ===== */
     .calc-step text, text.calc-step { font-size: 46px; }
-    .calc-step tspan.sub, tspan.sub { font-size: 100%; baseline-shift: -20%; }
+    .calc-step tspan.sub, tspan.sub { font-size: 75%; baseline-shift: -20%; }   /* 下标缩小1/4（2026-10-07 定稿），同步布局工具 SUB_SCALE=0.75 */
     @keyframes stepIn {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -303,31 +303,31 @@
         <!-- ====== 计算过程演示图层（不拦截鼠标） ====== -->
         <g id="calc-vp" style="visibility:hidden" pointer-events="none">
             <circle cx="440" cy="330" r="9" fill="#ff5252"/>
-            <text x="440" y="288" fill="#ff5252" font-size="52" font-weight="bold" text-anchor="middle">V<tspan class="sub">p</tspan></text>
+            <text x="440" y="288" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">V<tspan class="sub">p</tspan></text>
         </g>
         <g id="calc-ip" style="visibility:hidden" pointer-events="none">
             <line x1="285" y1="244" x2="350" y2="244" stroke="#ff5252" stroke-width="4"/>
             <polygon points="350,236 366,244 350,252" fill="#ff5252"/>
-            <text x="308" y="208" fill="#ff5252" font-size="52" font-weight="bold">I<tspan class="sub">p</tspan></text>
+            <text x="308" y="208" fill="#ff5252" font-size="28" font-weight="bold">I<tspan class="sub">p</tspan></text>
         </g>
         <g id="calc-vn" style="visibility:hidden" pointer-events="none">
             <circle cx="440" cy="470" r="9" fill="#4da3ff"/>
-            <text x="440" y="428" fill="#4da3ff" font-size="52" font-weight="bold" text-anchor="middle">V<tspan class="sub">n</tspan></text>
+            <text x="440" y="428" fill="#4da3ff" font-size="28" font-weight="bold" text-anchor="middle">V<tspan class="sub">n</tspan></text>
         </g>
         <g id="calc-in" style="visibility:hidden" pointer-events="none">
             <line x1="405" y1="535" x2="405" y2="490" stroke="#4da3ff" stroke-width="4"/>
             <polygon points="397,490 405,470 413,490" fill="#4da3ff"/>
-            <text x="424" y="560" fill="#4da3ff" font-size="52" font-weight="bold" text-anchor="start">I<tspan class="sub">n</tspan></text>
+            <text x="424" y="560" fill="#4da3ff" font-size="28" font-weight="bold" text-anchor="start">I<tspan class="sub">n</tspan></text>
         </g>
         <g id="calc-i1" style="visibility:hidden" pointer-events="none">
             <line x1="415" y1="688" x2="415" y2="606" stroke="#ff5252" stroke-width="4"/>
             <polygon points="407,608 415,588 423,608" fill="#ff5252"/>
-            <text x="434" y="655" fill="#ff5252" font-size="52" font-weight="bold">I<tspan class="sub">1</tspan></text>
+            <text x="434" y="655" fill="#ff5252" font-size="28" font-weight="bold">I<tspan class="sub">1</tspan></text>
         </g>
         <g id="calc-i2" style="visibility:hidden" pointer-events="none">
             <line x1="530" y1="545" x2="602" y2="545" stroke="#ff5252" stroke-width="4"/>
             <polygon points="602,537 618,545 602,553" fill="#ff5252"/>
-            <text x="626" y="534" fill="#ff5252" font-size="52" font-weight="bold">I<tspan class="sub">2</tspan></text>
+            <text x="626" y="534" fill="#ff5252" font-size="28" font-weight="bold">I<tspan class="sub">2</tspan></text>
         </g>
 
         <circle id="calc-node-r1" cx="387" cy="580" r="11" fill="#4caf50" style="visibility:hidden" pointer-events="none"/>
@@ -342,13 +342,13 @@
         <g id="calc-ri-arrow" style="visibility:hidden" pointer-events="none">
             <path d="M 185 540 V 430 H 200" fill="none" stroke="#ffff00" stroke-width="4"/>
             <polygon points="198,421 216,430 198,439" fill="#ffff00"/>
-            <text x="170" y="500" fill="#ffff00" font-size="52" font-weight="bold" text-anchor="end">R<tspan class="sub">i</tspan></text>
+            <text x="170" y="500" fill="#ffff00" font-size="28" font-weight="bold" text-anchor="end">R<tspan class="sub">i</tspan></text>
         </g>
         <!-- Ro 演示：框右外侧向上左拐黄色箭头 + Ro 标注（擦除显示动画） -->
         <g id="calc-ro-arrow" style="visibility:hidden" pointer-events="none">
             <path d="M 825 540 V 430 H 810" fill="none" stroke="#ffff00" stroke-width="4"/>
             <polygon points="812,421 794,430 812,439" fill="#ffff00"/>
-            <text x="845" y="500" fill="#ffff00" font-size="52" font-weight="bold" text-anchor="start">R<tspan class="sub">o</tspan></text>
+            <text x="845" y="500" fill="#ffff00" font-size="28" font-weight="bold" text-anchor="start">R<tspan class="sub">o</tspan></text>
         </g>
         <!-- Ri 演示：开路等效红椭圆（圈住原接 +/− 的两线端） -->
         <g id="calc-ri-ellipse" style="visibility:hidden" pointer-events="none">

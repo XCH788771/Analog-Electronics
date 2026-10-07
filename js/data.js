@@ -825,11 +825,11 @@ const CIRCUIT_BRANCHES = {
         }
     ],
     ce_amp: [
-        { id: 'ce-b1', name: '基本共射放大电路', thumb: 'generic', desc: '固定偏置共射放大电路', cases: { game: [], calculation: [], design: [] } },
-        { id: 'ce-b2', name: '分压式偏置共射电路', thumb: 'generic', desc: '稳定静态工作点的偏置方式', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g1.html', ready: true }
+        { id: 'ce-b1', name: '固定式偏压共射放大电路', thumb: 'generic', desc: '仅由基极偏置电阻设定静态工作点', cases: { game: [], calculation: [], design: [] } },
+        { id: 'ce-b2', name: '分压式偏置共射放大电路', thumb: 'generic', desc: '稳定静态工作点的偏置方式', cases: { game: [
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g1.html?v=43', ready: true, thumbImg: 'assets/thumb-cj-g1.png' }
                 ], calculation: [], design: [] } },
-        { id: 'ce-b3', name: '共射-共集组合电路', thumb: 'multi', desc: '提高输入电阻的级联组合', cases: { game: [], calculation: [], design: [] } }
+        { id: 'ce-b3', name: '双电源共射放大电路', thumb: 'multi', desc: '正负双电源供电的共射放大电路', cases: { game: [], calculation: [], design: [] } }
     ],
     cs_amp: [
         { id: 'cs-b1', name: '共源放大电路', thumb: 'generic', desc: 'MOSFET 共源放大电路', cases: { game: [], calculation: [], design: [] } },

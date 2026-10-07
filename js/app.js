@@ -923,7 +923,7 @@ function renderTopicPage() {
                         <span>${regionName}</span>
                         <span class="circuit-region-count">${branches.length} 种电路</span>
                     </div>
-                    <div class="home-core-grid core-grid-2">${branchCards}</div>
+                    <div class="home-game-grid">${branchCards}</div>
                 </div>
 
                 <!-- 案例模块插入位（点击分支电路时出现，位于计算题型与设计题型之间） -->

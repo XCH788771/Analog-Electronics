@@ -5,19 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>分压式偏置共射放大 · 闯关挑战（案例1）- 游戏交互</title>
 <!-- ============================================================
-     cj-g1 游戏闯关 · 共射放大案例1（通用游戏引擎 v1.2.2，电路：分压式偏置共射放大电路）
+     cj-g1 游戏闯关 · 共射放大案例1（统一游戏引擎标准 v1.3，电路：分压式偏置共射放大电路）
      题目：如图所示放大电路，试求（1）静态工作点 IBQ、ICQ、VCEQ；（2）动态性能指标 Av、Ri、Ro
      约定：不给数值、全部用符号表达式；已知 VCC、Rb1（上）/Rb2（下）、Rc、Re、RL、β，
-           VBE=0.7V（估算），rbe 由 Q 点求出（第3关填空中点晶体管 comp-t 作答 rbe）
+           VBE=0.7V（估算），rbe 由 Q 点求出（第 3 关填空中点晶体管 comp-t 作答 rbe）
      电路：VCC—Rb1/Rb2 分压偏置，C1 耦合输入，Rc 集电极、Re 直流负反馈（Ce 旁路），C2 耦合输出带 RL
-     求解链（估算法）：VB = VCC·Rb2/(Rb1+Rb2)；ICQ ≈ IEQ = (VB−VBE)/Re；IBQ = ICQ/β；VCEQ = VCC − ICQ(Rc+Re)
-     动态（Ce 旁路）：Av = −β(Rc∥RL)/rbe；Ri = Rb1∥Rb2∥rbe；第4关 Ro ≈ Rc（RL 断开、Vi 置零）
+     求解链（估算法）：VBQ = VCC·Rb2/(Rb1+Rb2)；ICQ ≈ IEQ = (VBQ−VBE)/Re；IBQ = ICQ/β；VCEQ = VCC − ICQ(Rc+Re)
+     动态（Ce 旁路）：Av = −β(Rc∥RL)/rbe；Ri = Rb1∥Rb2∥rbe；Ro ≈ Rc（RL 断开、Vi 置零）
      入口：ce-b2 分压式偏置共射电路 → cases.game 案例1（总分 100 分）
-     四关：①判类型/方法 16 分（每级8，错不得分）
-           ②选表达式框架 24 分（每级12，n个选项每错一次扣 12/n，答对才进下一关）
-           ③填表达式 48 分（每级24按空均分：静态6空每空4，动态6空每空4）
-     第4关：求输出电阻 Ro（12 分，不分級单题）
-     通用引擎：换新案例只改 GAME_CONFIG 与电路 SVG；本案例新增 stages[].fullExpr 多行表达式链
+     两阶段五关：静态（①绘制直流通路 10  ②Q点计算步骤 16  ③Q点计算·框架+表达式 27）
+                 动态（④绘制交流微变等效 14  ⑤动态指标计算·框架+表达式 33）
+     ①④为菜单制绘制关：悬停元件弹出「短路/断路」「置零/保留」选项，选对得分、选错扣 1 分
+     ④分三小步：交流通路 → 整理电路（R_E 移除原位变短接导线、右侧 C_E 支路与发射极节点移除、
+       R_B1/R_C 翻转下挂到地（RB1 下移即移除其原上端—R_C 上端节点的顶部导线，RC 上方节点亦移除；
+       R_C 下移后集电极只是导线折角，集电极节点圆一并移除）） → 等效晶体管（先移除 BJT；
+       基极输入线升到 y=195 与集电极导线对齐、Vs/Rs/RB1/RB2 上移（eq-layer）；
+       r_be（36×90 与 RB1 同大）自 B 节点直挂地线（E 在地线）；受控电流源（菱形 CCCS βi_b，菱形内横线连左右顶点、
+       中心与 r_be 对齐）支路挂在集电极导线 x=560 处（该点即等效电路的 C 节点）；
+       集电极横导线缩短为 560→670（晶体管 C 端 485 到 560 的一段不再画），R_C 保持整理态下挂位（x=640，与 R_L 并联）不变；
+       五连问 BE=rbe/BC=开路/CE=受控源、B 端加 i_b 箭头（选项 ↑i_b / ↓i_b）、集电极加 βi_b 箭头（选项 ↑βi_b / ↓βi_b、
+       符号与箭头红色；该支路只出现一个 βi_b——受控源菱形内不另标），答错也推进下一问；端点红点置于 fx-layer 最顶层防导线遮挡；
+       五问选项条统一为水平排列（ctxmenu.horiz），固定在电路图上方空白带（SVG cy≈306），不遮挡电路，顺序每问随机）
+     ③⑤为框架+表达式交错关（mix）：按指标顺序每个量先选框架、再填表达式（③ V_BQ→I_CQ≈I_EQ→I_BQ→V_CEQ；
+       ⑤ A_v→R_i→R_o，含框架与表达式）；③ 第 2 关标注的电量在此关保留可见（I_CQ 与 I_EQ 合并为「I_CQ≈I_EQ」挂集电极支路），
+       其中 I_BQ、V_CEQ 表达式的 I_CQ 空由点击该合并标注作答；
+       交流关（④）起电量标注隐藏
+     语音引导：正确作答的标准语音「回答正确，得X分。」之后按进度追加提示语——
+       电源（Vs/+Vcc）处理完 →「请选择电容处理方式。」；④ 三只电容处理完 →「请选择阿尔义、阿尔B1和阿尔C的整理方式。」；
+       ④ 三个电阻（R_E/R_B1/R_C）处理完 →「请等效BJT。」（下移 R_B1/R_C 成功播「回答正确。」+ 同规则提示）
+     分式排版：分子基线与分母基线实测墨迹对齐，使分子/分母到分数线的间距相等
+     通用引擎：换新案例只改 GAME_CONFIG 与电路 SVG；kind='mix' 支持 fw/fill 子步交错
      ============================================================ -->
 <style>
 /* ===== 内嵌 Times 子集字体（基础拉丁+数字），无需系统安装，任何环境生效 ===== */
@@ -46,6 +63,8 @@
     /* ===== 可交互单元通用样式（元件 / 导线） ===== */
     .interactive { cursor: pointer; }
     .interactive:hover .hot { stroke: #ffe66d; filter: drop-shadow(0 0 6px rgba(255, 230, 109, 0.9)); }
+    /* 纯命中区矩形（stroke="none"）任何状态都不描边：避免关卡高亮/悬停时 BJT 等元件浮出方框 */
+    rect.hot[stroke="none"] { stroke: none !important; }
     .interactive:hover .hot-fill { fill: rgba(255, 230, 109, 0.15); }
     .interactive:hover .hot-label { fill: #ffe66d; }
     /* fill=none 的矩形元件（电阻框等）内部也响应鼠标：默认 visiblePainted 只认边框，框中间是悬停/点击死区 */
@@ -106,6 +125,38 @@
         pointer-events: none;
     }
 
+    /* ===== 元件悬停选择菜单（短路/断路、置零/保留 等） ===== */
+    .ctxmenu {
+        position: absolute;
+        display: none;
+        flex-direction: column;
+        gap: 7px;
+        z-index: 30;
+        pointer-events: auto;
+    }
+    .ctxmenu .mi {
+        background: rgba(20, 26, 56, 0.97);
+        border: 2.5px solid #8b5cf6;
+        color: #ffffff;
+        border-radius: 9px;
+        padding: 9px 20px;
+        font-size: 17px;
+        font-weight: bold;
+        line-height: 1;
+        text-align: center;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+        transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .ctxmenu .mi:hover { background: #8b5cf6; border-color: #c4b5fd; }
+    .ctxmenu .mi.ok { border-color: #34d399; color: #a7f3d0; }
+    .ctxmenu .mi.ok:hover { background: #34d399; color: #06261a; }
+    .ctxmenu .mi-sub { font-size: 15px; opacity: 0.85; }
+    /* 水平排列变体：晶体管等效问答选项条（固定在电路图上方空白处，不遮挡电路） */
+    .ctxmenu.horiz { flex-direction: row; gap: 16px; }
+    .ctxmenu.horiz .mi { padding: 11px 24px; font-size: 18px; }
+
     /* ===== 通用闪烁动画（规范：3次、单次0.22s，闪烁后保持该色） ===== */
     @keyframes colorBlink {
         0%, 100% { stroke: var(--blink-color, #ffe66d); }
@@ -113,6 +164,19 @@
     }
     g.color-blink .hot { stroke: var(--blink-color, #ffe66d); animation: colorBlink 0.22s ease 3; }
     g.color-blink text { fill: var(--blink-color, #ffe66d); }
+
+    /* ===== Q点电量标注（qlabel-layer）：任何状态保持红色 ===== */
+    /* 悬停不换色，仅加红色光晕反馈 */
+    #qlabel-layer .interactive:hover .hot { stroke: #ff5252; filter: drop-shadow(0 0 6px rgba(255, 82, 82, 0.9)); }
+    #qlabel-layer .interactive:hover .hot-label { fill: #ff5252; }
+    #qlabel-layer .interactive:hover .hot-fill { fill: #ff5252; }
+    /* 作答反馈：只做透明度闪烁，颜色不变（3 次 × 0.22s） */
+    @keyframes redBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+    g.red-blink { animation: redBlink 0.22s ease 3; }
+
+    /* ===== 晶体管等效五连问：B/C/E 端点红点（持续闪烁） ===== */
+    @keyframes qdotBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
+    .qdot { animation: qdotBlink 0.55s ease-in-out infinite; }
 
     /* ===== Ri/Ro 演示通用隐藏类（放大器类电路通用） ===== */
     /* 运放开路等效时整体隐藏（含 A 字） */
@@ -124,7 +188,7 @@
 
     /* ===== 计算过程演示 ===== */
     .calc-step text, text.calc-step { font-size: 46px; }
-    .calc-step tspan.sub, tspan.sub { font-size: 100%; baseline-shift: -20%; }
+    .calc-step tspan.sub, tspan.sub { font-size: 75%; baseline-shift: -20%; }   /* 下标缩小1/4（2026-10-07 定稿），同步布局工具 SUB_SCALE=0.75 */
     @keyframes stepIn {
         from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -175,9 +239,9 @@
 
     <svg class="circuit" viewBox="0 0 1600 900" font-family="TNR-Embed, Times New Roman, SimHei, sans-serif" xmlns="http://www.w3.org/2000/svg">
         <!-- ====== 标题（左上）+ 题目 ====== -->
-        <text x="70" y="90" fill="#ffd93d" font-size="43" font-weight="bold">共射放大电路 · 闯关挑战</text>
-        <text x="70" y="182" fill="rgba(255,255,255,0.85)" font-size="36">案例1：分压式偏置共射 · 求静态工作点与动态指标</text>
-        <text x="70" y="230" fill="rgba(255,255,255,0.6)" font-size="26">已知：V<tspan class="sub">CC</tspan>、R<tspan class="sub">B1</tspan>、R<tspan class="sub">B2</tspan>、R<tspan class="sub">C</tspan>、R<tspan class="sub">E</tspan>、R<tspan class="sub">S</tspan>、R<tspan class="sub">L</tspan>、β，V<tspan class="sub">BE</tspan>=0.7V</text>
+        <text x="70" y="90" fill="none" font-size="43" font-weight="bold"><tspan fill="#ff00ff">◆闯关挑战◆</tspan><tspan fill="#ffd93d"> 共射放大电路 · 案例1</tspan></text>
+        <text x="70" y="172" fill="rgba(255,255,255,0.85)" font-size="36">案例1：分压式偏置共射 · 求静态工作点与动态指标</text>
+        <text x="70" y="210" fill="rgba(255,255,255,0.6)" font-size="26">已知：V<tspan class="sub">CC</tspan>、R<tspan class="sub">B1</tspan>、R<tspan class="sub">B2</tspan>、R<tspan class="sub">C</tspan>、R<tspan class="sub">E</tspan>、R<tspan class="sub">S</tspan>、R<tspan class="sub">L</tspan>、β，V<tspan class="sub">BE</tspan>=0.7V</text>
         <!-- 校徽（白色横版，水平居中）+ 全宽分隔线（标题下方） -->
         <image x="945" y="36" width="462" height="70" pointer-events="none" href="data:image/png;base64,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"/>
         <line x1="0" y1="113" x2="1600" y2="113" stroke="rgba(255,255,255,0.4)" stroke-width="6" pointer-events="none"/>
@@ -187,16 +251,20 @@
         <g id="circuit-wrap" transform="translate(18, 260) scale(1)">
         <!-- 电源端 +VCC（右上端子，标注在其下方） -->
         <g class="interactive" data-id="comp-vcc" data-name="直流电源端 +VCC（交流分析中置零接地）">
-            <circle class="hot" cx="885" cy="15" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
-            <text class="hot-label" x="885" y="64" fill="#ffe66d" font-size="34" font-weight="bold" text-anchor="middle">＋V<tspan class="sub">CC</tspan></text>
+            <circle class="hot" cx="805" cy="15" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label vcc-label" x="805" y="64" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋V<tspan class="sub">CC</tspan></text>
         </g>
         <!-- 顶部电源导轨（R_B1 上端 — R_C 上端 — +VCC 端子） -->
         <g class="interactive" data-id="wire-vcc-rail" data-name="电源导线（R_B1上端—R_C上端）">
-            <path class="hot" d="M 320 15 H 490" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 320 15 H 485" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-vcc-ext" data-name="电源导线（R_C上端—+VCC端子）">
-            <path class="hot" d="M 490 15 H 885" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <circle cx="490" cy="15" r="7" fill="#ffffff" pointer-events="none"/>
+            <!-- 止于 +VCC 端子圆圈外缘（796），不再伸进端子圆圈内 -->
+            <path class="hot" d="M 485 15 H 796" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <!-- R_C 上端节点（顶轨与 +VCC 导线的交汇点）：RB1 或 R_C 下移后该点已非节点，随之下移移除 -->
+        <g id="node-rc-top" data-id="node-rc-top" data-name="R_C 上端节点（电源轨交汇点）">
+            <circle cx="485" cy="15" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
 
         <!-- 上偏置电阻 R_B1（电源轨→基极节点，上下引线各 80） -->
@@ -210,9 +278,9 @@
         <g class="interactive" data-id="wire-rb1b" data-name="R_B1 下端接线（→基极节点）">
             <path class="hot" d="M 320 185 V 265" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
-        <!-- 基极节点导线：C1 段（242–320，随 C1 移除淡出）+ 主干段（320–420） -->
+        <!-- 基极节点导线：C1 段（220–320，随 C1 移除淡出）+ 主干段（320–420） -->
         <g class="interactive" data-id="wire-base-in" data-name="基极节点导线·C1 段（C1 右板→分压节点）">
-            <path class="hot" d="M 242 265 H 320" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 220 265 H 320" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-base" data-name="基极节点导线（分压节点→基极；R_B1/R_B2 在此分接）">
             <path class="hot" d="M 320 265 H 420" fill="none" stroke="#ffffff" stroke-width="3.5"/>
@@ -224,7 +292,7 @@
         </g>
         <g class="interactive" data-id="comp-rb2" data-name="下偏置电阻 R_B2">
             <rect class="hot" x="302" y="350" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="290" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B2</tspan></text>
+            <text class="hot-label rb2-label" x="290" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B2</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rb2b" data-name="R_B2 下端接线（→公共地线）">
             <path class="hot" d="M 320 440 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
@@ -240,13 +308,13 @@
             <circle cx="485" cy="525" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <g class="interactive" data-id="wire-gnd-m2" data-name="公共地线·延伸段（R_E 接地点—C_E 下端）">
-            <path class="hot" d="M 485 525 H 590" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 485 525 H 635" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-gnd-r" data-name="公共地线·输出段（C_E—R_L 下端）">
-            <path class="hot" d="M 590 525 H 800" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 635 525 H 800" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g id="node-ce" data-id="node-ce" data-name="C_E 接地点节点">
-            <circle cx="590" cy="525" r="7" fill="#ffffff" pointer-events="none"/>
+            <circle cx="635" cy="525" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <!-- 接地符号（正对 R_E 下方，唯一参考点；符号整体下移 10px） -->
         <g class="interactive" data-id="comp-gnd" data-name="接地（电位参考点）">
@@ -256,34 +324,35 @@
             <line class="hot" x1="475" y1="559" x2="495" y2="559" stroke="#ffffff" stroke-width="2.5"/>
         </g>
 
-        <!-- 晶体管 T（NPN）：基极条 + 集电极斜线 + 发射极斜线（带箭头），B/C/E 电极标注 -->
+        <!-- 晶体管 T（NPN）：基极条 + 集电极斜线 + 发射极斜线（带箭头），B/C/E 电极标注
+             集电极斜线与发射极斜线对称（均自 x=420 到 x=485），C 节点与 R_C、R_E 同列 x=485 -->
         <g class="interactive" data-id="comp-t" data-name="晶体管 T（NPN，微变等效中换成 rbe 与受控源）">
-            <rect class="hot" x="394" y="229" width="106" height="112" fill="none" stroke="none"/>
+            <rect class="hot" x="394" y="229" width="156" height="112" fill="none" stroke="none"/>
             <line class="hot" x1="420" y1="235" x2="420" y2="295" stroke="#ffffff" stroke-width="5"/>
-            <path class="hot" d="M 420 248 L 490 195" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 420 248 L 485 195" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <path class="hot" d="M 420 282 L 485 345" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <polygon class="hot-fill" points="476,335 460,328 470,319" fill="#ffffff" stroke="none"/>
-            <text class="hot-label" x="402" y="314" fill="#ffe66d" font-size="30" font-weight="bold" text-anchor="middle">B</text>
-            <text class="hot-label" x="524" y="237" fill="#ffe66d" font-size="30" font-weight="bold" text-anchor="middle">C</text>
-            <text class="hot-label" x="512" y="337" fill="#ffe66d" font-size="30" font-weight="bold" text-anchor="middle">E</text>
+            <text class="hot-label" x="402" y="314" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">B</text>
+            <text class="hot-label" x="519" y="237" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">C</text>
+            <text class="hot-label" x="512" y="337" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">E</text>
         </g>
 
         <!-- 集电极支路（T 集电极节点 → R_C 上接电源轨、C_2 右接输出） -->
         <g class="interactive" data-id="wire-collector" data-name="集电极导线（T 集电极节点—C_2 左板）">
-            <path class="hot" d="M 490 195 H 670" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 485 195 H 670" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-rc-a" data-name="R_C 下端接线（集电极节点→R_C）">
-            <path class="hot" d="M 490 145 V 195" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 485 145 V 195" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g id="node-collector" data-id="node-collector" data-name="集电极节点">
-            <circle cx="490" cy="195" r="7" fill="#ffffff" pointer-events="none"/>
+            <circle cx="485" cy="195" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <g class="interactive" data-id="comp-rc" data-name="集电极电阻 R_C">
-            <rect class="hot" x="472" y="65" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="460" y="113" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">C</tspan></text>
+            <rect class="hot" x="467" y="65" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="455" y="113" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">C</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rc-top" data-name="R_C 上端接线（→电源轨）">
-            <path class="hot" d="M 490 65 V 15" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 485 65 V 15" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 发射极支路（T 发射极 → R_E 接地，C_E 并联在右侧） -->
@@ -304,20 +373,20 @@
             <path class="hot" d="M 485 475 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-ce-a" data-name="C_E 上端接线（发射极节点—C_E）">
-            <path class="hot" d="M 485 345 H 590 V 427" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 485 345 H 635 V 427" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-ce" data-name="发射极旁路电容 C_E">
-            <line class="hot" x1="568" y1="427" x2="612" y2="427" stroke="#ffffff" stroke-width="3.5"/>
-            <line class="hot" x1="568" y1="443" x2="612" y2="443" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="626" y="442" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">C<tspan class="sub">E</tspan></text>
+            <line class="hot" x1="613" y1="427" x2="657" y2="427" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="613" y1="443" x2="657" y2="443" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="671" y="442" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">C<tspan class="sub">E</tspan></text>
         </g>
         <g class="interactive" data-id="wire-ce-b" data-name="C_E 下端接线（→公共地线）">
-            <path class="hot" d="M 590 443 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 635 443 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 输入回路：信号源 V_s（+R_S 内阻）→ 输入端口 V_i → C_1 耦合 → 基极 -->
         <g class="interactive" data-id="wire-vi-top" data-name="输入导线（信号源—端口—C_1）">
-            <path class="hot" d="M 90 265 H 228" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 90 265 H 206" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-rs-top" data-name="R_S 上端接线（→输入导线）">
             <path class="hot" d="M 90 265 V 312" fill="none" stroke="#ffffff" stroke-width="3.5"/>
@@ -332,9 +401,9 @@
         <g class="interactive" data-id="comp-src" data-name="信号源 V_s（与 R_S 构成实际信号源）">
             <circle class="hot" cx="90" cy="462" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
             <path class="hot" d="M 76 462 Q 83 452 90 462 T 104 462" fill="none" stroke="#ffffff" stroke-width="2.5"/>
-            <text class="hot-label" x="46" y="439" fill="#ffe66d" font-size="24" font-weight="bold" text-anchor="middle">＋</text>
-            <text class="hot-label" x="46" y="472" fill="#ffe66d" font-size="26" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
-            <text class="hot-label" x="46" y="505" fill="#ffe66d" font-size="24" font-weight="bold" text-anchor="middle">－</text>
+            <text class="hot-label" x="40" y="422" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="40" y="460" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
+            <text class="hot-label" x="40" y="498" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
         </g>
         <g class="interactive" data-id="wire-vi-gnd" data-name="信号源接地接线（负端→公共地线）">
             <path class="hot" d="M 90 484 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
@@ -344,16 +413,16 @@
             <circle class="hot" cx="150" cy="265" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
             <circle class="hot" cx="150" cy="525" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
             <g class="vi-labels">
-                <text class="hot-label" x="150" y="330" fill="#ffe66d" font-size="30" font-weight="bold" text-anchor="middle">＋</text>
-                <text class="hot-label" x="150" y="400" fill="#ffe66d" font-size="34" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
-                <text class="hot-label" x="150" y="475" fill="#ffe66d" font-size="30" font-weight="bold" text-anchor="middle">－</text>
+                <text class="hot-label" x="150" y="330" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+                <text class="hot-label" x="150" y="400" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
+                <text class="hot-label" x="150" y="475" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
             </g>
         </g>
-        <!-- 输入耦合电容 C_1（位于端口—基极导线中段） -->
+        <!-- 输入耦合电容 C_1（位于端口—基极导线中段；整体左移 22，给节点下方的 V_BQ 标注腾净距） -->
         <g class="interactive" data-id="comp-c1" data-name="输入耦合电容 C_1（隔直通交）">
-            <line class="hot" x1="228" y1="243" x2="228" y2="287" stroke="#ffffff" stroke-width="3.5"/>
-            <line class="hot" x1="242" y1="243" x2="242" y2="287" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="235" y="227" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">C<tspan class="sub">1</tspan></text>
+            <line class="hot" x1="206" y1="243" x2="206" y2="287" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="220" y1="243" x2="220" y2="287" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="213" y="227" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">C<tspan class="sub">1</tspan></text>
         </g>
 
         <!-- 输出回路：C_2 耦合 → R_L（接地）∥ 输出电压 V_o -->
@@ -377,61 +446,216 @@
         </g>
         <g class="interactive" data-id="comp-vo" data-name="输出电压 V_o（取自 R_L 两端，与输入反相）">
             <rect class="hot" x="836" y="325" width="44" height="70" fill="none" stroke="none"/>
-            <text class="hot-label" x="858" y="299" fill="#ffe66d" font-size="32" font-weight="bold" text-anchor="middle">＋</text>
-            <text class="hot-label" x="858" y="370" fill="#ffe66d" font-size="34" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
-            <text class="hot-label" x="858" y="441" fill="#ffe66d" font-size="32" font-weight="bold" text-anchor="middle">－</text>
-        </g>
-
-        <!-- 参考图电流箭头（装饰层：i_1 / i_2 / i_B，红色，不参与交互） -->
-        <g id="decor-arrows" pointer-events="none">
-            <line x1="354" y1="108" x2="354" y2="152" stroke="#ff6b6b" stroke-width="3.5"/>
-            <polygon points="354,164 347,151 361,151" fill="#ff6b6b" stroke="none"/>
-            <text x="374" y="150" fill="#ff6b6b" font-size="30" font-weight="bold" font-style="italic" text-anchor="start">i<tspan class="sub">1</tspan></text>
-            <line x1="354" y1="360" x2="354" y2="422" stroke="#ff6b6b" stroke-width="3.5"/>
-            <polygon points="354,434 347,421 361,421" fill="#ff6b6b" stroke="none"/>
-            <text x="374" y="402" fill="#ff6b6b" font-size="30" font-weight="bold" font-style="italic" text-anchor="start">i<tspan class="sub">2</tspan></text>
-            <line x1="360" y1="248" x2="394" y2="248" stroke="#ff6b6b" stroke-width="3.5"/>
-            <polygon points="404,248 391,241 391,255" fill="#ff6b6b" stroke="none"/>
-            <text x="393" y="226" fill="#ff6b6b" font-size="30" font-weight="bold" font-style="italic" text-anchor="middle">i<tspan class="sub">B</tspan></text>
+            <text class="hot-label" x="858" y="299" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="858" y="370" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <text class="hot-label" x="858" y="441" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
         </g>
 
         <!-- ====== 关卡特效层（绘制关的变换动画；默认隐藏，引擎控制显隐） ====== -->
         <g id="fx-layer" pointer-events="none">
             <!-- 电容短路桥（交流通路） -->
             <g id="fx-c1" opacity="0">
-                <line x1="228" y1="265" x2="242" y2="265" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+                <line x1="206" y1="265" x2="220" y2="265" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
             </g>
             <g id="fx-c2" opacity="0">
-                <line x1="670" y1="195" x2="684" y2="195" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+                <!-- 平头端帽：桥体恰为 670-684（替代 C_2 两板；整理态 R_C 下挂节点在 x=640，与桥分立） -->
+                <line x1="670" y1="195" x2="684" y2="195" stroke="#34d399" stroke-width="7"/>
             </g>
             <g id="fx-ce" opacity="0">
-                <line x1="590" y1="427" x2="590" y2="443" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+                <line x1="635" y1="427" x2="635" y2="443" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
             </g>
             <!-- 输入端口短接桥（直流通路：V_i 的＋、－短接，信号源置零） -->
             <g id="fx-vi" opacity="0">
                 <line x1="150" y1="265" x2="150" y2="525" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
             </g>
-            <!-- V_CC 置零接地（端子旁画接地符号） -->
+            <!-- V_CC 置零接地（端子旁画接地符号；按用户要求放大一倍并下移 10px） -->
             <g id="fx-vcc" opacity="0">
-                <line x1="885" y1="23" x2="885" y2="31" stroke="#34d399" stroke-width="3.5"/>
-                <line x1="871" y1="31" x2="899" y2="31" stroke="#34d399" stroke-width="3.5"/>
-                <line x1="878" y1="37" x2="892" y2="37" stroke="#34d399" stroke-width="3"/>
-                <line x1="883" y1="43" x2="887" y2="43" stroke="#34d399" stroke-width="2.5"/>
+                <line x1="805" y1="33" x2="805" y2="49" stroke="#34d399" stroke-width="5"/>
+                <line x1="777" y1="49" x2="833" y2="49" stroke="#34d399" stroke-width="5"/>
+                <line x1="791" y1="61" x2="819" y2="61" stroke="#34d399" stroke-width="4.5"/>
+                <line x1="799" y1="73" x2="811" y2="73" stroke="#34d399" stroke-width="4"/>
             </g>
-            <!-- 晶体管微变等效模型（r_be + 受控源 βi_b；可见后可点击，等效 comp-t 作答） -->
-            <g id="fx-tmodel" opacity="0">
-                <line x1="420" y1="265" x2="420" y2="281" stroke="#ffffff" stroke-width="3.5"/>
-                <rect x="402" y="281" width="36" height="44" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <line x1="420" y1="325" x2="420" y2="345" stroke="#ffffff" stroke-width="3.5"/>
-                <line x1="420" y1="345" x2="487" y2="345" stroke="#ffffff" stroke-width="3.5"/>
-                <line x1="490" y1="195" x2="490" y2="246" stroke="#ffffff" stroke-width="3.5"/>
-                <circle cx="490" cy="270" r="24" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
-                <line x1="490" y1="283" x2="490" y2="263" stroke="#ffffff" stroke-width="3"/>
-                <polygon points="490,255 483,267 497,267" fill="#ffffff" stroke="none"/>
-                <line x1="490" y1="294" x2="490" y2="345" stroke="#ffffff" stroke-width="3.5"/>
-                <line x1="485" y1="345" x2="490" y2="345" stroke="#ffffff" stroke-width="3.5"/>
-                <text x="527" y="279" fill="#ffe66d" font-size="30" font-weight="bold" font-style="italic">βi<tspan class="sub">b</tspan></text>
-                <text x="384" y="313" fill="#ffe66d" font-size="30" font-weight="bold" font-style="italic" text-anchor="end">r<tspan class="sub">be</tspan></text>
+            <!-- 信号源置零短接桥（Vs 替换成短路线） -->
+            <g id="fx-vs" opacity="0">
+                <line x1="90" y1="440" x2="90" y2="484" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <!-- ====== Q点电量标注层（第 2 关显示、第 3 关保留：V_BQ / I_BQ / I_CQ≈I_EQ / V_CEQ，点击作答） ====== -->
+            <g id="qlabel-layer" opacity="0" pointer-events="none">
+                <!-- V_BQ：基极节点电位（节点正下方，横导线之下、R_B2 支路之左；与 C₁ 板、竖导线均留净距） -->
+                <g class="interactive" data-id="q-vbq" data-name="基极电位 V_BQ">
+                    <rect class="hot" x="234" y="259" width="72" height="46" fill="none" stroke="none"/>
+                    <text class="hot-label" x="270" y="287" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">BQ</tspan></text>
+                </g>
+                <!-- I_BQ：基极电流（基极导线上方，红色箭头指向 B） -->
+                <g class="interactive" data-id="q-ibq" data-name="基极电流 I_BQ">
+                    <rect class="hot" x="322" y="200" width="72" height="60" fill="none" stroke="none"/>
+                    <line class="hot" x1="330" y1="246" x2="372" y2="246" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="386,246 370,238 370,254" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label" x="360" y="228" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">I<tspan class="sub">BQ</tspan></text>
+                </g>
+                <!-- I_CQ ≈ I_EQ：集电极电流（红色箭头沿集电极支路向下；I_CQ 与 I_EQ 近似相等，
+                     合并为一个标注挂在集电极支路右侧——R_C 体右缘 503 与 C_2 极板 670 之间有整行空间） -->
+                <g class="interactive" data-id="q-ieq" data-name="集电极电流 I_CQ（≈ 发射极电流 I_EQ）">
+                    <rect class="hot" x="508" y="124" width="150" height="74" fill="none" stroke="none"/>
+                    <line class="hot" x1="520" y1="128" x2="520" y2="164" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="520,176 511,163 529,163" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label" x="529" y="162" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">I<tspan class="sub">CQ</tspan>≈I<tspan class="sub">EQ</tspan></text>
+                </g>
+                <!-- V_CEQ：管压降（C—E 之间，仅 ＋/− 极性标注；位于集电极斜线右侧空白区） -->
+                <g class="interactive" data-id="q-vceq" data-name="管压降 V_CEQ">
+                    <rect class="hot" x="530" y="200" width="140" height="136" fill="none" stroke="none"/>
+                    <text class="hot-label" x="580" y="232" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
+                    <text class="hot-label" x="580" y="276" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">CEQ</tspan></text>
+                    <text class="hot-label" x="580" y="322" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
+                </g>
+                <!-- V_BE：发射结电压（晶体管 B—E 之间、基极导线下方口袋位；第 3 关填空点它作答，与 B 端点标签净隙 15） -->
+                <g class="interactive" data-id="q-vbe" data-name="发射结电压 V_BE">
+                    <rect class="hot" x="348" y="331" width="76" height="30" fill="none" stroke="none"/>
+                    <text class="hot-label" x="386" y="356" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">BE</tspan></text>
+                </g>
+                <!-- β：晶体管电流放大系数（基极竖杆右侧、集电极线与发射极线之间的空白三角区；第 3 关填空点它作答） -->
+                <g class="interactive" data-id="q-beta" data-name="晶体管电流放大系数 β">
+                    <rect class="hot" x="436" y="244" width="52" height="62" fill="none" stroke="none"/>
+                    <text class="hot-label" x="462" y="278" fill="#ff5252" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">β</text>
+                </g>
+            </g>
+            <!-- R_E 移除：原位换成短接导线（发射极经它接地）；同时右侧 C_E 支路与发射极节点一并移除 -->
+            <g id="fx-re" opacity="0">
+                <line x1="485" y1="395" x2="485" y2="475" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <!-- 晶体管微变等效模型（r_be + 受控电流源（CCCS，菱形）+ 电流 i_b / βi_b 及箭头）；逐问显示，完成后可点击（r_be 填空作答）。
+                 等效布局：B/C 节点线同高 y=195（B=420；C 节点=受控源挂点 x=560，集电极导线 560→670），
+                 R_C 保持整理态下挂位 x=640（与 R_L 并联）；
+                 r_be 自 B 节点直挂地线，受控源支路挂在集电极导线 x=560 处（与 C 节点同电位），
+                 i_b 箭头在 B 端支路、βi_b 箭头（即受控源电流 i_c）在受控源支路，均由「方向选择」问（↑/↓ 二选一）逐问添加 -->
+            <g id="fx-tmodel" class="interactive" data-id="comp-t-model" opacity="0" pointer-events="none">
+                <g id="fx-t-rbe" opacity="0">
+                    <line x1="420" y1="195" x2="420" y2="315" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect x="402" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <line x1="420" y1="405" x2="420" y2="525" stroke="#ffffff" stroke-width="3.5"/>
+                    <!-- 标签放电阻体右侧（x=446 = 体右缘 438+8，基线 368 与 R_B/R_C 标签同排）——
+                         左侧原位 (392) 会压 R_B2 标签的新位置（346-393），且用户指定放右侧 -->
+                    <text x="446" y="368" fill="#ffe66d" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">r<tspan class="sub">be</tspan></text>
+                </g>
+                <g id="fx-t-src" opacity="0">
+                    <!-- 受控源支路挂点：集电极导线（C 节点右侧同电位点）x=560；此处只是导线折角，不画节点圆 -->
+                    <line x1="560" y1="195" x2="560" y2="328" stroke="#ffffff" stroke-width="3.5"/>
+                    <!-- 流控电流源（CCCS）：菱形符号，菱形内以横线连接左右顶点（βi_b 自集电极流向发射极/地）；
+                         菱形中心 y=360 与 r_be 电阻体（y315–405）垂直居中对齐 -->
+                    <path d="M 560 328 L 590 360 L 560 392 L 530 360 Z" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+                    <line x1="530" y1="360" x2="590" y2="360" stroke="#ffffff" stroke-width="3"/>
+                    <line x1="560" y1="392" x2="560" y2="525" stroke="#ffffff" stroke-width="3.5"/>
+                    <!-- 菱形自身不再另标 βi_b：该支路电流的符号由第 5 问的电流箭头标签承载（同一支路只出现一个 βi_b） -->
+                </g>
+                <!-- i_b：基极支路电流（自基极节点向下流经 r_be 到地）——箭头方向问作答后画出；符号与箭头同红色 -->
+                <g id="fx-t-ib" opacity="0">
+                    <line x1="420" y1="222" x2="420" y2="256" stroke="#ff5252" stroke-width="5"/>
+                    <polygon points="420,270 412,255 428,255" fill="#ff5252" stroke="none"/>
+                    <text x="438" y="254" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic">i<tspan class="sub">b</tspan></text>
+                </g>
+                <!-- i_c（= βi_b）：受控源支路电流（自集电极节点向下流经受控源到地）——箭头方向问作答后画出；
+                     标签放箭头左侧（右侧是问答菜单弹出区）；符号与箭头同红色。
+                     本标签即该支路唯一的 βi_b 标注（受控源菱形内不再另标） -->
+                <g id="fx-t-ic" opacity="0">
+                    <line x1="560" y1="222" x2="560" y2="256" stroke="#ff5252" stroke-width="5"/>
+                    <polygon points="560,270 552,255 568,255" fill="#ff5252" stroke="none"/>
+                    <text x="542" y="254" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="end">βi<tspan class="sub">b</tspan></text>
+                </g>
+            </g>
+
+            <!-- ====== 整理电路层（交流等效专用态：R_B1、R_C 上端的地下移并入地轨，电阻翻转下挂）
+                 与默认态互斥，故放在 fx-layer 内不参与布局静态检查，以截图目检把关 ====== -->
+            <g id="rearr-layer">
+            <!-- R_B1：从基极节点下挂到地轨（x=220，居于 V_i 端口与 R_B2 之间偏左）；电阻体 y 350-440 与 R_B2 对齐。
+                 标签 37px（元件标注两级标准）——两体间隙仅 64px 放不下（37px 墨迹约 59px），故放**体上方空白带**
+                 (246,330)：墨迹 246-305 × 304-330，在 R_B2 体（302-338 × 350-440）上左方，y 不相交 -->
+            <g id="rarr-rb1" class="interactive" data-id="comp-rb1" opacity="0" pointer-events="none">
+                <path d="M 220 265 V 350" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect x="202" y="350" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 220 440 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="220" cy="265" r="7" fill="#ffffff"/>
+                <text x="246" y="330" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">B1</tspan></text>
+            </g>
+            <!-- 整理态的 R_B2 标签（原标签让位给下挂的 R_B1）：体右侧、与 R_B1 同为 37px 两级标准 -->
+            <g id="rarr-rb2lab" opacity="0" pointer-events="none">
+                <text x="346" y="403" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">B2</tspan></text>
+            </g>
+            <!-- R_C：从集电极导线（y=195）下挂到地轨（x=640，C_2 短接桥 670-684 左侧、与 R_L 并联）；
+                 电阻体 y 315-405 与 R_L 对齐。整理态与等效态**共用此件**（等效后位置不变，不作切换）。
+                 标签放**电阻体右侧**（x=666 起、y=368 = R_L 标签基线，同高一排；37px 两级标准 +
+                 75% 下标后墨迹约 47px，与 R_L@37 标签实测间隙 ≥13px 可共存） -->
+            <g id="rarr-rc" class="interactive" data-id="comp-rc" opacity="0" pointer-events="none">
+                <path d="M 640 195 V 315" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect x="622" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 640 405 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="640" cy="195" r="8" fill="#ffffff"/>
+                <text x="666" y="368" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">C</tspan></text>
+            </g>
+            </g>
+
+            <!-- ===== 交流等效最终态层（第4关第3步「等效晶体管」时启用，与默认/整理态互斥） =====
+                 基极输入线上升到 y=195 与集电极导线对齐；V_s / R_s / R_B1 / R_B2 随之上移（上下间距匀称：
+                 R_s 引线 69/69/68，R_B 上下引线 120/120 对称）；R_C 保持整理态下挂位（x=640，体右缘 658 与 C_2 桥 670 留 12）、
+                 r_be 自 B 节点直挂地线、受控源支路挂集电极导线 x=560 处 -->
+            <g id="eq-layer" opacity="0" pointer-events="none">
+                <!-- 基极输入主线（与集电极导线同高） -->
+                <path d="M 90 195 H 420" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- 集电极横导线（缩短版）：左端即交流等效的 C 节点 x=560（受控源支路挂点、C 端红点），
+                     向右到 C_2 短接桥（670）；晶体管 C 端（485）到 560 的一段在等效后不再需要，故不画 -->
+                <path d="M 560 195 H 670" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- C1 短接桥（随线上移） -->
+                <line x1="206" y1="195" x2="220" y2="195" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+                <!-- 输入端口 Vi（上端子随线上移，下端子仍接地线） -->
+                <circle cx="150" cy="195" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+                <circle cx="150" cy="525" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+                <text x="150" y="290" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+                <text x="150" y="360" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
+                <text x="150" y="430" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+                <!-- R_s + V_s 列（上移：引线 69/69/68 上下匀称） -->
+                <path d="M 90 195 V 264" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect x="72" y="264" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <text x="58" y="312" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
+                <path d="M 90 344 V 413" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="90" cy="435" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 76 435 Q 83 425 90 435 T 104 435" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+                <text x="40" y="408" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+                <text x="40" y="446" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
+                <text x="40" y="484" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+                <path d="M 90 457 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- R_B1（上移：体 315-405，上下引线 120/120 对称；x=220 居于 V_i 与 R_B2 之间偏左） -->
+                <g id="eq-rb1" class="interactive" data-id="comp-rb1">
+                    <path d="M 220 195 V 315" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect x="202" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <path d="M 220 405 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <circle cx="220" cy="195" r="7" fill="#ffffff"/>
+                    <circle cx="220" cy="525" r="7" fill="#ffffff"/>
+                    <text x="246" y="305" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">B1</tspan></text>
+                </g>
+                <!-- R_B2（上移：体 315-405）；标签 37px 两级标准——两体间隙 64px 与体右侧（r_be 体 402 起）均放不下，
+                     故与 R_B1 同排放**体上方空白带**（y=305 基线：墨迹底 305 距体顶 315 净距 10） -->
+                <g id="eq-rb2" class="interactive" data-id="comp-rb2">
+                    <path d="M 320 195 V 315" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect x="302" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <path d="M 320 405 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <circle cx="320" cy="195" r="7" fill="#ffffff"/>
+                    <text x="346" y="305" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">B2</tspan></text>
+                </g>
+                <!-- 地线不另画落点白点：E 端红点 (420,525) 直接连在地线上，白点会盖住闪烁红点 -->
+            </g>
+
+            <!-- 等效态 R_C：直接沿用整理态下挂件 rarr-rc（x=640，与 R_L 并联），位置不变、无需另绘 -->
+
+            <!-- 晶体管等效五连问的端点红点（B/C/E，持续闪烁；引擎按问显隐）。
+                 放在 fx-layer 最末：保证红点画在 eq-layer 导线（y=195 基极线等）之上不被遮挡；
+                 B 在基极节点线 y=195（与集电极导线同高），E 垂直下移到地线 y=525（发射极交流接地） -->
+            <g id="fx-dot-b" opacity="0">
+                <circle class="qdot" cx="420" cy="195" r="8" fill="#ff5252"/>
+            </g>
+            <g id="fx-dot-c" opacity="0">
+                <circle class="qdot" cx="560" cy="195" r="8" fill="#ff5252"/>
+            </g>
+            <g id="fx-dot-e" opacity="0">
+                <circle class="qdot" cx="420" cy="525" r="8" fill="#ff5252"/>
             </g>
         </g>
 
@@ -460,6 +684,7 @@
     </svg>
 
     <div id="anno" class="anno"></div>
+    <div id="ctxmenu" class="ctxmenu"></div>
 </div>
 
 <script>
@@ -482,6 +707,8 @@
                           parts: [{ text: '这条导线把电源接到上偏置电阻RB1和集电极电阻RC的上端。' }] },
         'wire-vcc-ext': { text: '电源导线：R<sub>C</sub> 上端 → +V<sub>CC</sub> 端子',
                           parts: [{ text: '电源正极经过这条导线，接到集电极电阻RC的上端。' }] },
+        'node-rc-top':  { text: 'R<sub>C</sub> 上端节点：顶部电源轨与 +V<sub>CC</sub> 导线的交汇点',
+                          parts: [{ text: '这是集电极电阻RC上端的节点，顶部电源轨和电源导线在这里交汇。' }] },
         'wire-rb1a':    { text: 'R<sub>B1</sub> 上端接线（→电源轨）',
                           parts: [{ text: 'RB1的上端，接到电源正极。' }] },
         'comp-rb1':     { text: '<b>上偏置电阻 R<sub>B1</sub></b><br>与 R<sub>B2</sub> 串联分压，基极电位 V<sub>B</sub> ≈ V<sub>CC</sub>·R<sub>B2</sub>/(R<sub>B1</sub>+R<sub>B2</sub>)，稳定 Q 点',
@@ -582,6 +809,68 @@
     }
     function hideAnno() { anno.style.display = 'none'; }
 
+    // ===== 元件悬停选择菜单（短路/断路、置零/保留 …） =====
+    const ctxmenu = document.getElementById('ctxmenu');
+    let menuTimer = null, menuOwner = null, menuLock = false;
+    function hideMenu() {
+        clearTimeout(menuTimer);
+        menuLock = false;
+        if (ctxmenu) { ctxmenu.style.display = 'none'; ctxmenu.innerHTML = ''; ctxmenu.classList.remove('horiz'); }
+        menuOwner = null;
+    }
+    // anchorEl：菜单锚定元件（贴其右侧/左侧弹出）；pos：{cx,cy}（SVG 坐标，水平条模式，居中放置，不随元件走）
+    function showMenu(anchorEl, items, lock, pos) {
+        if (!ctxmenu) return;
+        menuLock = !!lock;
+        ctxmenu.innerHTML = '';
+        items.forEach(it => {
+            const d = document.createElement('div');
+            d.className = 'mi' + (it.cls ? ' ' + it.cls : '');
+            if (it.html) d.innerHTML = it.html; else d.textContent = it.label;   // 选项可带下标等富文本（如 ↑i_b）
+            d.addEventListener('click', ev => {
+                ev.stopPropagation();
+                const anchor = menuOwner;
+                hideMenu();
+                if (it.fn) it.fn(anchor);
+            });
+            ctxmenu.appendChild(d);
+        });
+        menuOwner = anchorEl;
+        ctxmenu.style.visibility = 'hidden';
+        ctxmenu.style.display = 'flex';
+        const sr = stage.getBoundingClientRect();
+        if (pos) {
+            // 水平条模式：按 SVG 坐标换算成舞台像素，居中放置（用于等效问答选项条——电路上方空白带）
+            ctxmenu.classList.add('horiz');
+            const sx = sr.width / 1600, sy = sr.height / 900;
+            const mw = ctxmenu.offsetWidth, mh = ctxmenu.offsetHeight;
+            let x = pos.cx * sx - mw / 2;
+            let y = pos.cy * sy - mh / 2;
+            if (x < 8) x = 8;
+            if (y < 8) y = 8;
+            ctxmenu.style.left = x + 'px';
+            ctxmenu.style.top = y + 'px';
+        } else {
+            ctxmenu.classList.remove('horiz');
+            const br = anchorEl.getBoundingClientRect();
+            const mw = ctxmenu.offsetWidth, mh = ctxmenu.offsetHeight;
+            let x = br.left - sr.left + br.width + 12;
+            let y = br.top - sr.top + br.height / 2 - mh / 2;
+            if (x + mw > sr.width - 8) x = br.left - sr.left - mw - 12;
+            if (x < 8) x = 8;
+            if (y + mh > sr.height - 8) y = sr.height - mh - 8;
+            if (y < 8) y = 8;
+            ctxmenu.style.left = x + 'px';
+            ctxmenu.style.top = y + 'px';
+        }
+        ctxmenu.style.visibility = 'visible';
+    }
+    function menuSoonHide() { clearTimeout(menuTimer); if (!menuLock) menuTimer = setTimeout(hideMenu, 240); }
+    if (ctxmenu) {
+        ctxmenu.addEventListener('mouseenter', () => clearTimeout(menuTimer));
+        ctxmenu.addEventListener('mouseleave', menuSoonHide);
+    }
+
     // 语音：逐句播放，onStart 与该句开口同步、onEnd 在该句播完时触发（被打断则不触发）；
     // 无 TTS 环境按字数估算节奏推进
     try { speechSynthesis.getVoices(); } catch (e) {}
@@ -614,19 +903,29 @@
     }
     function stopSpeak() { seqId++; try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {} }
 
-    // ===================== 游戏闯关引擎 v2（cj-g1：两大阶段 · 七关） =====================
-    // 结构：静态分析（①绘制直流通路 ②Q点计算步骤 ③选Q点计算框架 ④填表达式）
-    //       动态分析（⑤绘制交流微变等效电路 ⑥选动态指标计算框架 ⑦填表达式）
-    // 计分：12 + 12 + 9 + 24 + 10 + 9 + 24 = 100
-    //   draw 关：点击电路中应移除（直流）/应变换（交流）的元件，每项平分本关分值，答错一次扣 1 分（不低于本关 0 分）
-    //   order 关：按顺序点击 4 个计算步骤，答错一次扣 2 分
-    //   fw 关：n 选 1，每答错一次扣 pts/n（取整），答对才进下一关
-    //   fill 关：先点虚线框再点电路元件，每空首错扣该空一半
+    // ===================== 游戏闯关引擎 v2（cj-g1：两大阶段 · 五关） =====================
+    // 结构：静态分析（①绘制直流通路 ②Q点计算步骤 ③Q点计算·框架+表达式交错）
+    //       动态分析（④绘制交流微变等效电路 ⑤动态指标 Av/Ri/Ro·框架+表达式交错）
+    // 计分：10 + 16 + 27 + 14 + 33 = 100
+    //   draw 关：悬停元件在菜单里选处理方式，每项平分本关分值；选错只减该项分值池（每错 1 分，扣完为 0），答对给该项剩余分值（可为 0）
+    //   qorder 关：电路图上按计算顺序点击电量（V_BQ→I_CQ≈I_EQ→I_BQ→V_CEQ，电量仅在本关显示），答错一次扣 2 分（从本关剩余分值池扣）
+    //   fw 关：n 选 1，每答错一次扣 pts/n（取整，从该项分值池扣），答对给剩余分值
+    //   fill 关：先点虚线框再点电路元件，每空首错扣该空一半（池语义同上）
     let calcTimers = [];
     let calcSpeaking = false;
 
     const NS = 'http://www.w3.org/2000/svg';
     const gameUI = document.getElementById('game-ui');
+
+    // ---- 面板版式常量（统一标准 v1.3，勿改） ----
+    const LX = 1010, RX = 1530, LW = RX - LX, LCX = (LX + RX) / 2;
+    const DIV_Y = 216;      // 分隔线
+    const SUB_Y = 318;      // 固定小字基线（本关操作说明）
+    const BODY_TOP = 352;   // 主体区上沿
+    const BODY_BOT = 704;   // 主体区下沿
+    const FB_Y = 732;       // 反馈行基线
+    const ST_Y = 774;       // 状态行基线
+    const BTN = { x: 1416, y: 748, w: 114, h: 44 };   // 提醒按钮
 
     function addT(fn, ms) { calcTimers.push(setTimeout(fn, ms)); }
     function showEl(g) { if (g) { g.style.visibility = 'visible'; g.style.opacity = '1'; } }
@@ -641,8 +940,23 @@
         }, dur);
     }
     function blinkGroup(dataId, color) {
-        const g = document.querySelector('g[data-id="' + dataId + '"]');
+        const all = Array.prototype.slice.call(document.querySelectorAll('g[data-id="' + dataId + '"]'));
+        // 微变等效模型 #fx-tmodel 的 data-id 是 comp-t-model，但作答判定值为 comp-t：
+        // 并入候选，否则点 r_be 作答时闪烁落在已隐藏的晶体管本体上（无任何反馈）
+        if (dataId === 'comp-t') {
+            const tm = document.getElementById('fx-tmodel');
+            if (tm) all.push(tm);
+        }
+        let g = all[0];
+        // 同一 data-id 可能有多个元素（本体 / 整理态下挂件 / 等效层重绘件）：闪烁当前可见的那个
+        for (const x of all) { if (x.style.opacity !== '0') { g = x; break; } }
         if (!g) return;
+        if (g.closest('#qlabel-layer')) {   // 电量标注保持红色：只做透明度闪烁，不改颜色
+            g.classList.remove('red-blink'); void g.getBoundingClientRect();
+            g.classList.add('red-blink');
+            addT(() => g.classList.remove('red-blink'), 800);
+            return;
+        }
         g.style.setProperty('--blink-color', color);
         g.classList.remove('color-blink'); void g.getBoundingClientRect();
         g.classList.add('color-blink');
@@ -650,40 +964,101 @@
     // 恢复电路初态（重新挑战 / 从静态阶段进入动态阶段前）
     function resetCircuit() {
         clearStageHighlight();
+        setCircuitShift(false);
         document.querySelectorAll('#circuit-wrap g').forEach(g2 => { g2.style.opacity = ''; g2.style.pointerEvents = ''; });
-        ['fx-c1', 'fx-c2', 'fx-ce', 'fx-vi', 'fx-vcc', 'fx-tmodel'].forEach(id => {
+        ['fx-c1', 'fx-c2', 'fx-ce', 'fx-vi', 'fx-vcc', 'fx-vs', 'fx-re', 'fx-tmodel', 'rarr-rb1', 'rarr-rc',
+         'fx-t-rbe', 'fx-t-src', 'fx-t-ib', 'fx-t-ic', 'fx-dot-b', 'fx-dot-c', 'fx-dot-e',
+         'eq-layer', 'eq-rb1', 'eq-rb2'].forEach(id => {
             const f = document.getElementById(id);
             if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; }
         });
+        document.querySelectorAll('.vcc-label, .rb2-label').forEach(t => { t.style.opacity = ''; t.style.visibility = ''; });
+        hideMenu();
+    }
+    // 交流等效态整图上移 40px（基极线、模型与地线一并上移，给下半部留出空间）
+    function setCircuitShift(up) {
+        const w = document.getElementById('circuit-wrap');
+        if (w) w.setAttribute('transform', 'translate(18, ' + (up ? 220 : 260) + ') scale(1)');
     }
 
     function speechify(s) { return s.replace(/同相/g, '同向').replace(/反相/g, '反向'); }
-    function say(text, onDone, onStart) { stopSpeak(); speakSeq([{ text: speechify(text), onStart: onStart }], onDone); }
+    let lastSay = [];   // 最近一次语音内容（提醒按钮重播用）
+    function rememberSay(texts) { lastSay = (texts || []).slice(); }
+    function replaySay() { if (lastSay.length) speakSeq(lastSay.map(t => ({ text: t }))); }
+    function say(text, onDone, onStart) {
+        stopSpeak();
+        const t = speechify(text);
+        rememberSay([t]);
+        speakSeq([{ text: t, onStart: onStart }], onDone);
+    }
     function setMsg(text, color) { S.msg = text ? { text: text, color: color || '#ffffff' } : null; }
+    // 连续播报多句（记得住内容，供 🔊 提醒按钮整段重播）；空串自动剔除
+    function saySeq(texts) {
+        const arr = (texts || []).filter(t => t);
+        if (!arr.length) return;
+        rememberSay(arr);
+        stopSpeak();
+        speakSeq(arr.map(t => ({ text: speechify(t) })));
+    }
+    // 正确作答后的追加提示语：按当前进度决定下一句该做什么（无提示返回 ''）
+    //   ① 门控电源（Vs / +Vcc）处理完 → 请选择电容处理方式
+    //   ② 第 4 关三只电容处理完 → 请选择阿尔义、阿尔B1和阿尔C的整理方式
+    //   ③ 第 4 关三个电阻全部处理完 → 请等效 BJT
+    function nextHint(c, d, id) {
+        if (c.gate && c.gate.indexOf(id) >= 0 && c.gate.every(g => d.found[g])) {
+            return (c.targets || []).some(t => !d.found[t.id]) ? '请选择电容处理方式。' : '';
+        }
+        if (!c.subSteps) return '';
+        const CAPS = ['comp-c1', 'comp-c2', 'comp-ce'];
+        const RES = ['comp-re', 'comp-rb1', 'comp-rc'];
+        if (RES.indexOf(id) < 0 && CAPS.indexOf(id) < 0) return '';
+        const resDone = !!(d.found['comp-re'] && d.moved && d.moved['comp-rb1'] && d.moved['comp-rc']);
+        if (CAPS.indexOf(id) >= 0 && CAPS.every(x => d.found[x]) && !resDone) return '请选择阿尔义、阿尔B1和阿尔C的整理方式。';
+        if (RES.indexOf(id) >= 0 && resDone) return '请等效BJT。';
+        return '';
+    }
 
     // ---- 案例配置（★ 换案例改这里；tk(主,下标) 为文本片段） ----
     // 案例：分压式偏置共射放大电路（不给数值、全部符号表达式）
-    //   静态：直流通路 → Q点步骤（VB → ICQ → IBQ → VCEQ）→ ICQ 估算式框架 → 填 Q 点表达式链
-    //   动态：交流微变等效电路 → Av/Ri/Ro 三指标框架 → 填 Av/Ri/Ro 表达式
+    //   静态：直流通路 → Q点计算步骤（按序点电量）→ Q点计算（框架+表达式交错，逐量）
+    //   动态：交流微变等效电路 → 动态指标计算（Av/Ri/Ro 逐项：先框架、再表达式）
     // 已知符号：VCC、RB1（上）、RB2（下）、RC、RE、RS、RL、β；VBE=0.7V；rbe 由 Q 点求出（填空中 rbe 点晶体管 comp-t 作答，
-    //   第5关后晶体管已换成微变模型，点击模型同样按 comp-t 计）
+    //   第 4 关后晶体管已换成微变模型，点击模型同样按 comp-t 计）
     function tk(main, sub) { return { main: main, sub: sub }; }
+    function fr(num, den) { return { frac: [num, den] }; }   // 分式（上下式）
     const GAME_CONFIG = {
         phases: [
             {
                 name: '静态分析',
                 steps: [
                     {
-                        kind: 'draw', mode: 'remove', title: '第 1 关 · 绘制直流通路', pts: 8, short: '绘制直流通路',
-                        q: '点击移除三只电容断开回路，点击端口Vi短接＋、－',
-                        subLine: '共 4 项 · 每项 2 分 · 答错一次扣 1 分',
+                        kind: 'draw', mode: 'remove', title: '第 1 关 · 绘制直流通路', pts: 10, short: '绘制直流通路',
+                        q: '先处理两个电源，再悬停电容选择正确的处理方式',
+                        subLine: '鼠标移到元件上，在浮出的菜单里选「短路 / 断路」作答',
                         targets: [
-                            { id: 'comp-c1', name: '电容C1' }, { id: 'comp-c2', name: '电容C2' },
-                            { id: 'comp-ce', name: '旁路电容CE' }, { id: 'comp-vi', name: '输入端口Vi', act: 'short' }
+                            { id: 'comp-c1', name: '电容C1', menu: [
+                                { label: '短路', act: 'cap-short', ok: false },
+                                { label: '断路', act: 'cap-open', ok: true }] },
+                            { id: 'comp-c2', name: '电容C2', menu: [
+                                { label: '短路', act: 'cap-short', ok: false },
+                                { label: '断路', act: 'cap-open', ok: true }] },
+                            { id: 'comp-ce', name: '旁路电容CE', menu: [
+                                { label: '短路', act: 'cap-short', ok: false },
+                                { label: '断路', act: 'cap-open', ok: true }] },
+                            { id: 'comp-src', name: '信号源Vs', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vs-short', ok: true },
+                                    { label: '断路', act: 'vs-open', ok: false }] },
+                                { label: '保留', act: 'vs-keep', ok: false }] },
+                            { id: 'comp-vcc', name: '直流电源+Vcc', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vcc-gnd', ok: false },
+                                    { label: '断路', act: 'vcc-open', ok: false }] },
+                                { label: '保留', act: 'vcc-keep', ok: true }] }
                         ],
-                        // 点 C1/C2/CE 断开后，被隔断回路里的元件与导线连锁移除（fadeWith）
-                        // 点 C1 时输入端口（在输入回路内）自动一并完成（chainFound）
-                        chainFound: { 'comp-c1': ['comp-vi'] },
+                        // 门控：Vs 与 Vcc 必须先处理完，三只电容才解锁——否则 C1 断路会连锁移除 Vs，导致关卡无法完成
+                        gate: ['comp-src', 'comp-vcc'],
+                        // 选「断路」后，被隔断回路里的元件与导线连锁移除（fadeWith）
                         fadeWith: {
                             'comp-c1': ['wire-vi-top', 'wire-base-in', 'comp-vi', 'wire-vi-gnd', 'comp-src', 'wire-rs-top', 'wire-rs-bot', 'comp-rs', 'wire-gnd-l'],
                             'comp-c2': ['wire-collector', 'node-collector', 'wire-c2-out', 'comp-rl', 'wire-rl-a', 'wire-rl-b', 'comp-vo', 'wire-gnd-r', 'node-ce'],
@@ -691,57 +1066,108 @@
                         },
                         // 条件移除：C_E 与 C_2 都断开后，R_E 接地点→C_E 接地点这段地轨再无连接，一并收起
                         fadeWhenAll: [{ units: ['wire-gnd-m2'], requires: ['comp-ce', 'comp-c2'] }],
-                        announce: '进入第一关，绘制直流通路。点击移除三只电容，被断开的回路连同信号源与负载一并移除，再点击输入端口将其短接，答对得8分。',
-                        extra: '点击C1会连同信号源、内阻与整个输入回路一并移除；点击C2会连同负载与输出回路一并移除。',
-                        doneSay: '直流通路画好了。电容对直流开路：C1断开输入回路，信号源与内阻随回路一并移除；C2断开输出回路，负载随之移除；CE断开发射极旁路。输入端口短接、信号置零，电路里只剩电源、偏置电阻、集电极电阻、发射极电阻和晶体管。',
-                        why: '画直流通路：C1、C2、CE 开路——C1 左边整个输入回路（含信号源、内阻、地线段）与 C2 右边输出回路（含 R_L、地线段）一并断开移除；输入端口＋、－短接'
+                        announce: '进入第一关，绘制直流通路。先处理两个电源，再悬停电容，在弹出的菜单里选择正确的处理方式，答对得10分。',
+                        doneSay: '直流通路画好了。',
+                        why: '画直流通路：C1、C2、CE 开路；输入信号源 Vs 置零后短路（电压源置零即短路），随 C1 断开的输入回路一并移除；直流电源保留。'
                     },
                     {
-                        kind: 'order', title: '第 2 关 · Q点计算步骤', pts: 16, short: 'Q点计算步骤', stageUnits: 0,
-                        q: '按正确顺序点击估算静态工作点的四个计算步骤',
-                        subLine: '共 4 步 · 答错一次扣 2 分',
-                        steps: [
-                            { tokens: [tk('V', 'B'), tk('='), tk('V', 'CC'), tk('·'), tk('R', 'B2'), tk('/'), tk('('), tk('R', 'B1'), tk('+'), tk('R', 'B2'), tk(')')] },
-                            { tokens: [tk('I', 'CQ'), tk('≈'), tk('I', 'EQ'), tk('='), tk('('), tk('V', 'B'), tk('−'), tk('V', 'BE'), tk(')'), tk('/'), tk('R', 'E')] },
-                            { tokens: [tk('I', 'BQ'), tk('='), tk('I', 'CQ'), tk('/'), tk('β')] },
-                            { tokens: [tk('V', 'CEQ'), tk('='), tk('V', 'CC'), tk('−'), tk('I', 'CQ'), tk('·'), tk('('), tk('R', 'C'), tk('+'), tk('R', 'E'), tk(')')] }
-                        ],
-                        announce: '进入第二关，按顺序点击静态工作点的计算步骤，答对得16分。',
-                        extra: '按计算顺序依次点击。',
-                        doneSay: '计算步骤排好了。先分压求基极电位，再求集电极电流，然后求基极电流，最后求管压降。'
+                        kind: 'qorder', title: '第 2 关 · Q点计算步骤', pts: 16, short: 'Q点计算步骤', stageUnits: 0,
+                        q: '按计算顺序，依次点击电路中要计算的电量',
+                        subLine: '电路中已标出各电量，按计算顺序依次点击作答',
+                        // 正确计算顺序：先分压求基极电位，再求 I_CQ（≈I_EQ，电路标注已合并），然后 I_BQ，最后管压降
+                        seq: ['q-vbq', 'q-ieq', 'q-ibq', 'q-vceq'],
+                        names: { 'q-vbq': 'V<tspan class="sub">BQ</tspan>', 'q-ieq': 'I<tspan class="sub">CQ</tspan>≈I<tspan class="sub">EQ</tspan>', 'q-ibq': 'I<tspan class="sub">BQ</tspan>', 'q-vceq': 'V<tspan class="sub">CEQ</tspan>' },
+                        announce: '进入第二关，电路中已标出各电量。按计算顺序，先点击第一步要计算的量，再依次完成其余步骤，答对得16分。',
+                        extra: '点错了扣2分，可以继续点。'
                     },
                     {
-                        kind: 'fw', title: '第 3 关 · 选Q点计算框架', pts: 9, short: '选Q点计算框架', stageUnits: 0,
-                        fwQ: '静态工作点 I<tspan class="sub">CQ</tspan> 的估算式框架：',
-                        subLine: '3 个选项 · 每答错一次扣 3 分 · 答对才进入下一关',
-                        frameworks: [
-                            { tokens: [tk('I', 'CQ'), tk('='), tk('('), tk('V', 'CC'), tk('·'), { box: 1 }, tk('/'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('−'), tk('V', 'BE'), tk(')'), tk('/'), { box: 1 }], correct: true },
-                            { tokens: [tk('I', 'CQ'), tk('='), tk('('), tk('V', 'CC'), tk('·'), { box: 1 }, tk('/'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk(')'), tk('/'), { box: 1 }] },
-                            { tokens: [tk('I', 'CQ'), tk('='), tk('('), tk('V', 'CC'), tk('−'), tk('V', 'BE'), tk(')'), tk('/'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('×'), tk('β')] }
+                        // 框架 + 表达式交错关：每个电量先选框架、再填表达式（VBQ → ICQ≈IEQ → IBQ → VCEQ）
+                        // 等号右侧的量全部虚线框化（框架与填空同步）；V_BE、β 通过点击晶体管作答
+                        // 分值：4 个框架题各 3 分（12）+ 13 个空 15 分 = 27
+                        kind: 'mix', title: '第 3 关 · Q点计算', pts: 27, short: 'Q点计算', stageUnits: 0,
+                        subLine: '每个电量先选表达式框架，再点虚线框填表达式',
+                        subs: [
+                            {
+                                type: 'fw', name: 'V<tspan class="sub">BQ</tspan> 框架', qpts: 3, pen: 2,
+                                fwQ: '基极电位 V<tspan class="sub">BQ</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('V', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }]), tk('·'), { box: 1 }], correct: true },
+                                    { tokens: [tk('V', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }, tk('−'), { box: 1 }]), tk('·'), { box: 1 }] },
+                                    { tokens: [tk('V', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }]), tk('·'), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'V<tspan class="sub">BQ</tspan> 表达式',
+                                // V_BQ = RB2/(RB1+RB2)·VCC：相乘因子 VCC 统一写在分式后（点 +Vcc 端子作答）
+                                fullExpr: [[tk('V', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }]), tk('·'), { box: 1 }]],
+                                blanks: [
+                                    // 顺序与虚线框一致：分子 RB2 → 分母 RB1+RB2（可交换，同 grp 查重）→ 分式后 VCC
+                                    { ansIds: ['comp-rb2'], label: [tk('R', 'B2')], pts: 2 },
+                                    { ansIds: ['comp-rb1', 'comp-rb2'], grp: 'vbq-den', labels: { 'comp-rb1': [tk('R', 'B1')], 'comp-rb2': [tk('R', 'B2')] }, label: [tk('R', 'B1')], pts: 1 },
+                                    { ansIds: ['comp-rb1', 'comp-rb2'], grp: 'vbq-den', labels: { 'comp-rb1': [tk('R', 'B1')], 'comp-rb2': [tk('R', 'B2')] }, label: [tk('R', 'B2')], pts: 1 },
+                                    { ansIds: ['comp-vcc'], label: [tk('V', 'CC')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">CQ</tspan>≈I<tspan class="sub">EQ</tspan> 框架', qpts: 3, pen: 2,
+                                fwQ: '集电极电流 I<tspan class="sub">CQ</tspan> ≈ I<tspan class="sub">EQ</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), tk('I', 'EQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), tk('I', 'EQ'), tk('='), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }])] },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), tk('I', 'EQ'), tk('='), { box: 1 }, tk('−'), fr([{ box: 1 }], [{ box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈I<tspan class="sub">EQ</tspan> 表达式',
+                                // V_BQ 点电路标注 q-vbq、V_BE 点电路标注 q-vbe（点晶体管同样认可）、R_E 点电阻
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), tk('I', 'EQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['q-vbq'], label: [tk('V', 'BQ')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['comp-re'], label: [tk('R', 'E')], pts: 2 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">BQ</tspan> 框架', qpts: 3, pen: 2,
+                                fwQ: '基极电流 I<tspan class="sub">BQ</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'BQ'), tk('='), { box: 1 }, tk('·'), { box: 1 }] },
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 表达式',
+                                // I_CQ 点电路标注 q-ieq（I_CQ≈I_EQ 合并标注）、β 点电路标注 q-beta（点晶体管同样认可）
+                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['q-ieq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'V<tspan class="sub">CEQ</tspan> 框架', qpts: 3, pen: 2,
+                                fwQ: '管压降 V<tspan class="sub">CEQ</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('V', 'CEQ'), tk('='), { box: 1 }, tk('−'), { box: 1 }, tk('·'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')], correct: true },
+                                    { tokens: [tk('V', 'CEQ'), tk('='), { box: 1 }, tk('−'), { box: 1 }, tk('·'), { box: 1 }] },
+                                    { tokens: [tk('V', 'CEQ'), tk('='), { box: 1 }, tk('+'), { box: 1 }, tk('·'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'V<tspan class="sub">CEQ</tspan> 表达式',
+                                fullExpr: [[tk('V', 'CEQ'), tk('='), { box: 1 }, tk('−'), { box: 1 }, tk('·'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')]],
+                                blanks: [
+                                    { ansIds: ['comp-vcc'], label: [tk('V', 'CC')], pts: 1 },
+                                    { ansIds: ['q-ieq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['comp-rc'], label: [tk('R', 'C')], pts: 1 },
+                                    { ansIds: ['comp-re'], label: [tk('R', 'E')], pts: 1 }
+                                ]
+                            }
                         ],
-                        announce: '进入第三关，选择静态工作点的估算式框架，答对得9分。',
-                        extra: '回答正确才能进入下一关。'
-                    },
-                    {
-                        kind: 'fill', title: '第 4 关 · 填写静态表达式', pts: 24, short: '填表达式·静态', stageUnits: 0,
-                        subLine: '每空 4 分 · 共 6 空',
-                        fullExpr: [
-                            [tk('V', 'B'), tk('='), tk('V', 'CC'), tk('·'), { box: 1 }, tk('/'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')],
-                            [tk('I', 'CQ'), tk('≈'), tk('I', 'EQ'), tk('='), tk('('), tk('V', 'B'), tk('−'), tk('V', 'BE'), tk(')'), tk('/'), { box: 1 }],
-                            [tk('I', 'BQ'), tk('='), tk('I', 'CQ'), tk('/'), tk('β')],
-                            [tk('V', 'CEQ'), tk('='), tk('V', 'CC'), tk('−'), tk('I', 'CQ'), tk('·'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')]
-                        ],
-                        blanks: [
-                            { ansIds: ['comp-rb2'], label: [tk('R', 'B2')] },
-                            { ansIds: ['comp-rb1'], label: [tk('R', 'B1')] },
-                            { ansIds: ['comp-rb1'], label: [tk('R', 'B1')] },
-                            { ansIds: ['comp-re'],  label: [tk('R', 'E')] },
-                            { ansIds: ['comp-rc'],  label: [tk('R', 'C')] },
-                            { ansIds: ['comp-re'],  label: [tk('R', 'E')] }
-                        ],
-                        announce: '进入第四关，填写静态分析表达式，答对得24分。',
-                        extra: '先点虚线框，再点对应的元件。',
-                        doneSay: '静态分析的表达式填写完成。'
+                        announce: '进入第三关，逐个计算静态工作点。每个电量先选择表达式框架，再填写对应的表达式，顺序是基极电位、集电极电流、基极电流、管压降，答对得27分。',
+                        extra: '框架答对才进入该量的表达式填空；表达式先点虚线框，再点电路中对应的元件或电量符号。',
+                        doneSay: '静态工作点的框架与表达式全部完成。'
                     }
                 ]
             },
@@ -749,39 +1175,74 @@
                 name: '动态分析',
                 steps: [
                     {
-                        kind: 'draw', mode: 'transform', title: '第 5 关 · 绘制交流微变等效电路', pts: 10, short: '绘制等效电路',
-                        q: '点击需要变换的元件：电容短路、电源接地、晶体管换微变模型',
-                        subLine: '共 5 项 · 每项 2 分 · 答错一次扣 1 分',
+                        kind: 'draw', mode: 'transform', title: '第 4 关 · 绘制交流微变等效电路', pts: 14, short: '绘制等效电路',
+                        q: '依次完成三步：先绘制交流通路，再整理电路，最后等效晶体管',
+                        subLine: '电容短路、电源置零，再整理电路并等效晶体管',
+                        gate: ['comp-src', 'comp-vcc'],
                         targets: [
-                            { id: 'comp-c1', name: '电容C1' }, { id: 'comp-c2', name: '电容C2' }, { id: 'comp-ce', name: '旁路电容CE' },
-                            { id: 'comp-vcc', name: '直流电源' }, { id: 'comp-t', name: '晶体管' }
+                            { id: 'comp-c1', name: '电容C1', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-c2', name: '电容C2', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-ce', name: '旁路电容CE', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-src', name: '信号源Vs', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vs-short', ok: false },
+                                    { label: '断路', act: 'vs-open', ok: false }] },
+                                { label: '保留', act: 'vs-keep', ok: true }] },
+                            { id: 'comp-vcc', name: '直流电源', menu: [
+                                { label: '置零', sub: [
+                                    { label: '接地', act: 'vcc-gnd', ok: true },
+                                    { label: '断路', act: 'vcc-open', ok: false }] },
+                                { label: '保留', act: 'vcc-keep', ok: false }] },
+                            { id: 'comp-re', name: '发射极电阻RE', menu: [
+                                { label: '保留', act: 're-keep', ok: false },
+                                { label: '移除', act: 're-remove', ok: true }] },
+                            { id: 'comp-t', name: '晶体管', menu: [
+                                { label: '等效', act: 't-equiv', ok: true }] }
                         ],
-                        fxMap: { 'comp-c1': 'fx-c1', 'comp-c2': 'fx-c2', 'comp-ce': 'fx-ce', 'comp-vcc': 'fx-vcc', 'comp-t': 'fx-tmodel' },
-                        announce: '进入第五关，绘制交流微变等效电路。请点击需要变换的元件，答对得10分。',
-                        extra: '在电路图上点击作答。',
-                        doneSay: '交流微变等效电路画好了。电容对交流短路，直流电源置零接地，晶体管用输入电阻和受控源代替。',
-                        why: '交流微变等效要点：C1、C2、CE 对交流短路；VCC 置零接地；晶体管用 rbe 和受控源 βib 代替'
+                        // 三步：交流通路 → 整理电路（移除 R_E + R_B1/R_C 翻转下挂到地） → 等效晶体管
+                        subSteps: [
+                            { name: '绘制交流通路', ids: ['comp-c1', 'comp-c2', 'comp-ce', 'comp-src', 'comp-vcc'] },
+                            { name: '整理电路', ids: ['comp-re'], moveIds: ['comp-rb1', 'comp-rc'] },
+                            { name: '等效晶体管', ids: ['comp-t'] }
+                        ],
+                        announce: '进入第四关，绘制交流微变等效电路，分三步完成：先处理两个电源，再处理电容绘制交流通路，然后整理电路，最后对晶体管进行等效、逐问作答。答对得14分。',
+                        extra: '把鼠标移到元件上，在浮出的菜单里选择处理方式。',
+                        doneSay: '交流微变等效电路画好了。',
+                        why: '交流微变等效：电容短路、电源置零接地、R_E 移除、R_B1/R_C 翻转下挂到地、晶体管换成 rbe 与受控源。'
                     },
                     {
-                        kind: 'fw', title: '第 6 关 · 选动态指标计算框架', pts: 12, short: '选动态计算框架', stageUnits: 1,
-                        subLine: '3 个指标 · 各 4 分 · 错一次扣 2 分',
-                        qs: [
+                        // 框架 + 表达式交错关（动态）：按 Av → Ri → Ro 逐项，每项先选框架、再填表达式
+                        // 分值：3 个框架题各 4 分（12）+ 7 个空各 3 分（21）= 33
+                        kind: 'mix', title: '第 5 关 · 动态指标计算', pts: 33, short: '动态指标计算', stageUnits: 1,
+                        subLine: '每个指标先选计算框架，再点虚线框填表达式',
+                        subs: [
                             {
-                                label: '电压放大倍数 A<tspan class="sub">v</tspan>',
+                                type: 'fw', name: 'A<tspan class="sub">v</tspan> 框架', qpts: 4, pen: 2,
                                 fwQ: '电压放大倍数 A<tspan class="sub">v</tspan> 的表达式框架：',
-                                say: '第一项，电压放大倍数，请选择正确的表达式框架。',
-                                pen: 2,
                                 frameworks: [
-                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), tk('('), { box: 1 }, tk('∥'), { box: 1 }, tk(')'), tk('/'), { box: 1 }], correct: true },
-                                    { tokens: [tk('A', 'v'), tk('='), tk('β'), tk('·'), tk('('), { box: 1 }, tk('∥'), { box: 1 }, tk(')'), tk('/'), { box: 1 }] },
-                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), tk('R', 'C'), tk('/'), tk('('), tk('r', 'be'), tk('+'), tk('('), tk('1'), tk('+'), tk('β'), tk(')'), tk('R', 'E'), tk(')')] }
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])], correct: true },
+                                    { tokens: [tk('A', 'v'), tk('='), tk('β'), tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])] },
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), fr([{ box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), tk('β'), tk(')'), { box: 1 }])] }
                                 ]
                             },
                             {
-                                label: '输入电阻 R<tspan class="sub">i</tspan>',
+                                type: 'fill', name: 'A<tspan class="sub">v</tspan> 表达式',
+                                fullExpr: [[tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['comp-rc'], label: [tk('R', 'C')], pts: 3 },
+                                    { ansIds: ['comp-rl'], label: [tk('R', 'L')], pts: 3 },
+                                    { ansIds: ['comp-t'], label: [tk('r', 'be')], pts: 3 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'R<tspan class="sub">i</tspan> 框架', qpts: 4, pen: 2,
                                 fwQ: '输入电阻 R<tspan class="sub">i</tspan> 的表达式框架：',
-                                say: '第二项，输入电阻，请选择正确的表达式框架。',
-                                pen: 2,
                                 frameworks: [
                                     { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }, tk('∥'), { box: 1 }], correct: true },
                                     { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }] },
@@ -789,40 +1250,34 @@
                                 ]
                             },
                             {
-                                label: '输出电阻 R<tspan class="sub">o</tspan>',
+                                type: 'fill', name: 'R<tspan class="sub">i</tspan> 表达式',
+                                fullExpr: [[tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }, tk('∥'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['comp-rb1'], label: [tk('R', 'B1')], pts: 3 },
+                                    { ansIds: ['comp-rb2'], label: [tk('R', 'B2')], pts: 3 },
+                                    { ansIds: ['comp-t'], label: [tk('r', 'be')], pts: 3 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'R<tspan class="sub">o</tspan> 框架', qpts: 4, pen: 2,
                                 fwQ: '输出电阻 R<tspan class="sub">o</tspan> 的表达式框架：',
-                                say: '第三项，输出电阻，请选择正确的表达式框架。',
-                                pen: 2,
                                 frameworks: [
-                                    { tokens: [tk('R', 'o'), tk('≈'), tk('R', 'C')], correct: true },
-                                    { tokens: [tk('R', 'o'), tk('≈'), tk('R', 'C'), tk('∥'), tk('R', 'L')] },
-                                    { tokens: [tk('R', 'o'), tk('≈'), tk('R', 'C'), tk('+'), tk('R', 'E')] }
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }], correct: true },
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }, tk('∥'), { box: 1 }] },
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'R<tspan class="sub">o</tspan> 表达式',
+                                fullExpr: [[tk('R', 'o'), tk('≈'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['comp-rc'], label: [tk('R', 'C')], pts: 3 }
                                 ]
                             }
                         ],
-                        announce: '进入第六关，依次选择动态性能指标的计算框架，电压放大倍数、输入电阻和输出电阻共12分。',
-                        extra: '答对才可以继续下一个指标。'
-                    },
-                    {
-                        kind: 'fill', title: '第 7 关 · 填写动态表达式', pts: 21, short: '填表达式·动态', stageUnits: 1,
-                        subLine: '每空 3 分 · 共 7 空（Av · Ri · Ro）',
-                        fullExpr: [
-                            [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), tk('('), { box: 1 }, tk('∥'), { box: 1 }, tk(')'), tk('/'), { box: 1 }],
-                            [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }, tk('∥'), { box: 1 }],
-                            [tk('R', 'o'), tk('≈'), { box: 1 }]
-                        ],
-                        blanks: [
-                            { ansIds: ['comp-rc'],  label: [tk('R', 'C')] },
-                            { ansIds: ['comp-rl'],  label: [tk('R', 'L')] },
-                            { ansIds: ['comp-t'],   label: [tk('r', 'be')] },
-                            { ansIds: ['comp-rb1'], label: [tk('R', 'B1')] },
-                            { ansIds: ['comp-rb2'], label: [tk('R', 'B2')] },
-                            { ansIds: ['comp-t'],   label: [tk('r', 'be')] },
-                            { ansIds: ['comp-rc'],  label: [tk('R', 'C')] }
-                        ],
-                        announce: '进入第七关，填写动态分析的三项表达式：电压放大倍数、输入电阻和输出电阻，共21分。',
-                        extra: '先点虚线框，再点对应的元件。',
-                        doneSay: '动态分析的表达式填写完成，全部关卡结束。'
+                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共33分。',
+                        extra: '框架答对后进入该指标的表达式填空；表达式先点虚线框，再点电路中对应的元件。',
+                        doneSay: '动态指标电压放大倍数、输入电阻、输出电阻的框架与表达式全部完成，全部关卡结束。'
                     }
                 ]
             }
@@ -832,11 +1287,11 @@
     // ---- 各阶段对应的电路级交互单元（进入该关时整级变紫并闪烁提示） ----
     // 第1组=静态（直流通路：电容开路、信号源与负载不在内），第2组=动态（微变等效：全部元件参与）
     const STAGE_UNITS = [
-        ['comp-vcc', 'wire-vcc-rail', 'wire-vcc-ext', 'wire-rb1a', 'comp-rb1', 'wire-rb1b', 'wire-base', 'wire-rb2a', 'comp-rb2', 'wire-rb2b', 'comp-gnd', 'wire-gnd-m', 'wire-gnd-m2',
+        ['comp-vcc', 'wire-vcc-rail', 'wire-vcc-ext', 'node-rc-top', 'wire-rb1a', 'comp-rb1', 'wire-rb1b', 'wire-base', 'wire-rb2a', 'comp-rb2', 'wire-rb2b', 'comp-gnd', 'wire-gnd-m', 'wire-gnd-m2',
          'comp-t', 'wire-rc-a', 'node-collector', 'comp-rc', 'wire-rc-top', 'wire-emitter', 'wire-re-a', 'node-emitter', 'comp-re', 'wire-re-b'],
         ['comp-src', 'wire-rs-top', 'comp-rs', 'wire-rs-bot', 'wire-vi-gnd', 'wire-vi-top', 'comp-vi', 'comp-c1', 'wire-base-in',
          'wire-base', 'wire-rb1a', 'comp-rb1', 'wire-rb1b', 'wire-rb2a', 'comp-rb2', 'wire-rb2b', 'comp-gnd', 'wire-gnd-l', 'wire-gnd-m', 'wire-gnd-m2', 'wire-gnd-r',
-         'comp-vcc', 'wire-vcc-rail', 'wire-vcc-ext', 'comp-t', 'wire-collector', 'wire-rc-a', 'node-collector', 'comp-rc', 'wire-rc-top',
+         'comp-vcc', 'wire-vcc-rail', 'wire-vcc-ext', 'node-rc-top', 'comp-t', 'wire-collector', 'wire-rc-a', 'node-collector', 'comp-rc', 'wire-rc-top',
          'wire-emitter', 'wire-re-a', 'node-emitter', 'comp-re', 'wire-re-b', 'wire-ce-a', 'comp-ce', 'wire-ce-b', 'node-ce',
          'comp-c2', 'wire-c2-out', 'wire-rl-a', 'comp-rl', 'wire-rl-b', 'comp-vo']
     ];
@@ -862,15 +1317,16 @@
         S = {
             score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0,
             levelScore: LEVELS.map(() => 0),
-            draw: {}, order: {}, orderList: {}, fw: {}, fill: {}
+            draw: {}, order: {}, orderList: {}, qorder: {}, fw: {}, fill: {}, mix: {}
         };
         LEVELS.forEach((L, i) => {
             const c = L.cfg;
-            if (c.kind === 'draw') S.draw[i] = { found: {} };
+            if (c.kind === 'draw') S.draw[i] = { found: {}, moved: {}, pool: {} };
             if (c.kind === 'order') {
                 S.order[i] = { next: 0, rem: c.pts, wrong: null };
                 S.orderList[i] = shuffle(c.steps.map((st2, j) => ({ tokens: st2.tokens, ord: j })));
             }
+            if (c.kind === 'qorder') S.qorder[i] = { next: 0, rem: c.pts, done: [] };
             if (c.kind === 'fw') {
                 // 支持多子问（qs[]）：每个指标一个框架题，依次作答；单问时退化为 [fwQ+frameworks]
                 const qs = c.qs || [{ label: '', fwQ: c.fwQ, frameworks: c.frameworks }];
@@ -885,6 +1341,15 @@
                 };
             }
             if (c.kind === 'fill') S.fill[i] = c.blanks.map(() => ({ rem: c.pts / c.blanks.length, done: false }));
+            if (c.kind === 'mix') {
+                // 框架 + 表达式交错：subs[].type='fw' → 三选项框架题；'fill' → 一行表达式（per-blank 分值）
+                S.mix[i] = {
+                    si: 0,
+                    steps: c.subs.map(sb => sb.type === 'fw'
+                        ? { type: 'fw', opts: shuffle(sb.frameworks), chosen: [], solved: false, rem: sb.qpts, pen: sb.pen || 2 }
+                        : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, full: b.pts, rem: b.pts, done: false })) })
+                };
+            }
         });
     }
     function cur() { return LEVELS[S.level - 1]; }
@@ -923,6 +1388,7 @@
         const c = cur().cfg;
         const parts = [{ text: speechify(c.announce), onEnd: hl || undefined }];
         if (c.extra) parts.push({ text: speechify(c.extra) });
+        rememberSay(parts.map(p => p.text));
         stopSpeak();
         speakSeq(parts);
     }
@@ -962,16 +1428,56 @@
     function markupOf(tok) {
         return tok.main + (tok.sub ? '<tspan class="sub">' + tok.sub + '</tspan>' : '');
     }
-    // 逐段排版表达式：文本实时测宽 + 虚线框占位；blankLevel 传入时框可点击作答（填表达式关）
-    function buildExpr(parent, tokens, size, fill, blankLevel, startBoxN) {
+    // 估算一行 tokens 的墨迹纵向范围（相对基线，负=向上）：盒用几何值，文字按字号比例
+    // （不能用 getBBox：它对 text 返回字体 em 框而非紧贴墨迹，会把间距算小）
+    function inkExtent(tokens, fs) {
+        let top = 0, bot = 0;
+        (tokens || []).forEach(t => {
+            if (t.box) { top = Math.min(top, -fs * 0.58); bot = Math.max(bot, fs * 0.22); }
+            else if (t.frac) { top = Math.min(top, -fs * 0.88); bot = Math.max(bot, fs * 0.88); }
+            else {
+                const op = /[+−≈=∥]/.test(t.main || '');
+                top = Math.min(top, /[()]/.test(t.main || '') ? -fs * 0.75 : (op ? -fs * 0.50 : -fs * 0.66));
+                bot = Math.max(bot, t.sub ? fs * 0.26 : (op ? fs * 0.06 : fs * 0.02));
+            }
+        });
+        return { top: top, bot: bot };
+    }
+    // 分式（上下式）：分子/分母各按 tokens 逐段排版，中间画分数线
+    function buildFrac(parent, numToks, denToks, size, fill, blankLevel, ctx) {
+        const fs = size * 0.84;
+        const gf = document.createElementNS(NS, 'g'); parent.appendChild(gf);
+        const gN = document.createElementNS(NS, 'g'); gf.appendChild(gN);
+        buildExpr(gN, numToks, fs, fill, blankLevel, ctx);
+        const nw = gN.getBBox().width;
+        const gD = document.createElementNS(NS, 'g'); gf.appendChild(gD);
+        buildExpr(gD, denToks, fs, fill, blankLevel, ctx);
+        const dw = gD.getBBox().width;
+        const w = Math.max(nw, dw) + fs * 0.42;
+        const barY = -size * 0.30;   // 分数线与同行文字（=、+ 等）的光学中线对齐，勿改回 -0.04（分式会下沉）
+        // 分子与分母到分数线的间距相等：以「分数线→分母墨迹顶端」为准，分子基线随之抬高，
+        // 使「分子墨迹底端→分数线」的间距与其相同（墨迹范围用 inkExtent 估算，勿用 getBBox）
+        const denBase = barY + fs * 0.96;
+        const gap = (denBase + inkExtent(denToks, fs).top) - barY;
+        const numBase = barY - gap - inkExtent(numToks, fs).bot;
+        gN.setAttribute('transform', 'translate(' + ((w - nw) / 2) + ',' + numBase + ')');
+        gD.setAttribute('transform', 'translate(' + ((w - dw) / 2) + ',' + denBase + ')');
+        gf.appendChild(mkLine(0, barY, w, barY, fill || '#ffffff', Math.max(2, Math.round(size * 0.055))));
+        gf.__w = w;
+        return gf;
+    }
+    // 逐段排版表达式：文本实时测宽 + 虚线框占位 + 分式；blankLevel 传入时框可点击作答（填表达式关）
+    // ctx = { n: 虚线框编号游标 }（跨行/跨分式连续编号）；兼容旧调用传数字 startBoxN
+    function buildExpr(parent, tokens, size, fill, blankLevel, ctx) {
+        ctx = (ctx === undefined || ctx === null || typeof ctx === 'number') ? { n: ctx || 0 } : ctx;
         const g = document.createElementNS(NS, 'g');
         parent.appendChild(g);
-        let cx = 0, boxN = startBoxN || 0;
-        tokens.forEach(tok => {
+        let cx = 0;
+        (tokens || []).forEach(tok => {
             if (tok.box) {
-                const w = size * 1.15, h = size * 0.82;
+                const w = size * 1.18, h = size * 0.80;
                 const r = document.createElementNS(NS, 'rect');
-                r.setAttribute('x', cx); r.setAttribute('y', -size * 0.62);
+                r.setAttribute('x', cx); r.setAttribute('y', -size * 0.58);
                 r.setAttribute('width', w); r.setAttribute('height', h);
                 r.setAttribute('rx', 6);
                 r.setAttribute('fill', 'rgba(255,217,61,0.10)');
@@ -981,12 +1487,16 @@
                 if (blankLevel !== undefined && blankLevel !== null) {
                     r.setAttribute('class', 'blank-box');
                     r.setAttribute('data-blank-level', blankLevel);
-                    r.setAttribute('data-blank-idx', boxN);
+                    r.setAttribute('data-blank-idx', ctx.n);
                     r.setAttribute('pointer-events', 'all');
                 }
+                ctx.n++;
                 g.appendChild(r);
                 cx += w + size * 0.22;
-                boxN++;
+            } else if (tok.frac) {
+                const gf = buildFrac(g, tok.frac[0], tok.frac[1], size, fill, blankLevel, ctx);
+                gf.setAttribute('transform', 'translate(' + cx + ',0)');
+                cx += gf.__w + size * 0.26;
             } else {
                 const t = mkText(cx, 0, size, markupOf(tok), { fill: fill, anchor: 'start' });
                 g.appendChild(t);
@@ -995,6 +1505,15 @@
         });
         return g;
     }
+    // 统计 tokens 中虚线框数（含分式内，递归）
+    function countBoxes(tokens) {
+        let n = 0;
+        (tokens || []).forEach(t => {
+            if (t.box) n++;
+            else if (t.frac) n += countBoxes(t.frac[0]) + countBoxes(t.frac[1]);
+        });
+        return n;
+    }
     // 表达式放入指定中心点
     function placeExpr(parent, tokens, size, cx, cy, fill, blankLevel, startBoxN) {
         const g = buildExpr(parent, tokens, size, fill, blankLevel, startBoxN);
@@ -1002,21 +1521,47 @@
         g.setAttribute('transform', 'translate(' + (cx - bb.x - bb.width / 2) + ',' + (cy - bb.y - bb.height / 2) + ')');
         return g;
     }
+    // 放进指定中心点并在超宽时整体缩字（重排时虚线框编号回退）
+    function fitExpr(parent, tokens, size, cx, cy, fill, blankLevel, startBoxN, maxW) {
+        maxW = maxW || (LW - 40);
+        const ctx = (startBoxN === undefined || startBoxN === null) ? null : { n: startBoxN };
+        const mark = ctx ? ctx.n : 0;
+        let g = placeExpr(parent, tokens, size, cx, cy, fill, blankLevel, ctx);
+        const w = g.getBBox().width;
+        if (w > maxW) {
+            if (ctx) ctx.n = mark;
+            g.remove();
+            g = placeExpr(parent, tokens, size * maxW / w, cx, cy, fill, blankLevel, ctx);
+        }
+        return g;
+    }
 
     // ---- 面板公共部分 ----
     function clearUI() { gameUI.innerHTML = ''; }
     function renderHeader() {
-        gameUI.appendChild(mkText(1010, 184, 34, '闯关挑战 · 案例1'));
-        gameUI.appendChild(mkText(1530, 160, 22, '得分', { fill: 'rgba(255,255,255,0.6)', anchor: 'end', bold: false }));
-        gameUI.appendChild(mkText(1530, 202, 42, S.score + '<tspan font-size="23" fill="rgba(255,255,255,0.6)"> / 100</tspan>', { fill: '#ffd93d', anchor: 'end' }));
-        gameUI.appendChild(mkLine(1010, 216, 1530, 216, 'rgba(167,139,250,0.4)', 2));
+        // 关卡标题（统一标准：红色）+ 总分（标题过长时自动缩字，避免与得分重叠）
+        const tt = mkText(LX, 186, 32, cur().cfg.title, { fill: '#ff5252' });
+        gameUI.appendChild(tt);
+        try {
+            const tw = tt.getComputedTextLength();
+            if (LX + tw > 1378) tt.setAttribute('font-size', Math.max(22, Math.floor(32 * (1378 - LX) / tw)));
+        } catch (e) {}
+        gameUI.appendChild(mkText(RX, 160, 22, '得分', { fill: 'rgba(255,255,255,0.6)', anchor: 'end', bold: false }));
+        gameUI.appendChild(mkText(RX, 202, 42, S.score + '<tspan font-size="23" fill="rgba(255,255,255,0.6)"> / 100</tspan>', { fill: '#ffd93d', anchor: 'end' }));
+        gameUI.appendChild(mkLine(LX, DIV_Y, RX, DIV_Y, 'rgba(167,139,250,0.4)', 2));
     }
-    // 七关进度条（两阶段：1-4 静态分析，5-7 动态分析）
+    // 固定小字（本关操作说明，各关固定不变）
+    function renderSubLine() {
+        if (S.finished) return;
+        gameUI.appendChild(mkText(LX, SUB_Y, 22, cur().cfg.subLine, { fill: 'rgba(255,255,255,0.7)', bold: false }));
+    }
+    // 关卡进度条（两阶段：1-3 静态分析，4-6 动态分析）
     function renderProgress() {
         const cy = 250, r = 17, x0 = 1024, dx = 74;
-        for (let i = 0; i < 6; i++) {
+        const nStatic = 3;   // 静态 3 关（绘制直流通路 / Q点步骤 / Q点框架+表达式）
+        for (let i = 0; i < LEVELS.length - 1; i++) {
             gameUI.appendChild(mkLine(x0 + i * dx + r + 3, cy, x0 + (i + 1) * dx - r - 3, cy,
-                i === 3 ? 'rgba(255,255,255,0.16)' : 'rgba(167,139,250,0.45)', 2.5));
+                i === nStatic - 1 ? 'rgba(255,255,255,0.16)' : 'rgba(167,139,250,0.45)', 2.5));
         }
         for (let i = 0; i < LEVELS.length; i++) {
             const st = (S.finished || S.level > i + 1) ? 'done' : (S.level === i + 1 ? 'cur' : '');
@@ -1033,136 +1578,470 @@
             }));
             gameUI.appendChild(g);
         }
-        gameUI.appendChild(mkText(x0 + 1.5 * dx, 290, 19, '静态分析', { anchor: 'middle', fill: 'rgba(255,255,255,0.5)', bold: false }));
-        gameUI.appendChild(mkText(x0 + 5 * dx, 290, 19, '动态分析', { anchor: 'middle', fill: 'rgba(255,255,255,0.5)', bold: false }));
+        // 阶段标签按实际关卡索引取中点（静态 1-3 / 动态 4-5），关卡数变化时自动跟随
+        const phIdx = pi => { const a = []; LEVELS.forEach((L, i) => { if (L.phase === pi) a.push(i); }); return a.length ? x0 + ((a[0] + a[a.length - 1]) / 2) * dx : x0; };
+        gameUI.appendChild(mkText(phIdx(0), 290, 19, '静态分析', { anchor: 'middle', fill: 'rgba(255,255,255,0.5)', bold: false }));
+        gameUI.appendChild(mkText(phIdx(1), 290, 19, '动态分析', { anchor: 'middle', fill: 'rgba(255,255,255,0.5)', bold: false }));
     }
-    function renderMsg(x, y, size) {
-        if (!S.msg) return;
-        const sz = size || 24;
-        const max = Math.max(10, Math.floor(510 / sz));   // 按面板宽度自动折行
-        for (let i = 0; i * max < S.msg.text.length; i++) {
-            gameUI.appendChild(mkText(x, y + i * (sz + 8), sz, S.msg.text.slice(i * max, (i + 1) * max), { fill: S.msg.color }));
+    // 本关已处理项数 / 总项数（状态行用，按关卡类型自动统计）
+    function statusOf() {
+        const i = S.level - 1, c = cur().cfg;
+        if (c.kind === 'draw') {
+            const d = S.draw[i], mids = moveIdsOf(c);
+            return {
+                done: c.targets.filter(t => d.found[t.id]).length + mids.filter(x => d.moved && d.moved[x]).length,
+                total: c.targets.length + mids.length
+            };
         }
+        if (c.kind === 'order') return { done: S.order[i].next, total: c.steps.length };
+        if (c.kind === 'qorder') return { done: S.qorder[i].next, total: c.seq.length };
+        if (c.kind === 'fw') return { done: S.fw[i].qs.filter(q => q.solved).length, total: S.fw[i].qs.length };
+        if (c.kind === 'mix') return { done: S.mix[i].si, total: c.subs.length };
+        return { done: S.fill[i].filter(b => b.done).length, total: c.blanks.length };
+    }
+    // 状态行：已处理 X/n 项    本关得分 Y/m 分   + 提醒按钮（重播最近一次语音）
+    function renderMsg() {   // 兼容旧调用签名 renderMsg(x, y, size)
+        if (!S.finished) {
+            const st = statusOf(), c = cur().cfg;
+            const t1 = mkText(LX, ST_Y, 24, '已处理 ' + st.done + '/' + st.total + ' 项', { fill: 'rgba(255,255,255,0.78)' });
+            gameUI.appendChild(t1);
+            let w1 = 200; try { w1 = t1.getComputedTextLength(); } catch (e) {}
+            const x2 = Math.max(LX + w1 + 44, 1236);
+            const t2 = mkText(x2, ST_Y, 24, '本关得分 ' + Math.round(S.levelScore[S.level - 1]) + '/' + c.pts + ' 分', { fill: '#ffd93d' });
+            gameUI.appendChild(t2);
+            let w2 = 200; try { w2 = t2.getComputedTextLength(); } catch (e) {}
+            if (x2 + w2 > BTN.x - 18) t2.setAttribute('font-size', Math.max(16, Math.floor(24 * (BTN.x - 18 - x2) / w2)));
+            const g = mkBtn(BTN.x, BTN.y, BTN.w, BTN.h, 'g-btn');
+            g.appendChild(mkText(BTN.x + BTN.w / 2, BTN.y + BTN.h / 2 + 8, 21, '\ud83d\udd0a 提醒', { anchor: 'middle' }));
+            g.addEventListener('click', replaySay);
+            gameUI.appendChild(g);
+        }
+        if (!S.msg) return;
+        const sz = 24;
+        const max = Math.max(10, Math.floor(LW / sz));
+        const text = S.msg.text.length > max ? S.msg.text.slice(0, max - 1) + '…' : S.msg.text;
+        gameUI.appendChild(mkText(LX, FB_Y, sz, text, { fill: S.msg.color }));
+    }
+    // 自适应行高：在 avail 内取尽量大的行高（避免留白过多 / 文字过小）
+    function planRows(n, avail, hMax, hMin, gapRatio) {
+        hMax = hMax || 62; hMin = hMin || 36;
+        gapRatio = gapRatio === undefined ? 0.18 : gapRatio;
+        for (let h = hMax; h >= hMin; h -= 2) {
+            const gap = Math.round(h * gapRatio);
+            if (n * h + (n - 1) * gap <= avail) return { h: h, gap: gap };
+        }
+        const gap = Math.max(4, Math.round(avail * 0.02));
+        return { h: Math.max(26, Math.floor((avail - (n - 1) * gap) / n)), gap: gap };
     }
 
-    // ---- 绘制关（①直流通路：移除元件/短接端口；⑤微变等效：变换元件） ----
-    function applyDraw(id, t) {
-        const c = cur().cfg, d = S.draw[S.level - 1];
-        if (c.mode === 'remove') {
-            if (t && t.act === 'short') {   // 输入端口短接：画短接桥 + 淡出＋/－/Vi 标注
-                const fx = document.getElementById('fx-vi');
-                if (fx) fx.style.opacity = '1';
-                const lab = document.querySelector('g[data-id="comp-vi"] .vi-labels');
-                if (lab) lab.style.opacity = '0.12';
-                return;
+    // ---- 绘制关（①直流通路 ⑤交流微变等效：悬停菜单选「短路/断路」「置零/保留」） ----
+    const CAP_FX = { 'comp-c1': 'fx-c1', 'comp-c2': 'fx-c2', 'comp-ce': 'fx-ce' };
+    function fadeGroup(x, full) {
+        const g = document.querySelector('g[data-id="' + x + '"]');
+        if (!g) return;
+        // 已是全隐（opacity 0）的对象不再被拉回 0.15 半隐（如 Vs 已短路隐藏，C1 断开时不应重新露头）
+        g.style.opacity = (full || g.style.opacity === '0') ? '0' : '0.15';
+        g.style.pointerEvents = 'none';
+    }
+    function showFx(id, on) {
+        const f = document.getElementById(id);
+        if (f) f.style.opacity = on ? '1' : '0';
+    }
+    function hideVccLabel() {
+        document.querySelectorAll('.vcc-label').forEach(t => { t.style.opacity = '0'; t.style.visibility = 'hidden'; });
+    }
+    // 执行一个绘制动作（id = 元件 data-id，act = 动作名）
+    function execAct(id, act) {
+        const c = cur().cfg;
+        switch (act) {
+            case 'cap-short':   // 电容短路：隐藏电容、画短接桥
+                fadeGroup(id, true); showFx(CAP_FX[id], true); break;
+            case 'cap-open': {  // 电容断路：本体与隔断回路一并淡出
+                fadeGroup(id);
+                const list = (c.fadeWith && c.fadeWith[id]) || [];
+                list.forEach(x => fadeGroup(x));
+                // 被移除回路里的特效件一并收起（C1 断开输入回路时，Vs 的短接桥随之消失）
+                if (list.indexOf('comp-src') >= 0) showFx('fx-vs', false);
+                const d = S.draw[S.level - 1];
+                (c.fadeWhenAll || []).forEach(rule => {
+                    if (rule.requires.every(x => d.found[x])) rule.units.forEach(x => fadeGroup(x));
+                });
+                break;
             }
-            const fade = x => {
-                const g = document.querySelector('g[data-id="' + x + '"]');
-                if (g) { g.style.opacity = '0.15'; g.style.pointerEvents = 'none'; }   // 连带导线一起移除，且不再响应点击
-            };
-            [id].concat((c.fadeWith && c.fadeWith[id]) || []).forEach(fade);
-            // 条件移除：requires 里的目标全部处理完成后，units 才收起（如 C_E、C_2 都断开后，地轨延伸段再无连接）
-            (c.fadeWhenAll || []).forEach(rule => {
-                if (rule.requires.every(x => d.found[x])) rule.units.forEach(fade);
-            });
-            if (id === 'comp-c1') {   // 输入回路整体移除时，短接桥一并消失
-                const f = document.getElementById('fx-vi');
-                if (f) f.style.opacity = '0';
+            case 'vs-short': fadeGroup('comp-src', true); showFx('fx-vs', true); break;
+            case 'vs-open':  fadeGroup('comp-src'); break;
+            case 'vs-keep':  break;
+            case 'vcc-gnd':  showFx('fx-vcc', true); hideVccLabel(); break;
+            case 'vcc-open': hideVccLabel(); break;
+            case 'vcc-keep': break;
+            case 're-remove':   // R_E 移除：原位换成短接导线（发射极经它接地），右侧 C_E 支路与发射极节点一并移除
+                fadeGroup('comp-re', true); showFx('fx-re', true);
+                ['wire-ce-a', 'wire-ce-b', 'node-ce', 'node-emitter'].forEach(x => fadeGroup(x, true));
+                showFx('fx-ce', false);
+                break;
+            case 're-keep':  break;
+            case 't-equiv':  fadeGroup('comp-t', true); showEquiv(); startTQuiz(); break;   // 移除晶体管并切换到交流等效布局
+        }
+    }
+    // 交流等效最终布局（第4关第3步选「等效」时启用）：
+    // 移除晶体管本体后，基极输入线上升到 y=195 与集电极导线对齐，Vs/Rs/RB1/RB2 上移；
+    // 旧 y=265 输入线、旧 Vs/Rs 列、整理态 R_B1/R_B2、发射极支路（r_be/受控源已直挂地线）全部收起
+    function showEquiv() {
+        ['wire-vi-top', 'wire-base-in', 'wire-base', 'comp-vi', 'wire-rs-top', 'comp-rs', 'wire-rs-bot', 'comp-src', 'wire-vi-gnd',
+         'wire-rb2a', 'comp-rb2', 'wire-rb2b',
+         'wire-emitter', 'wire-re-a', 'wire-re-b'].forEach(x => fadeGroup(x, true));
+        // 受控源上方的集电极节点（此时只剩 2 条导线成直角，已非节点）一并移除
+        fadeGroup('node-collector', true);
+        // 集电极横导线缩短：左端由晶体管 C 端（485）收到交流等效的 C 节点（560，受控源支路挂点）——
+        // 原整段导线（wire-collector 485→670）收起，改由 eq-layer 内的 560→670 段承担（见 eq-layer）
+        fadeGroup('wire-collector', true);
+        // rarr-rb1 / rarr-rb2lab 只有 id 没有 data-id，用 getElementById 收起
+        showFx('rarr-rb1', false);
+        showFx('rarr-rb2lab', false);
+        // R_C 保持在整理态下挂位（x=640，与 R_L 并联）：等效后位置不变，学生视觉上不会跳变
+        showFx('rarr-rc', true);
+        const rcKeep = document.getElementById('rarr-rc');
+        if (rcKeep) rcKeep.style.pointerEvents = 'all';
+        showFx('fx-c1', false);
+        showFx('fx-re', false);
+        // eq-layer 与其中可作答的 eq-rb1 / eq-rb2 一起点亮（resetCircuit 会把它们 opacity 清零）
+        ['eq-layer', 'eq-rb1', 'eq-rb2'].forEach(id => showFx(id, true));
+        setCircuitShift(true);   // 整个电路图上移 40px，等效模型区域更宽松
+        ['eq-rb1', 'eq-rb2'].forEach(id => { const el = document.getElementById(id); if (el) el.style.pointerEvents = 'all'; });
+    }
+    // 整理电路：R_B1 / R_C 上端的地下移并入地轨，电阻翻转下挂
+    function moveCompDown(id) {
+        const d = S.draw[S.level - 1];
+        d.moved = d.moved || {};
+        if (d.moved[id]) return;
+        d.moved[id] = true;
+        if (id === 'comp-rb1') {
+            fadeGroup('comp-rb1', true); fadeGroup('wire-rb1a', true); fadeGroup('wire-rb1b', true);
+            fadeGroup('wire-vcc-rail', true);   // 原RB1上端—R_C上端节点之间的顶部导线一并移除（RB1 已不接顶轨）
+            showFx('node-rc-top', false);       // R_C 上方节点（原三线交汇点）随之移除
+            showFx('rarr-rb1', true);
+            const f1 = document.getElementById('rarr-rb1');
+            if (f1) f1.style.pointerEvents = 'all';   // 下挂件可见后可点击（后续填空关作答用）
+            document.querySelectorAll('.rb2-label').forEach(t => { t.style.opacity = '0'; });   // 原标签让位
+            showFx('rarr-rb2lab', true);
+        } else if (id === 'comp-rc') {
+            fadeGroup('comp-rc', true); fadeGroup('wire-rc-top', true); fadeGroup('wire-rc-a', true);
+            showFx('node-rc-top', false);       // R_C 下移后顶轨变直线，交汇节点消失
+            fadeGroup('node-collector', true);  // R_C 下移（与 R_L 并联）后集电极只是导线折角，节点圆一并移除
+            showFx('rarr-rc', true);
+            const f2 = document.getElementById('rarr-rc');
+            if (f2) f2.style.pointerEvents = 'all';
+        }
+        if (d.moved['comp-rb1'] && d.moved['comp-rc']) {   // 两个电阻都下移 → 顶部的地与下方地合并，收起顶轨与 +Vcc 端子
+            ['wire-vcc-rail', 'wire-vcc-ext', 'comp-vcc'].forEach(x => fadeGroup(x, true));
+            showFx('fx-vcc', false);
+        }
+        render();
+    }
+    // ---- 晶体管等效五连问（第4关第3步）：
+    //      ①B–E 之间→r_be ②B–C 之间→开路 ③C–E 之间→受控源（三选一，选项随机顺序）
+    //      ④给 B 端支路加 i_b 与箭头（选项：↑i_b / ↓i_b）⑤给集电极支路加 βi_b 与箭头（选项：↑βi_b / ↓βi_b）
+    //      答错从本项 2 分池扣 1，无论对错都推进下一问（答错时同样画出正确结果） ----
+    const TQUIZ = [
+        { dots: ['fx-dot-b', 'fx-dot-e'], opts: ['rbe', '开路', '受控源'], ok: 'rbe',
+          q: 'B、E 之间相当于什么？', reveal: 'fx-t-rbe' },
+        { dots: ['fx-dot-b', 'fx-dot-c'], opts: ['rbe', '开路', '受控源'], ok: '开路',
+          q: 'B、C 之间相当于什么？' },
+        { dots: ['fx-dot-c', 'fx-dot-e'], opts: ['rbe', '开路', '受控源'], ok: '受控源',
+          q: 'C、E 之间相当于什么？', reveal: 'fx-t-src' },
+        { dots: ['fx-dot-b'], opts: ['↑i_b', '↓i_b'], ok: '↓i_b',
+          q: '在 B 端支路（r_be 所在支路）添加电流 i_b 与箭头，箭头方向是？', reveal: 'fx-t-ib' },
+        { dots: ['fx-dot-c'], opts: ['↑βi_b', '↓βi_b'], ok: '↓βi_b',
+          q: '在集电极支路（受控源所在支路）添加电流 βi_b 与箭头，箭头方向是？', reveal: 'fx-t-ic' }
+    ];
+    // 电流方向问的选项渲染：↑/↓ + 带下标的符号（如 ↓i_b → ↓i 加下标 b）；其余选项返回 null 走纯文本
+    const TQ_SUBB = '<span style="font-size:0.72em;vertical-align:-0.16em">b</span>';
+    function tquizOptHtml(op) {
+        const c = op.charAt(0);
+        if (c !== '↑' && c !== '↓') return null;
+        return c + (op.slice(1) === 'i_b' ? 'i' : 'βi') + TQ_SUBB;
+    }
+    function startTQuiz() {
+        const d = S.draw[S.level - 1];
+        d.tquiz = { step: 0, pool: 2 };
+        hideMenu();
+        showFx('fx-tmodel', true);   // 父层可见（PE 保持 none，完成后才可点击）
+        showTQuizMenu(d);
+    }
+    function showTQuizMenu(d) {
+        const q = TQUIZ[d.tquiz.step];
+        q.dots.forEach(id => showFx(id, true));
+        setMsg('晶体管等效 · 第 ' + (d.tquiz.step + 1) + '/' + TQUIZ.length + ' 问：' + q.q, '#ffd93d');
+        // 选项每次随机顺序（Fisher-Yates；判定按 label 查正确答案，不受顺序影响）
+        const ops = q.opts.slice();
+        for (let k = ops.length - 1; k > 0; k--) {
+            const j = Math.floor(Math.random() * (k + 1));
+            const t = ops[k]; ops[k] = ops[j]; ops[j] = t;
+        }
+        const items = ops.map(op => ({ label: op, html: tquizOptHtml(op), fn: () => answerTQuiz(op) }));
+        // 水平选项条固定在电路图上方空白带（等效态电路线 y=415 之上、已知行 y=217 之下；
+        // 居中 cx=450 避开右上 +VCC 端子与接地符号区 795-851），不遮挡电路；顺序仍随机
+        showMenu(null, items, true, { cx: 450, cy: 306 });   // 锁定菜单：不随鼠标离开消失
+        render();
+    }
+    function answerTQuiz(op) {
+        const d = S.draw[S.level - 1];
+        if (!d || !d.tquiz || S.finished) return;
+        const q = TQUIZ[d.tquiz.step];
+        const right = op === q.ok;
+        // 无论对错都推进：先停闪烁（隐藏该问红点）、呈现该问的正确等效结果
+        // （B–E 画 r_be、C–E 画受控源、B–C 开路不画；i_b / i_c 画出正确方向的箭头）
+        q.dots.forEach(id => showFx(id, false));
+        if (q.reveal) showFx(q.reveal, true);
+        d.tquiz.step++;
+        const last = d.tquiz.step >= TQUIZ.length;
+        if (last) {
+            if (!right && d.tquiz.pool > 0) d.tquiz.pool--;
+            const got = d.tquiz.pool;   // 池语义：本项剩余分值（此前选错已扣除，可为 0）
+            addScore(got);
+            d.found['comp-t'] = true;
+            fadeGroup('comp-t', true);
+            const f = document.getElementById('fx-tmodel');
+            if (f) f.style.pointerEvents = 'all';   // 模型完整可见后可点击（r_be 填空作答）
+            hideMenu();
+            if (right) {
+                setMsg('正确，得 ' + got + ' 分。', '#34d399');
+                say('回答正确，得' + got + '分。');
+            } else {
+                setMsg('错误，本项得 ' + got + ' 分。', got > 0 ? '#ffd93d' : '#fb7185');
+                say('回答错误，本项得' + got + '分。');
             }
+            render();
+            if (drawDone(cur().cfg, d)) addT(completeLevel, 1200);
+            return;
+        }
+        if (right) {
+            setMsg('正确。', '#34d399');
+            say('回答正确。');
         } else {
-            const g = document.querySelector('g[data-id="' + id + '"]');
-            if (g) g.style.opacity = (id === 'comp-t' || id === 'comp-vcc') ? '0.12' : '0.3';
-            const fx = c.fxMap && c.fxMap[id];
-            if (fx) {
-                const f = document.getElementById(fx);
-                if (f) {
-                    f.style.opacity = '1';
-                    if (fx === 'fx-tmodel') f.style.pointerEvents = 'all';   // 模型可点击（等效晶体管作答）
-                }
+            if (d.tquiz.pool > 0) d.tquiz.pool--;
+            if (d.tquiz.pool <= 0) {
+                setMsg('错误，扣 1 分，本项已无分值。', '#fb7185');
+                say('回答错误，扣1分，本项已经没分了。');
+            } else {
+                setMsg('错误，扣 1 分。', '#fb7185');
+                say('回答错误，扣1分。');
             }
         }
+        render();
+        addT(() => showTQuizMenu(d), 900);
+    }
+
+    // ---- 小步（子步骤）判定：第 4 关「交流通路 → 整理电路 → 等效晶体管」 ----
+    function moveIdsOf(c) {
+        let out = [];
+        (c.subSteps || []).forEach(st => { out = out.concat(st.moveIds || []); });
+        return out;
+    }
+    function stepDone(c, d, st) {
+        return (st.ids || []).every(x => d.found[x]) && (st.moveIds || []).every(x => d.moved && d.moved[x]);
+    }
+    function curStepIdx(c, d) {
+        if (!c.subSteps) return 0;
+        for (let i = 0; i < c.subSteps.length; i++) if (!stepDone(c, d, c.subSteps[i])) return i;
+        return c.subSteps.length;
+    }
+    function targetAvailable(c, d, id) {
+        if (c.gate && c.gate.indexOf(id) < 0) {   // 门控：gate 里的元件全部处理完，其它目标才解锁
+            if (!c.gate.every(g => d.found[g])) return false;
+        }
+        if (!c.subSteps) return true;
+        const st = c.subSteps[curStepIdx(c, d)];
+        return !!(st && (st.ids || []).indexOf(id) >= 0);
+    }
+    function drawDone(c, d) {
+        if (!c.targets.every(t => d.found[t.id])) return false;
+        return (c.subSteps || []).every(st => stepDone(c, d, st));
     }
     function renderDraw() {
         const c = cur().cfg, d = S.draw[S.level - 1];
-        const n = c.targets.length, per = Math.round(c.pts / n);
-        const found = c.targets.filter(t2 => d.found[t2.id]).length;
-        gameUI.appendChild(mkText(1010, 326, 32, c.title, { fill: '#a78bfa' }));
-        gameUI.appendChild(mkText(1010, 368, 23, cur().phaseName + ' · ' + c.subLine, { fill: 'rgba(255,255,255,0.65)', bold: false }));
-        // 题面按面板宽度折行（中文逐字断行）
-        const qmax = 17;
-        for (let qi = 0; qi * qmax < c.q.length; qi++) {
-            gameUI.appendChild(mkText(1010, 418 + qi * 36, 26, c.q.slice(qi * qmax, (qi + 1) * qmax)));
+        const mids = moveIdsOf(c), per = Math.round(c.pts / c.targets.length);
+        const total = c.targets.length + mids.length;
+        const found = c.targets.filter(t => d.found[t.id]).length + mids.filter(x => d.moved && d.moved[x]).length;
+        let qy = BODY_TOP + 36;
+        if (c.subSteps) {
+            const si = curStepIdx(c, d);
+            const dots = c.subSteps.map((s, i) => (i < si ? '✓' : (i === si ? '▶' : '·')) + (i + 1)).join('  ');
+            gameUI.appendChild(mkText(1010, BODY_TOP, 22, '当前步骤：' + (c.subSteps[si] ? c.subSteps[si].name : '完成') + '　' + dots, { fill: 'rgba(255,255,255,0.7)', bold: false }));
+            qy = BODY_TOP + 38;
         }
-        gameUI.appendChild(mkText(1010, 508, 26, '已处理 ' + found + ' / ' + n + ' 项 · 每项 ' + per + ' 分', { fill: '#ffd93d' }));
-        gameUI.appendChild(mkText(1010, 546, 24, '本关已得：' + (S.score - S.levelStart) + ' / ' + c.pts + ' 分', { fill: 'rgba(255,255,255,0.65)', bold: false }));
-        gameUI.appendChild(mkText(1010, 594, 24, '请在左侧电路图上点击作答', { fill: 'rgba(255,255,255,0.55)', bold: false }));
-        renderMsg(1010, 768, 26);
+        // 中文折行：优先在标点后断行（行首不出现标点、末行不剩单字），无处可断再按 17 字硬切
+        const qmax = 17;
+        const PUNCT = '，。、；：？！）」》';
+        const qlines = [];
+        let seg = c.q;
+        while (seg.length > qmax) {
+            let cut = qmax;
+            for (let pi = Math.min(qmax, seg.length - 1) - 1; pi >= 5; pi--) {
+                if (PUNCT.indexOf(seg[pi]) >= 0) { cut = pi + 1; break; }
+            }
+            qlines.push(seg.slice(0, cut));
+            seg = seg.slice(cut);
+        }
+        if (seg) qlines.push(seg);
+        qlines.forEach((line, qi) => {
+            gameUI.appendChild(mkText(1010, qy + qi * 36, 26, line));
+        });
+        // 门控动态引导：电源未处理完时提示先处理电源
+        let guide = '把鼠标移到电路图上，在浮出的菜单里选作答';
+        if (c.gate && !c.gate.every(g => d.found[g])) guide = '当前：先处理两个电源（Vs 与 +Vcc）';
+        else if (c.gate) guide = '电源已处理，现在处理三只电容';
+        gameUI.appendChild(mkText(1010, qy + qlines.length * 36 + 16, 22, guide, { fill: 'rgba(255,255,255,0.7)', bold: false }));
+        renderMsg(1010, 700, 26);
+    }
+    function buildMenuItems(id, menu) {
+        return menu.map(o => ({
+            label: o.label,
+            fn: (anchor) => {
+                if (o.sub) { showMenu(anchor, buildMenuItems(id, shuffle(o.sub))); return; }   // 置零 → 二级选项（短路/断路、接地/断路）随机顺序
+                chooseDrawOption(id, o);
+            }
+        }));
+    }
+    function menuItemsFor(id) {
+        if (S.finished) return null;
+        const L = cur();
+        if (!L || L.kind !== 'draw') return null;
+        const c = L.cfg, d = S.draw[S.level - 1];
+        if (!d || d.found[id]) return null;
+        if (d.tquiz && d.tquiz.step < TQUIZ.length) return null;   // 等效问答进行中：不再弹晶体管菜单
+        if (c.subSteps) {   // 整理下移目标：弹出「下移」，选后再弹「与 XX 串 / 并」二级选项
+            const st = c.subSteps[curStepIdx(c, d)];
+            if (st && (st.moveIds || []).indexOf(id) >= 0 && !(d.moved && d.moved[id])) {
+                const pair = id === 'comp-rb1'
+                    ? [['与RB2串', false], ['与RB2并', true]]
+                    : [['与RL串', false], ['与RL并', true]];
+                return [{
+                    label: '下移',
+                    fn: (anchor) => {
+                        showMenu(anchor, pair.map(p => ({
+                            label: p[0],
+                            fn: () => chooseMoveOption(id, p[1])
+                        })));
+                    }
+                }];
+            }
+        }
+        const t = (c.targets || []).find(x => x.id === id);
+        if (!t || !t.menu || !targetAvailable(c, d, id)) return null;
+        return buildMenuItems(id, t.menu);
+    }
+    // 下移后的串/并选择：正确 → 执行下挂；错误 → 直接扣 1 分可重选
+    function chooseMoveOption(id, ok) {
+        if (S.finished) return;
+        if (ok) {
+            const c = cur().cfg, d = S.draw[S.level - 1];
+            hideMenu();
+            moveCompDown(id);
+            // R_B1 / R_C 下挂完成：播「回答正确。」，若三个电阻至此全部处理完则追加「请等效BJT。」
+            saySeq(['回答正确。', nextHint(c, d, id)]);
+            return;
+        }
+        const g = document.querySelector('g[data-id="' + id + '"]');
+        if (g) blinkGroup(id, '#fb7185');
+        penalize(1);
+        setMsg('错误，扣 1 分。', '#fb7185');
+        say('回答错误，扣1分。');
+        render();
+    }
+    function chooseDrawOption(id, o) {
+        if (S.finished) return;
+        const c = cur().cfg, d = S.draw[S.level - 1];
+        if (!d || d.found[id]) return;
+        if (o.ok) {
+            d.found[id] = true;
+            if (o.act === 't-equiv') {   // 晶体管等效：分值全部由等效问答的分值池结算（此处不计分、不播报）
+                execAct(id, o.act);      // 不 blinkGroup：晶体管本体已移除，若落到微变模型会把未作答的 r_be/βi_b 标签提前染色
+                render();
+                return;
+            }
+            if (d.pool[id] === undefined) d.pool[id] = Math.round(c.pts / c.targets.length);
+            const got = d.pool[id];   // 答对只给该项剩余分值（此前选错已扣除，可为 0）
+            addScore(got);
+            execAct(id, o.act);
+            blinkGroup(id, '#34d399');
+            setMsg('正确，得 ' + got + ' 分。', '#34d399');
+            // 「回答正确，得X分。」后按当前进度追加提示语（电源处理完→选电容；电容完→选电阻；电阻完→等效 BJT）
+            saySeq(['回答正确，得' + got + '分。', nextHint(c, d, id)]);
+            // 晶体管「等效」不在此排定过关：五问全部结束后由 answerTQuiz 收尾（否则关卡在提问中被跳过）
+            if (o.act !== 't-equiv' && drawDone(c, d)) { render(); addT(completeLevel, 1200); return; }
+        } else {
+            // 按项扣分：错一次该项分值池减 1（不立即动总分，答对时只给该项剩余分值——与 fw/fill/order 的池语义一致）
+            if (d.pool[id] === undefined) d.pool[id] = Math.round(c.pts / c.targets.length);
+            if (d.pool[id] > 0) d.pool[id]--;
+            blinkGroup(id, '#fb7185');
+            if (d.pool[id] <= 0) {
+                setMsg('错误，扣 1 分，本项已无分值。', '#fb7185');
+                say('回答错误，扣1分，本项已经没分了。');
+            } else {
+                setMsg('错误，扣 1 分。', '#fb7185');
+                say('回答错误，扣1分。');
+            }
+        }
+        render();
     }
     function pickDrawUnit(id) {
         if (S.finished) return;
-        const i = S.level - 1, c = cur().cfg, d = S.draw[i];
-        if (d.found[id]) return;
-        if (c.immune && c.immune.indexOf(id) >= 0) {   // 本关保留原位的元件：不扣分、不处理
-            setMsg('该元件保留原位。', '#67e8f9');
+        const c = cur().cfg, d = S.draw[S.level - 1];
+        if (!d || d.found[id]) return;
+        if (d.moved && d.moved[id]) return;   // 已下移的元件（下挂件同 data-id）不再重复处理
+        if (c.subSteps) {   // 整理下移目标：点击本体弹出「下移 → 串/并」菜单（与悬停一致）
+            const st = c.subSteps[curStepIdx(c, d)];
+            if (st && (st.moveIds || []).indexOf(id) >= 0 && !(d.moved && d.moved[id])) {
+                const gEl = document.querySelector('g[data-id="' + id + '"]');
+                const items = menuItemsFor(id);
+                if (items && gEl) showMenu(gEl, items);
+                return;
+            }
+        }
+        const t = (c.targets || []).find(x => x.id === id);
+        if (t && t.menu && !targetAvailable(c, d, id)) {   // 门控未解锁：提示先处理电源，不扣分、不播语音
+            setMsg('请先处理两个电源（Vs 与 +Vcc），再处理电容。', '#ffd93d');
             render();
             return;
         }
-        const t = c.targets.find(t2 => t2.id === id);
-        if (t) {
-            d.found[id] = true;
-            const per = Math.round(c.pts / c.targets.length);
-            addScore(per);
-            applyDraw(id, t);
-            blinkGroup(id, '#34d399');
-            // 连锁完成：被移除回路里的其他目标自动一并计分（如点 C1 时输入端口随回路移除）
-            const auto = (c.chainFound && c.chainFound[id] || []).filter(cid => !d.found[cid] && c.targets.some(t2 => t2.id === cid));
-            auto.forEach(cid => { d.found[cid] = true; addScore(per); });
-            const got = per + per * auto.length;
-            setMsg('正确，得 ' + got + ' 分。', '#34d399');
-            say('回答正确，得' + got + '分。');
-            if (c.targets.every(t2 => d.found[t2.id])) {
-                render();
-                addT(completeLevel, 1400);
-                return;
-            }
-        } else {
-            penalize(1);
-            blinkGroup(id, '#fb7185');
-            setMsg('错误，扣 1 分。', '#fb7185');
-            say('回答错误，扣1分。');
-        }
+        if (t && t.menu && targetAvailable(c, d, id)) return;   // 菜单目标：单击本体不作答，用浮出的菜单
+        penalize(1);
+        blinkGroup(id, '#fb7185');
+        setMsg('错误，扣 1 分。', '#fb7185');
+        say('回答错误，扣1分。');
         render();
     }
 
     // ---- 步骤排序关（②Q点计算步骤） ----
     function renderOrder() {
         const i = S.level - 1, c = cur().cfg, o = S.order[i];
-        gameUI.appendChild(mkText(1010, 326, 32, c.title, { fill: '#a78bfa' }));
-        gameUI.appendChild(mkText(1010, 368, 23, cur().phaseName + ' · ' + c.subLine + ' · 剩余 ' + Math.round(o.rem) + ' / ' + c.pts + ' 分', { fill: 'rgba(255,255,255,0.65)', bold: false }));
-        gameUI.appendChild(mkText(1010, 420, 27, c.q));
+        gameUI.appendChild(mkText(1010, BODY_TOP + 32, 26, c.q));
         const oqT = gameUI.lastChild;   // 题面超宽自动缩字
-        if (oqT.getComputedTextLength() > 505) oqT.setAttribute('font-size', Math.max(20, Math.floor(27 * 505 / oqT.getComputedTextLength())));
+        if (oqT.getComputedTextLength() > 505) oqT.setAttribute('font-size', Math.max(20, Math.floor(26 * 505 / oqT.getComputedTextLength())));
+        const oTop = BODY_TOP + 80, plan = planRows(S.orderList[i].length, BODY_BOT - oTop, 78, 48, 0.14);
         S.orderList[i].forEach((chip, vi) => {
-            const y = 448 + vi * 74;
+            const y = oTop + vi * (plan.h + plan.gap);
             const done = o.next > chip.ord;
-            const g = mkBtn(1010, y, 520, 64);
+            const g = mkBtn(1010, y, 520, plan.h);
             if (done) g.classList.add('ok');
             else if (o.wrong === vi) g.classList.add('bad');
             gameUI.appendChild(g);
             if (done) {
                 const bg = document.createElementNS(NS, 'g');
                 const bc = document.createElementNS(NS, 'circle');
-                bc.setAttribute('cx', 1036); bc.setAttribute('cy', y + 32); bc.setAttribute('r', 15);
+                bc.setAttribute('cx', 1036); bc.setAttribute('cy', y + plan.h / 2); bc.setAttribute('r', 15);
                 bc.setAttribute('fill', '#34d399');
                 bg.appendChild(bc);
-                bg.appendChild(mkText(1036, y + 40, 22, String(chip.ord + 1), { anchor: 'middle', fill: '#0a3d20' }));
+                bg.appendChild(mkText(1036, y + plan.h / 2 + 8, 22, String(chip.ord + 1), { anchor: 'middle', fill: '#0a3d20' }));
                 g.appendChild(bg);
             }
-            let eg = placeExpr(g, chip.tokens, 30, done ? 1290 : 1270, y + 34, done ? '#34d399' : '#ffffff');
+            const esz = Math.max(20, Math.min(30, Math.round(plan.h * 0.42)));
+            let eg = placeExpr(g, chip.tokens, esz, done ? 1290 : 1270, y + plan.h / 2, done ? '#34d399' : '#ffffff');
             const ew = eg.getBBox().width;
             if (ew > 420) {
                 eg.remove();
-                placeExpr(g, chip.tokens, 30 * 420 / ew, done ? 1290 : 1270, y + 34, done ? '#34d399' : '#ffffff');
+                placeExpr(g, chip.tokens, esz * 420 / ew, done ? 1290 : 1270, y + plan.h / 2, done ? '#34d399' : '#ffffff');
             }
             g.addEventListener('click', () => pickOrder(vi));
         });
@@ -1187,8 +2066,81 @@
         } else {
             o.rem = Math.max(0, o.rem - 2);
             o.wrong = vi;
-            setMsg('错误，扣 2 分。', '#fb7185');
-            say('回答错误，扣2分。');
+            if (o.rem === 0) {
+                setMsg('错误，扣 2 分，本关已无分值。', '#fb7185');
+                say('回答错误，扣2分，本关已经没分了。');
+            } else {
+                setMsg('错误，扣 2 分。', '#fb7185');
+                say('回答错误，扣2分。');
+            }
+        }
+        render();
+    }
+
+    // ---- Q点电量标注层（②按序点击；③框架+表达式关仍需参考/作答，故保留可见；进入交流关才移除） ----
+    function updateQlabels() {
+        const layer = document.getElementById('qlabel-layer');
+        if (!layer) return;
+        const k = cur().kind;
+        // 静态阶段（phase 0：Q点计算 mix）保留标注；动态阶段的 mix（第5关 Av/Ri/Ro）不显示——交流等效中 Q 点电量与箭头不应出现
+        const on = k === 'qorder' || (k === 'mix' && cur().phase === 0);
+        layer.style.opacity = on ? '1' : '0';
+        layer.style.pointerEvents = on ? 'all' : 'none';
+    }
+    function renderQorder() {
+        const i = S.level - 1, c = cur().cfg, o = S.qorder[i];
+        gameUI.appendChild(mkText(1010, BODY_TOP + 32, 26, c.q));
+        // 进度：已点出的电量序列（绿）→ 未完成的占位 □
+        let mk = '';
+        c.seq.forEach((id, k) => {
+            if (k) mk += '<tspan fill="rgba(255,255,255,0.45)">  →  </tspan>';
+            mk += k < o.next ? '<tspan fill="#34d399">' + c.names[id] + '</tspan>' : '<tspan fill="rgba(255,255,255,0.45)">□</tspan>';
+        });
+        gameUI.appendChild(mkText(1010, BODY_TOP + 86, 30, mk));
+        gameUI.appendChild(mkText(1010, BODY_TOP + 136, 24, '已完成 ' + o.next + ' / ' + c.seq.length + ' 步 · 当前第 ' + (o.next + 1) + ' 步', { fill: '#ffd93d' }));
+        gameUI.appendChild(mkText(1010, BODY_TOP + 172, 22, '在左侧电路图上，点击下一步要计算的量', { fill: 'rgba(255,255,255,0.7)', bold: false }));
+        renderMsg(1010, 764, 26);
+    }
+    function pickQorder(id) {
+        if (S.finished) return;
+        const i = S.level - 1, c = cur().cfg, o = S.qorder[i];
+        if (!o || o.next >= c.seq.length) return;
+        if (o.done.indexOf(id) >= 0) {   // 已选过的量：不扣分
+            setMsg('该量已选过。', '#ffd93d');
+            render();
+            return;
+        }
+        // 本关要计算的量 = seq + alt；点到普通元件或其它标注（V_BE、β 等已知参数）只提示、不扣分
+        const seqIds = c.seq.concat((c.seq || []).map(k2 => (c.alt || {})[k2]).filter(Boolean));
+        if (seqIds.indexOf(id) < 0) {
+            setMsg('请点击本关要计算的电量。', '#ffd93d');
+            render();
+            return;
+        }
+        const exp = c.seq[o.next];
+        const okIds = [exp].concat(c.alt && c.alt[exp] ? [c.alt[exp]] : []);
+        if (okIds.indexOf(id) >= 0) {
+            o.next++;
+            o.done.push(id);
+            blinkGroup(id, '#34d399');
+            if (o.next >= c.seq.length) {
+                addScore(Math.round(o.rem));
+                setMsg('步骤全对，得 ' + Math.round(o.rem) + ' 分。', '#34d399');
+                say('回答正确，得' + Math.round(o.rem) + '分。', completeLevel);
+            } else {
+                setMsg('正确。', '#34d399');
+                say('回答正确。');
+            }
+        } else {
+            o.rem = Math.max(0, o.rem - 2);
+            blinkGroup(id, '#fb7185');
+            if (o.rem === 0) {
+                setMsg('错误，扣 2 分，本关已无分值。', '#fb7185');
+                say('回答错误，扣2分，本关已经没分了。');
+            } else {
+                setMsg('错误，扣 2 分。', '#fb7185');
+                say('回答错误，扣2分。');
+            }
         }
         render();
     }
@@ -1198,33 +2150,32 @@
         const i = S.level - 1, c = cur().cfg, fw = S.fw[i];
         const multi = fw.qs.length > 1;
         const q = fw.qs[fw.qi];
-        const oy0 = multi ? 468 : 448, ody = multi ? 78 : 88, oh = multi ? 68 : 76;
-        gameUI.appendChild(mkText(1010, 326, 32, c.title, { fill: '#a78bfa' }));
-        gameUI.appendChild(mkText(1010, 368, 23, cur().phaseName + ' · ' + c.subLine, { fill: 'rgba(255,255,255,0.65)', bold: false }));
+        let qy = BODY_TOP;
         if (multi) {   // 指标进度：①②③（已答✓ / 当前▶ / 未答·）
             const dots = fw.qs.map((qq, qi) => (qq.solved ? '✓' : (qi === fw.qi ? '▶' : '·')) + (qi + 1)).join('  ');
-            gameUI.appendChild(mkText(1010, 402, 23, '当前指标：' + q.label + '　' + dots, { fill: '#67e8f9' }));
+            gameUI.appendChild(mkText(1010, qy, 22, '当前指标：' + q.label + '　' + dots, { fill: 'rgba(255,255,255,0.7)', bold: false }));
+            qy += 40;
         }
-        gameUI.appendChild(mkText(1010, multi ? 440 : 420, 27, q.fwQ));
+        gameUI.appendChild(mkText(1010, qy + 30, 26, q.fwQ));
+        const oy0 = qy + 78, plan = planRows(q.opts.length, BODY_BOT - oy0, multi ? 80 : 96, 48, 0.14);
         q.opts.forEach((f, vi) => {
-            const y = oy0 + vi * ody;
-            const g = mkBtn(1010, y, 520, oh);
+            const y = oy0 + vi * (plan.h + plan.gap);
+            const g = mkBtn(1010, y, 520, plan.h);
             const col = (f.correct && q.solved) ? '#34d399' : '#ffffff';
             if (q.solved) { if (f.correct) g.classList.add('ok'); else g.classList.add('dim'); }
             else if (q.chosen.indexOf(vi) >= 0) { g.classList.add('bad'); g.classList.add('dim'); }
+            g.dataset.optIdx = vi;
             gameUI.appendChild(g);
-            g.appendChild(mkText(1028, y + oh / 2 + 10, 25, String.fromCharCode(65 + vi), { fill: 'rgba(255,255,255,0.55)' }));
-            let eg = placeExpr(g, f.tokens, 32, 1290, y + oh / 2, col);
+            g.appendChild(mkText(1028, y + plan.h / 2 + 10, 25, String.fromCharCode(65 + vi), { fill: 'rgba(255,255,255,0.55)' }));
+            const fsz = Math.max(20, Math.min(32, Math.round(plan.h * 0.40)));
+            let eg = placeExpr(g, f.tokens, fsz, 1290, y + plan.h / 2, col);
             const ew = eg.getBBox().width;
             if (ew > 420) {
                 eg.remove();
-                placeExpr(g, f.tokens, 32 * 420 / ew, 1290, y + oh / 2, col);
+                placeExpr(g, f.tokens, fsz * 420 / ew, 1290, y + plan.h / 2, col);
             }
             g.addEventListener('click', () => pickFw(vi));
         });
-        const remTotal = fw.qs.reduce((s2, qq) => s2 + (qq.solved ? 0 : qq.rem), 0);
-        gameUI.appendChild(mkText(1010, 726, 24,
-            '本关剩余：' + Math.round(remTotal) + ' / ' + c.pts + ' 分', { fill: 'rgba(255,255,255,0.65)', bold: false }));
         renderMsg(1010, 764, 26);
     }
     function pickFw(vi) {
@@ -1248,33 +2199,123 @@
             }
         } else {
             q.rem = Math.max(0, q.rem - q.pen);
-            setMsg('错误，扣 ' + q.pen + ' 分。', '#fb7185');
-            say('回答错误，扣' + q.pen + '分。');
+            if (q.rem === 0) {
+                setMsg('错误，扣 ' + q.pen + ' 分，本项已无分值。', '#fb7185');
+                say('回答错误，扣' + q.pen + '分，本项已经没分了。');
+            } else {
+                setMsg('错误，扣 ' + q.pen + ' 分。', '#fb7185');
+                say('回答错误，扣' + q.pen + '分。');
+            }
         }
         render();
     }
 
     // ---- 填表达式关（④⑦） ----
+    // ---- 框架 + 表达式交错关（③：每个电量先选框架、再填表达式） ----
+    function renderMix() {
+        const i = S.level - 1, c = cur().cfg, mx = S.mix[i];
+        const sb = c.subs[mx.si], st = mx.steps[mx.si];
+        const dots = c.subs.map((s2, k) => (k < mx.si ? '✓' : (k === mx.si ? '▶' : '·')) + (k + 1)).join(' ');
+        gameUI.appendChild(mkText(1010, BODY_TOP, 22, '第 ' + (mx.si + 1) + ' / ' + c.subs.length + ' 步 · ' + sb.name + '　' + dots, { fill: 'rgba(255,255,255,0.7)', bold: false }));
+        if (st.type === 'fw') {
+            gameUI.appendChild(mkText(1010, BODY_TOP + 40, 26, sb.fwQ));
+            const oy0 = BODY_TOP + 88, plan = planRows(st.opts.length, BODY_BOT - oy0, 96, 48, 0.14);
+            st.opts.forEach((f, vi) => {
+                const y = oy0 + vi * (plan.h + plan.gap);
+                const g = mkBtn(1010, y, 520, plan.h);
+                const col = (f.correct && st.solved) ? '#34d399' : '#ffffff';
+                if (st.solved) { if (f.correct) g.classList.add('ok'); else g.classList.add('dim'); }
+                else if (st.chosen.indexOf(vi) >= 0) { g.classList.add('bad'); g.classList.add('dim'); }
+                g.dataset.optIdx = vi;
+                gameUI.appendChild(g);
+                g.appendChild(mkText(1028, y + plan.h / 2 + 10, 25, String.fromCharCode(65 + vi), { fill: 'rgba(255,255,255,0.55)' }));
+                const fsz = Math.max(20, Math.min(32, Math.round(plan.h * 0.40)));
+                let eg = placeExpr(g, f.tokens, fsz, 1290, y + plan.h / 2, col);
+                const ew = eg.getBBox().width;
+                if (ew > 420) { eg.remove(); placeExpr(g, f.tokens, fsz * 420 / ew, 1290, y + plan.h / 2, col); }
+                g.addEventListener('click', () => pickMixFw(vi));
+            });
+            renderMsg(1010, 764, 26);
+            return;
+        }
+        gameUI.appendChild(mkText(1010, BODY_TOP + 40, 26, '表达式：', { fill: '#ffd93d' }));
+        const es = 42;   // 文字标准（lin-g 系列）：填空表达式 42，超宽自动缩排
+        const eTop = BODY_TOP + 96, eSpan = BODY_BOT - eTop;
+        const eStep = Math.min(120, eSpan / Math.max(1, sb.fullExpr.length));
+        const eY0 = eTop + (eSpan - (sb.fullExpr.length - 1) * eStep) / 2;
+        let boxOff = 0;
+        sb.fullExpr.forEach((toks, li) => {
+            fitExpr(gameUI, toks, es, 1260, eY0 + li * eStep, '#ffffff', i, boxOff, 470);
+            boxOff += countBoxes(toks);
+        });
+        st.blanks.forEach((b, bi) => {   // 已填好的空：绿字回填
+            if (!b.done) return;
+            const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + bi + '"]');
+            if (!r) return;
+            r.classList.add('done');
+            const bx = parseFloat(r.getAttribute('x')) + parseFloat(r.getAttribute('width')) / 2;
+            const by = parseFloat(r.getAttribute('y')) + parseFloat(r.getAttribute('height')) / 2;
+            const g2 = buildExpr(r.parentNode, (b.labels && b.picked && b.labels[b.picked]) || b.label, 27, '#34d399');
+            const bb2 = g2.getBBox();
+            g2.setAttribute('transform', 'translate(' + (bx - bb2.x - bb2.width / 2) + ',' + (by - bb2.y - bb2.height / 2) + ')');
+        });
+        if (S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
+            const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
+            if (r) r.classList.add('sel');
+        }
+        renderMsg(1010, 752, 26);
+    }
+    function pickMixFw(vi) {
+        if (S.finished) return;
+        const i = S.level - 1, mx = S.mix[i];
+        const st = mx && mx.steps[mx.si];
+        if (!st || st.type !== 'fw' || st.solved || st.chosen.indexOf(vi) >= 0) return;
+        st.chosen.push(vi);
+        if (st.opts[vi].correct) {
+            st.solved = true;
+            addScore(Math.round(st.rem));
+            setMsg('正确，得 ' + Math.round(st.rem) + ' 分。', '#34d399');
+            if (mx.si >= mx.steps.length - 1) {
+                say('回答正确，得' + Math.round(st.rem) + '分。', completeLevel);
+            } else {
+                say('回答正确，得' + Math.round(st.rem) + '分。', () => {
+                    mx.si++;
+                    S.selBox = null;
+                    render();
+                });
+            }
+        } else {
+            st.rem = Math.max(0, st.rem - st.pen);
+            if (st.rem === 0) {
+                setMsg('错误，扣 ' + st.pen + ' 分，本项已无分值。', '#fb7185');
+                say('回答错误，扣' + st.pen + '分，本项已经没分了。');
+            } else {
+                setMsg('错误，扣 ' + st.pen + ' 分。', '#fb7185');
+                say('回答错误，扣' + st.pen + '分。');
+            }
+        }
+        render();
+    }
+    // mix 关填空：选中态的推进（本子步填满后延时进入下一步）
+    function mixFillDone(i) {
+        const mx = S.mix[i];
+        if (mx.si >= mx.steps.length - 1) completeLevel();
+        else { mx.si++; S.selBox = null; render(); }
+    }
+
     function renderFill() {
         const i = S.level - 1, c = cur().cfg;
         const blankPts = c.pts / c.blanks.length;
-        gameUI.appendChild(mkText(1010, 326, 32, c.title, { fill: '#a78bfa' }));
-        gameUI.appendChild(mkText(1010, 368, 23, cur().phaseName + ' · ' + c.subLine, { fill: 'rgba(255,255,255,0.65)', bold: false }));
-        gameUI.appendChild(mkText(1010, 398, 23, '先点虚线框，再点电路中对应的元件或电量符号', { fill: 'rgba(255,255,255,0.65)', bold: false }));
-        gameUI.appendChild(mkText(1010, 430, 28, cur().phaseName + '表达式：', { fill: '#ffd93d' }));
+        gameUI.appendChild(mkText(1010, BODY_TOP + 34, 26, cur().phaseName + '表达式：', { fill: '#ffd93d' }));
         const lines = c.fullExpr;
-        const es = c.exprSize || 40;
-        const baseY = 484 + (4 - lines.length) * 30;   // 行数少时整体下移居中
+        const es = c.exprSize || 42;   // 文字标准（lin-g 系列）：填空表达式 42，超宽自动缩排
+        const baseY = BODY_TOP + 96, eSpan = BODY_BOT - baseY;
+        const rowStep = Math.min(120, eSpan / Math.max(1, lines.length));
+        const rowY0 = baseY + (eSpan - (lines.length - 1) * rowStep) / 2;
         let boxOff = 0;
         lines.forEach((toks, li) => {
-            const cy = baseY + li * 60;
-            let eg = placeExpr(gameUI, toks, es, 1260, cy, '#ffffff', i, boxOff);
-            const ew = eg.getBBox().width;
-            if (ew > 500) {   // 超出面板宽度：按比例缩小字号重排
-                eg.remove();
-                placeExpr(gameUI, toks, es * 500 / ew, 1260, cy, '#ffffff', i, boxOff);
-            }
-            boxOff += toks.filter(t2 => t2.box).length;
+            fitExpr(gameUI, toks, es, 1260, rowY0 + li * rowStep, '#ffffff', i, boxOff, 470);
+            boxOff += countBoxes(toks);
         });
         // 已填好的空：绿色实线 + 内容
         S.fill[i].forEach((b, bi) => {
@@ -1284,7 +2325,7 @@
             r.classList.add('done');
             const bx = parseFloat(r.getAttribute('x')) + parseFloat(r.getAttribute('width')) / 2;
             const by = parseFloat(r.getAttribute('y')) + parseFloat(r.getAttribute('height')) / 2;
-            const g2 = buildExpr(r.parentNode, c.blanks[bi].label, 26, '#34d399');
+            const g2 = buildExpr(r.parentNode, c.blanks[bi].label, 27, '#34d399');
             const bb2 = g2.getBBox();
             g2.setAttribute('transform', 'translate(' + (bx - bb2.x - bb2.width / 2) + ',' + (by - bb2.y - bb2.height / 2) + ')');
         });
@@ -1293,23 +2334,23 @@
             const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
             if (r) r.classList.add('sel');
         }
-        const earned = S.fill[i].reduce((s2, b) => s2 + (b.done ? b.rem : 0), 0);   // 只累计已答空
-        gameUI.appendChild(mkText(1010, 712, 24, '本级已得：' + Math.round(earned) + ' / ' + c.pts + ' 分', { fill: 'rgba(255,255,255,0.65)', bold: false }));
-        if (S.selBox && S.selBox.level === i && !S.fill[i][S.selBox.idx].done) {
-            gameUI.appendChild(mkText(1010, 740, 26, '已选中第 ' + (S.selBox.idx + 1) + ' 空，请点击电路中对应元件', { fill: '#67e8f9' }));
-        } else {
-            gameUI.appendChild(mkText(1010, 740, 26, '点击表达式中的虚线框开始作答', { fill: 'rgba(255,255,255,0.55)', bold: false }));
-        }
         renderMsg(1010, 768, 26);
     }
-    // 虚线框点选（面板内事件委托）
+    // 虚线框点选（面板内事件委托；fill 关与 mix 关的填空子步都走这里）
     gameUI.addEventListener('click', e => {
         const r = e.target.closest ? e.target.closest('.blank-box') : null;
-        if (!r || r.classList.contains('done') || S.finished || cur().kind !== 'fill') return;
-        S.selBox = {
-            level: parseInt(r.getAttribute('data-blank-level'), 10),
-            idx: parseInt(r.getAttribute('data-blank-idx'), 10)
-        };
+        if (!r || r.classList.contains('done') || S.finished) return;
+        const k = cur().kind;
+        if (k !== 'fill' && k !== 'mix') return;
+        const lv = parseInt(r.getAttribute('data-blank-level'), 10);
+        const idx = parseInt(r.getAttribute('data-blank-idx'), 10);
+        if (k === 'mix') {
+            const mx = S.mix[lv];
+            if (mx.steps[mx.si].type !== 'fill') return;
+            S.selBox = { level: lv, mix: mx.si, idx: idx };
+        } else {
+            S.selBox = { level: lv, idx: idx };
+        }
         render();
     });
     // 电路元件作答：绘制关 → pickDrawUnit；填表达式关 → 与选中空的 ansIds 比对
@@ -1320,27 +2361,48 @@
         const id = gEl.dataset.id === 'comp-t-model' ? 'comp-t' : gEl.dataset.id;   // 微变模型等效晶体管
         const k = cur().kind;
         if (k === 'draw') pickDrawUnit(id);
+        else if (k === 'qorder') pickQorder(id);
         else if (k === 'fill' && S.selBox) answerBlank(id);
+        else if (k === 'mix' && S.selBox && S.selBox.mix !== undefined) answerBlank(id);
     });
     function answerBlank(id) {
         const i = S.selBox.level, bi = S.selBox.idx;
-        const c = LEVELS[i].cfg, b = S.fill[i][bi];
+        const c = LEVELS[i].cfg;
+        const isMix = S.selBox.mix !== undefined;
+        const st = isMix ? S.mix[i].steps[S.selBox.mix] : null;
+        const b = isMix ? st.blanks[bi] : S.fill[i][bi];
+        const spec = isMix ? b : c.blanks[bi];
+        const full = isMix ? b.full : c.pts / c.blanks.length;
         if (b.done) return;
-        if (c.blanks[bi].ansIds.indexOf(id) >= 0) {
+        // 同一组（grp）内的空不能填同一个量：如 V_BQ 分母 RB1+RB2 可交换顺序，但不能 RB1+RB1
+        // 注意：不同组不加限制（R_B2 在分子与分母中各出现一次，属正常）
+        const sibs = isMix ? st.blanks : S.fill[i];
+        const dup = !!spec.grp && sibs.some((x, xi) => xi !== bi && x.done && x.grp === spec.grp && x.picked === id);
+        if (!dup && spec.ansIds.indexOf(id) >= 0) {
             b.done = true;
+            b.picked = id;
             addScore(Math.round(b.rem));
             blinkGroup(id, '#34d399');
             setMsg('正确，得 ' + Math.round(b.rem) + ' 分。', '#34d399');
             say('回答正确，得' + Math.round(b.rem) + '分。');
             S.selBox = null;
-            if (S.fill[i].every(x => x.done)) addT(completeLevel, 2000);
+            const allDone = isMix ? st.blanks.every(x => x.done) : S.fill[i].every(x => x.done);
+            if (allDone) {
+                if (isMix) addT(() => mixFillDone(i), 1600);   // 本子步填满 → 进入该量的下一步
+                else addT(completeLevel, 2000);
+            }
             render();
         } else {
-            const half = Math.round((c.pts / c.blanks.length) / 2);
+            const half = Math.round(full / 2);
             b.rem = Math.max(0, b.rem - half);
             blinkGroup(id, '#fb7185');
-            setMsg('错误，扣 ' + half + ' 分。', '#fb7185');
-            say('回答错误，扣' + half + '分。');
+            if (b.rem === 0) {
+                setMsg('错误，扣 ' + half + ' 分，本项已无分值。', '#fb7185');
+                say('回答错误，扣' + half + '分，本项已经没分了。');
+            } else {
+                setMsg('错误，扣 ' + half + ' 分。', '#fb7185');
+                say('回答错误，扣' + half + '分。');
+            }
             render();
         }
     }
@@ -1353,8 +2415,8 @@
         S.level++;
         S.levelStart = S.score;
         S.selBox = null;
-        // 直流通路视图保留给静态后续关卡；进入动态阶段前恢复完整电路
-        if (prev.cfg.kind === 'draw' && prev.cfg.mode === 'remove' && cur().cfg.stageUnits === 1) resetCircuit();
+        // 直流通路视图保留给静态后续关卡；进入动态阶段的绘制关（交流等效）前恢复完整电路
+        if (cur().cfg.kind === 'draw' && cur().cfg.mode === 'transform') resetCircuit();
         render();
         announceLevel(highlightFor(cur()));
     }
@@ -1365,10 +2427,10 @@
         render();
     }
     function renderDone() {
-        gameUI.appendChild(mkText(1260, 330, 40, '🎉 闯关完成！', { anchor: 'middle', fill: '#ffd93d' }));
-        gameUI.appendChild(mkText(1260, 402, 46, '最终得分：' + S.score + ' / 100', { anchor: 'middle', fill: '#ffd93d' }));
+        gameUI.appendChild(mkText(1260, 342, 42, '🎉 闯关完成！', { anchor: 'middle', fill: '#ffd93d' }));
+        gameUI.appendChild(mkText(1260, 428, 48, '最终得分：' + S.score + ' / 100', { anchor: 'middle', fill: '#ffd93d' }));
         LEVELS.forEach((L, i) => {
-            gameUI.appendChild(mkText(1260, 444 + i * 29, 21,
+            gameUI.appendChild(mkText(1260, 476 + i * 30, 25,
                 (i + 1) + '. ' + L.cfg.short + '（' + L.phaseName + '）：' + Math.round(S.levelScore[i]) + ' 分',
                 { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
         });
@@ -1376,9 +2438,9 @@
                  : S.score >= 75 ? '良好！再巩固一下表达式框架就更棒了。'
                  : S.score >= 60 ? '及格。建议回到"计算训练"再听一遍分级讲解。'
                  : '别灰心，点击"重新挑战"再闯一次！';
-        gameUI.appendChild(mkText(1260, 662, 25, ev, { anchor: 'middle', fill: '#34d399' }));
-        const g = mkBtn(1150, 686, 220, 58, 'g-btn');
-        g.appendChild(mkText(1260, 723, 29, '重新挑战', { anchor: 'middle' }));
+        gameUI.appendChild(mkText(1260, 694, 26, ev, { anchor: 'middle', fill: '#34d399' }));
+        const g = mkBtn(1150, 718, 220, 58, 'g-btn');
+        g.appendChild(mkText(1260, 755, 29, '重新挑战', { anchor: 'middle' }));
         g.addEventListener('click', restart);
         gameUI.appendChild(g);
     }
@@ -1394,13 +2456,17 @@
     // ---- 总渲染入口 ----
     function render() {
         clearUI();
+        updateQlabels();
         renderHeader();
         renderProgress();
         if (S.finished) { renderDone(); return; }
+        renderSubLine();
         const k = cur().kind;
         if (k === 'draw') renderDraw();
         else if (k === 'order') renderOrder();
+        else if (k === 'qorder') renderQorder();
         else if (k === 'fw') renderFw();
+        else if (k === 'mix') renderMix();
         else renderFill();
     }
     initState();
@@ -1410,7 +2476,7 @@
     // 测试钩子：自动化自检读取内部状态（只读）
     function getState() { return S; }
     function getLevels() { return LEVELS; }
-    // 调试预览（自查/截图用）：?lvl=1..7 / ?lvl=done
+    // 调试预览（自查/截图用）：?lvl=1..6 / ?lvl=done
     (function () {
         const m = location.search.match(/[?&]lvl=(\w+)/);
         if (!m) return;
@@ -1419,7 +2485,7 @@
         const n = parseInt(v, 10);
         if (!(n >= 1 && n <= LEVELS.length)) return;
         S.level = n;
-        // 多子问框架关预览：?lvl=6&fq=2 直接看第 2 个指标
+        // 多子问框架关预览：?lvl=5&fq=2 直接看第 2 个指标
         const mq = location.search.match(/[?&]fq=(\d+)/);
         if (mq) {
             const fwi = S.fw[n - 1];
@@ -1427,6 +2493,52 @@
                 const tgt = Math.min(Math.max(1, parseInt(mq[1], 10)), fwi.qs.length) - 1;
                 for (let k = 0; k < tgt; k++) fwi.qs[k].solved = true;
                 fwi.qi = tgt;
+            }
+        }
+        // 交错关子步预览：?lvl=3&ms=6 直接看第 6 个子步（前面子步视为已完成）
+        const mm = location.search.match(/[?&]ms=(\d+)/);
+        if (mm) {
+            const mxi = S.mix[n - 1];
+            if (mxi) {
+                const tgt = Math.min(Math.max(1, parseInt(mm[1], 10)), mxi.steps.length) - 1;
+                for (let k = 0; k < tgt; k++) {
+                    const st = mxi.steps[k];
+                    if (st.type === 'fw') st.solved = true;
+                    else st.blanks.forEach(b => { b.done = true; });
+                }
+                mxi.si = tgt;
+            }
+        }
+        // 第 4 关状态预览：?lvl=4&tidy=1 整理+等效布局；&ts=n 再看第 n 问（1..5=各问，6=全部完成态）
+        const mt = location.search.match(/[?&]ts=(\d+)/);
+        const mty = location.search.match(/[?&]tidy=(\d+)/);
+        if ((mt || mty) && n === 4) {
+            const d4 = S.draw[3];
+            // 先摆出整理+等效态（电源置零、电容短路、RE 移除变导线、RB1/RC 下挂）
+            execAct('comp-vcc', 'vcc-gnd'); d4.found['comp-vcc'] = true;
+            execAct('comp-c1', 'cap-short'); d4.found['comp-c1'] = true;
+            execAct('comp-c2', 'cap-short'); d4.found['comp-c2'] = true;
+            execAct('comp-ce', 'cap-short'); d4.found['comp-ce'] = true;
+            execAct('comp-src', 'vs-keep'); d4.found['comp-src'] = true;
+            execAct('comp-re', 're-remove'); d4.found['comp-re'] = true;
+            moveCompDown('comp-rb1'); moveCompDown('comp-rc');
+            if (mt) {
+                const tv = parseInt(mt[1], 10);
+                const last = TQUIZ.length;   // 5 问
+                showEquiv();
+                fadeGroup('comp-t', true);
+                showFx('fx-tmodel', true);
+                const done = tv > last;
+                d4.tquiz = { step: done ? last : tv - 1, pool: 2 };
+                // 已作答的前 tv-1 问：逐问画出其正确结果
+                TQUIZ.slice(0, done ? last : tv - 1).forEach(q => { if (q.reveal) showFx(q.reveal, true); });
+                if (done) {
+                    d4.found['comp-t'] = true;
+                    const f = document.getElementById('fx-tmodel');
+                    if (f) f.style.pointerEvents = 'all';
+                } else {
+                    showTQuizMenu(d4);
+                }
             }
         }
         render();
@@ -1440,6 +2552,14 @@
         el.addEventListener('click', () => {
             el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
         });
+    });
+    // 悬停菜单：绘制关中可作答的元件浮出选择菜单（短路/断路、置零/保留、下移 …）
+    document.querySelectorAll('.interactive').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            const items = menuItemsFor(el.dataset.id);
+            if (items && items.length) { clearTimeout(menuTimer); showMenu(el, items); }
+        });
+        el.addEventListener('mouseleave', () => { if (menuOwner === el) menuSoonHide(); });
     });
 
     // 关闭：通知父页面移除弹窗（也可独立打开时用 window.close）

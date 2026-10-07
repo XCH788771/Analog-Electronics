@@ -38,7 +38,7 @@ PAD = 2.0             # 元件/标签重叠判定的内缩容差
 PANEL_GAP = 5.0       # 元素右缘与面板左缘的最小间距
 TOP_LIMIT = 20.0      # inner 顶部安全线
 BOTTOM_LIMIT = 790.0  # inner 底部安全线(底部品牌字样/提示 之上)
-SUB_SCALE = 1.0       # tspan.sub 下标相对父字号比例（须与页面 CSS font-size 百分比一致）
+SUB_SCALE = 0.75      # tspan.sub 下标相对父字号比例（须与页面 CSS font-size 百分比一致；2026-10-07 下标缩小1/4）
 LABEL_GAP = 8.0       # 标签墨迹与元件的最小净间隙
 NEAR_GAP = 6.0        # 净间隙低于此值 → ③c 警告
 MIN_PITCH = 15.0      # 元件最近邻净间隙下限（低于 → 拥挤错误）
@@ -126,20 +126,27 @@ class Item(object):
         return '%s[%s] (%.0f,%.0f)-(%.0f,%.0f)' % (self.kind, self.owner, b[0], b[1], b[2], b[3])
 
 
+def strip_fx_layer(html_text):
+    """剔除隐藏特效层（fx-layer：opacity="0"）——不可见内容不参与布局检查，
+    其中的互斥状态元素（整理下挂 rarr-* / 微变模型 fx-tmodel）同样不参与 data-id 唯一性与覆盖检查"""
+    fx = html_text.find('<g id="fx-layer"')
+    if fx < 0:
+        return html_text
+    depth = 0
+    for m2 in re.finditer(r'<g\b|</g>', html_text[fx:]):
+        if m2.group(0) == '<g':
+            depth += 1
+        else:
+            depth -= 1
+            if depth == 0:
+                end = fx + m2.end()
+                return html_text[:fx] + html_text[end:]
+    return html_text
+
+
 def parse(html_text):
     # 剔除隐藏特效层（fx-layer：opacity="0"，不可见内容不参与布局检查）
-    fx = html_text.find('<g id="fx-layer"')
-    if fx >= 0:
-        depth = 0
-        for m2 in re.finditer(r'<g\b|</g>', html_text[fx:]):
-            if m2.group(0) == '<g':
-                depth += 1
-            else:
-                depth -= 1
-                if depth == 0:
-                    end = fx + m2.end()
-                    html_text = html_text[:fx] + html_text[end:]
-                    break
+    html_text = strip_fx_layer(html_text)
     """解析电路区段, 返回 (items, panel_left_inner)。支持有/无 circuit-wrap 两种写法"""
     m = re.search(r'<g id="circuit-wrap"[^>]*?transform="translate\(\s*(%s)[,\s]+(%s)\s*\)\s*scale\(\s*(%s)\s*\)"' % (NUM, NUM, NUM), html_text)
     if m:
@@ -368,7 +375,8 @@ def main():
     print('=' * 74)
 
     # ---------- ① 结构 ----------
-    ids = [i for i in re.findall(r'data-id="([^"]+)"', svg) if i != 'calc-panel']
+    # fx-layer 内的互斥状态元素（整理下挂/微变模型）不参与 data-id 唯一性与覆盖检查
+    ids = [i for i in re.findall(r'data-id="([^"]+)"', strip_fx_layer(svg)) if i != 'calc-panel']
     dup = sorted(set(i for i in ids if ids.count(i) > 1))
     m = re.search(r'const STAGE_UNITS = \[(.*?)\n    \];', script, re.S)
     su = re.findall(r"'([a-z0-9-]+)'", m.group(1)) if m else []
