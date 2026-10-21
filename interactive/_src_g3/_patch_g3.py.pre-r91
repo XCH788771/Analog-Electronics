@@ -1,0 +1,576 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""cj-g3 引擎补丁：把「双电源共射」案例专属的引擎改造应用到 cj-g3.html。
+   在 _build_g3.py 生成页面后运行（幂等：已打过补丁则跳过）。"""
+import io, os, sys
+
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+P = os.path.join(BASE, 'cj-g3.html')
+
+def rd(p):
+    with io.open(p, encoding='utf-8') as f: return f.read()
+def wr(p, s):
+    with io.open(p, 'w', encoding='utf-8', newline='\n') as f: f.write(s)
+
+s = rd(P)
+MARK = '/* ==== cj-g3 引擎补丁（勿手改，由 _patch_g3.py 生成） ==== */'
+if MARK in s:
+    print('补丁已存在，跳过'); sys.exit(0)
+
+REPS = [
+# ---------- 1. resetCircuit：清零清单换成新 fx/state id ----------
+("""        ['fx-c1', 'fx-c2', 'fx-ce', 'fx-vi', 'fx-vcc', 'fx-vs', 'fx-re', 'fx-tmodel', 'rarr-rb1', 'rarr-rc',
+         'fx-t-rbe', 'fx-t-src', 'fx-t-ib', 'fx-t-ic', 'fx-dot-b', 'fx-dot-c', 'fx-dot-e',
+         'eq-layer', 'eq-rb1', 'eq-rb2'].forEach(id => {
+            const f = document.getElementById(id);
+            if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; }
+        });
+        document.querySelectorAll('.vcc-label, .rb2-label').forEach(t => { t.style.opacity = ''; t.style.visibility = ''; });""",
+ """        ['fx-c1', 'fx-c2', 'fx-ce', 'fx-vcc', 'fx-vee', 'fx-vs', 'fx-re2', 'fx-gnd-rc', 'fx-gnd-e',
+         'fx-gnd-rail', 'fx-gnd-jct', 'fx-re2-wire',
+         'fx-tmodel', 'rarr-rc',
+         'fx-t-rbe', 'fx-t-src', 'fx-t-ib', 'fx-t-ic', 'fx-dot-b', 'fx-dot-c', 'fx-dot-e',
+         'eq-layer', 'eq-rb', 'eq-re1'].forEach(id => {
+            const f = document.getElementById(id);
+            if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; }
+        });
+        // 第87轮：等效层可作答件隐藏时补 hit-off——eq-rb/eq-re1 的 rect.hot 被
+        //   `.interactive rect[fill="none"]{PE:all}` 重新赋权，隐形热区会参与 elementFromPoint、
+        //   压住默认态电量标注（实测：eq-rb 热区盖住 q-ibq 文字 → I_BQ 点击无反应，与 qlabel-layer 同款）
+        ['eq-rb', 'eq-re1'].forEach(id => { const f = document.getElementById(id); if (f) f.classList.add('hit-off'); });
+        document.querySelectorAll('.vcc-label, .vee-label').forEach(t => { t.style.opacity = ''; t.style.visibility = ''; });
+        // 第91轮：第4关整理态/等效态位移复位 + 整理态接缝补线收起
+        tidyClear();
+        { const f = document.getElementById('fx-tidy-lines'); if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; } }"""),
+
+# ---------- 2. nextHint：CAPS/RES 换成本案例清单 ----------
+("""    // 正确作答后的追加提示语：按当前进度决定下一句该做什么（无提示返回 ''）
+    //   ① 门控电源（Vs / +Vcc）处理完 → 请选择电容处理方式
+    //   ② 第 4 关三只电容处理完 → 请选择阿尔义、阿尔B1和阿尔C的整理方式
+    //   ③ 第 4 关三个电阻全部处理完 → 请等效 BJT""",
+ """    // 正确作答后的追加提示语：按当前进度决定下一句该做什么（无提示返回 ''）
+    //   ① 门控电源（Vs / +Vcc / −Vee）处理完 → 请选择电容处理方式
+    //   ② 第 4 关三只电容处理完 → 请判断 RE2 与 RE1 的去留（顺序任选）、并把 R_C 下移接地
+    //   ③ 第 4 关整理步骤全部处理完 → 请等效 BJT"""),
+("""        const CAPS = ['comp-c1', 'comp-c2', 'comp-ce'];
+        const RES = ['comp-re', 'comp-rb1', 'comp-rc'];
+        if (RES.indexOf(id) < 0 && CAPS.indexOf(id) < 0) return '';
+        const resDone = !!(d.found['comp-re'] && d.moved && d.moved['comp-rb1'] && d.moved['comp-rc']);
+        if (CAPS.indexOf(id) >= 0 && CAPS.every(x => d.found[x]) && !resDone) return '请选择阿尔义、阿尔B1和阿尔C的整理方式。';""",
+ """        const CAPS = ['comp-c1', 'comp-c2', 'comp-ce'];
+        const RES = ['comp-re2', 'comp-re1', 'comp-rc'];
+        if (RES.indexOf(id) < 0 && CAPS.indexOf(id) < 0) return '';
+        const resDone = !!(d.found['comp-re2'] && d.found['comp-re1'] && d.moved && d.moved['comp-rc']);
+        // 本提示语由 saySeq 播报（语音串）：不得出现带下标的符号原文（会被念出「下划线」）→ 用注音（第70轮规约）
+        if (CAPS.indexOf(id) >= 0 && CAPS.every(x => d.found[x]) && !resDone) return '请选择阿尔意1、阿尔意2和阿尔C的整理方式，先整理哪一个都可以。点击阿尔意2的移除选项后，移除阿尔意2，同时把电路调整为，阿尔意1直接连到地。';"""),
+
+# ---------- 3. hideVccLabel → hideVccLabelOnly + ensureGndRail（第71轮） ----------
+("""    function hideVccLabel() {
+        document.querySelectorAll('.vcc-label').forEach(t => { t.style.opacity = '0'; t.style.visibility = 'hidden'; });
+    }""",
+ """    // 第71轮：只隐藏指定电源端子的标注（'vcc' / 'vee'）。第4关两个电源都要置零接地，但 −V_EE 的
+    // 标注必须保留显示（用户要求）：fx-vee 接地符号画在端子左下方(458~514)，与右侧标注(530 起)不重叠。
+    function hideVccLabelOnly(which) {
+        document.querySelectorAll(which === 'vee' ? '.vee-label' : '.vcc-label').forEach(t => { t.style.opacity = '0'; t.style.visibility = 'hidden'; });
+    }
+    // 两个电源端子都已收起的场合（等效态）用：连带隐藏两只标注
+    function hideVccLabel() {
+        document.querySelectorAll('.vcc-label, .vee-label').forEach(t => { t.style.opacity = '0'; t.style.visibility = 'hidden'; });
+    }
+    // 第71轮：整理电路时把底部多个独立接地符号收拢为「一处地 + 一条公共地母线」。
+    //   第一次整理任一元件（RE2 移除 / RE1 保留 / R_C 下移）时调用：收起 V_s / R_B / C_E / R_L 四处
+    //   接地符号与整理态 R_C 的接地符号，点亮 fx-gnd-rail；唯一保留 −V_EE 端子下方的 fx-vee。
+    function ensureGndRail() {
+        const d = S.draw[S.level - 1];
+        if (!d || d.gndRail) return;
+        d.gndRail = true;
+        ['comp-gnd-src', 'comp-gnd-rb', 'comp-gnd-ce', 'comp-gnd-rl'].forEach(x => fadeGroup(x, true));
+        showFx('fx-gnd-rc', false);
+        showFx('fx-gnd-rail', true);
+    }"""),
+
+# ---------- 4. execAct：fadeWithFull + −V_EE / R_e2 / R_e1 动作 ----------
+("""                list.forEach(x => fadeGroup(x));
+                // 被移除回路里的特效件一并收起（C1 断开输入回路时，Vs 的短接桥随之消失）
+                if (list.indexOf('comp-src') >= 0) showFx('fx-vs', false);
+                const d = S.draw[S.level - 1];
+                (c.fadeWhenAll || []).forEach(rule => {""",
+ """                list.forEach(x => fadeGroup(x));
+                // 被移除回路里的特效件一并收起（C_B 断开输入回路时，Vs 的短接桥随之消失）
+                if (list.indexOf('comp-src') >= 0) showFx('fx-vs', false);
+                const d = S.draw[S.level - 1];
+                // 彻底移除清单（fadeWithFull）：节点圆与接地符号——断开后只剩两条导线，不再是节点，
+                // 半隐的节点圆/接地符号会像残点，故此处 opacity 0
+                const full = (c.fadeWithFull && c.fadeWithFull[id]) || [];
+                full.forEach(x => fadeGroup(x, true));
+                (c.fadeWhenAll || []).forEach(rule => {"""),
+("""            case 'vcc-gnd':  showFx('fx-vcc', true); hideVccLabel(); break;
+            case 'vcc-open': hideVccLabel(); break;
+            case 'vcc-keep': break;
+            case 're-remove':   // R_E 移除：原位换成短接导线（发射极经它接地），右侧 C_E 支路与发射极节点一并移除
+                fadeGroup('comp-re', true); showFx('fx-re', true);
+                ['wire-ce-a', 'wire-ce-b', 'node-ce', 'node-emitter'].forEach(x => fadeGroup(x, true));
+                showFx('fx-ce', false);
+                break;
+            case 're-keep':  break;""",
+ """            case 'vcc-gnd':  showFx('fx-vcc', true); hideVccLabelOnly('vcc'); break;
+            case 'vcc-open': hideVccLabelOnly('vcc'); break;
+            case 'vcc-keep': break;
+            // −V_EE 置零接地：只画接地符号，标注保留显示（第71轮用户要求「第4关电路要有 −V_EE 文字」）
+            case 'vee-gnd':  showFx('fx-vee', true); break;
+            case 'vee-open': break;
+            case 'vee-keep': break;
+            // ★换案例：分段发射极电阻的去留（本电路关键，第71轮改写）
+            //   RE2 被 C_E 完全旁路 → 整支移除（本体 + 上下引线）；RE1 下端经导线直接下接到 −V_EE
+            //   端子，即交流地 —— 等价于 C_E 那条旁路支路「左移到 RE1 下端」，故其支路随之收起
+            case 're2-remove':
+                ensureGndRail();                                         // 第一个整理动作：底部地收拢为一条公共母线
+                fadeGroup('comp-re2', true); fadeGroup('wire-re2-a', true); fadeGroup('wire-ree-b', true);
+                fadeGroup('wire-ce-a', true); fadeGroup('wire-ce-b', true);
+                fadeGroup('comp-ce', true);   // C_E 极板与标注一并收起（第72轮补：RE2 移除后 C_E 无被旁路对象，悬空极板属残件）
+                showFx('fx-re2', false);      // 不再在位画绿短路线（改用下面的直连导线）
+                showFx('fx-ce', false);       // C_E 短接桥收起（接地作用已由 RE1 下方直连导线承担）
+                showFx('node-re', false);     // (486,470) 只剩「RE1 引线 + 直连导线」→ L 拐角，撤节点圆
+                showFx('fx-re2-wire', true);  // RE1 下端 → −V_EE 端子(地) 的直连导线
+                break;
+            case 're2-keep':   break;
+            //   RE1 未被 C_E 旁路 → 保留，等效态由 eq-re1 重新画在发射极节点与地之间
+            case 're1-keep':   ensureGndRail(); break;
+            case 're1-remove': break;"""),
+
+# ---------- 5. showEquiv / moveCompDown：按本案例三层结构重写 ----------
+("""    // 交流等效最终布局（第4关第3步选「等效」时启用）：
+    // 移除晶体管本体后，基极输入线上升到 y=178 与集电极导线对齐，Vs/Rs/RB1/RB2 上移；
+    // 旧 y=265 输入线、旧 Vs/Rs 列、整理态 R_B1/R_B2、发射极支路（r_be/受控源已直挂地线）全部收起
+    // ★换案例：等效态切换（纯共射结构可直接沿用；新增状态层须在此同亮）
+    function showEquiv() {
+        ['wire-vi-top', 'wire-base-in', 'wire-base', 'comp-vi', 'wire-rs-top', 'comp-rs', 'wire-rs-bot', 'comp-src', 'wire-vi-gnd',
+         'wire-rb2a', 'comp-rb2', 'wire-rb2b',
+         'wire-emitter', 'wire-re-a', 'wire-re-b'].forEach(x => fadeGroup(x, true));
+        // 受控源上方的集电极节点（此时只剩 2 条导线成直角，已非节点）一并移除
+        fadeGroup('node-collector', true);
+        // 集电极横导线缩短：左端由晶体管 C 端（486）收到交流等效的 C 节点（580，受控源支路挂点）——
+        // 原整段导线（wire-collector 485→670）收起，改由 eq-layer 内的 560→670 段承担（见 eq-layer）
+        fadeGroup('wire-collector', true);
+        fadeGroup('wire-c-stub', true);   // 晶体管已移除，T 集电极—集电极导线之间的短接线一并收起（等效态导线由 eq-layer 承担）
+        // rarr-rb1 / rarr-rb2lab 只有 id 没有 data-id，用 getElementById 收起
+        showFx('rarr-rb1', false);
+        showFx('rarr-rb2lab', false);
+        // R_C 保持在整理态下挂位（x=640，与 R_L 并联）：等效后位置不变，学生视觉上不会跳变
+        showFx('rarr-rc', true);
+        const rcKeep = document.getElementById('rarr-rc');
+        if (rcKeep) rcKeep.style.pointerEvents = 'all';
+        showFx('fx-c1', false);
+        showFx('fx-re', false);
+        // eq-layer 与其中可作答的 eq-rb1 / eq-rb2 一起点亮（resetCircuit 会把它们 opacity 清零）
+        ['eq-layer', 'eq-rb1', 'eq-rb2'].forEach(id => showFx(id, true));
+        setCircuitShift(true);   // 整个电路图上移 40px，等效模型区域更宽松
+        ['eq-rb1', 'eq-rb2'].forEach(id => { const el = document.getElementById(id); if (el) el.style.pointerEvents = 'all'; });
+    }
+    // 整理电路：R_B1 / R_C 上端的地下移并入地轨，电阻翻转下挂
+    function moveCompDown(id) {
+        const d = S.draw[S.level - 1];
+        d.moved = d.moved || {};
+        if (d.moved[id]) return;
+        d.moved[id] = true;
+        if (id === 'comp-rb1') {
+            fadeGroup('comp-rb1', true); fadeGroup('wire-rb1a', true); fadeGroup('wire-rb1b', true);
+            fadeGroup('wire-vcc-rail', true);   // 原RB1上端—R_C上端节点之间的顶部导线一并移除（RB1 已不接顶轨）
+            showFx('node-rc-top', false);       // R_C 上方节点（原三线交汇点）随之移除
+            showFx('rarr-rb1', true);
+            const f1 = document.getElementById('rarr-rb1');
+            if (f1) f1.style.pointerEvents = 'all';   // 下挂件可见后可点击（后续填空关作答用）
+            // 原 R_B2 标签直接右移到整理态位（留在同一元件组内 → 悬停变金 / 作答变绿自动同步）
+            document.querySelectorAll('.rb2-label').forEach(t => { t.setAttribute('x', '346'); t.setAttribute('y', '403'); t.setAttribute('text-anchor', 'start'); });
+            // rarr-rb2lab 静态副本不再使用（原标签已原位右移）
+        } else if (id === 'comp-rc') {
+            fadeGroup('comp-rc', true); fadeGroup('wire-rc-top', true); fadeGroup('wire-rc-a', true);
+            showFx('node-rc-top', false);       // R_C 下移后顶轨变直线，交汇节点消失
+            fadeGroup('node-collector', true);  // R_C 下移（与 R_L 并联）后集电极只是导线折角，节点圆一并移除
+            showFx('rarr-rc', true);
+            const f2 = document.getElementById('rarr-rc');
+            if (f2) f2.style.pointerEvents = 'all';
+        }
+        if (d.moved['comp-rb1'] && d.moved['comp-rc']) {   // 两个电阻都下移 → 顶部的地与下方地合并，收起顶轨与 +Vcc 端子
+            ['wire-vcc-rail', 'wire-vcc-ext', 'comp-vcc'].forEach(x => fadeGroup(x, true));
+            showFx('fx-vcc', false);
+        }
+        render();
+    }""",
+ """    function showEquiv() {
+        // 输入侧：旧基极导线（y=260）与输入列全部收起，改由 eq-layer 的 y=190 基极线承担
+        ['wire-vi-top', 'wire-base-in', 'wire-base', 'comp-vi', 'wire-rs-top', 'comp-rs', 'wire-rs-bot',
+         'comp-src', 'wire-vi-gnd', 'node-base'].forEach(x => fadeGroup(x, true));
+        // 基极偏置：默认态 R_B（基极节点 → 地）收起，等效态由 eq-rb 重新画在 y=190 基极线下方
+        ['wire-rb-a', 'comp-rb', 'wire-rb-b'].forEach(x => fadeGroup(x, true));
+        // 发射极支路：R_e1/R_e2/C_E/节点/−V_EE 全部收起，等效态由 eq-re1 + r_be + 受控源重画
+        ['wire-emitter', 'comp-re1', 'wire-re1-b', 'node-re', 'wire-ce-a', 'comp-ce', 'wire-ce-b',
+         'wire-re2-a', 'comp-re2', 'wire-ree-b', 'comp-vee'].forEach(x => fadeGroup(x, true));
+        // 各独立接地符号收起（第66轮）：等效态的地由 eq-layer 的公共地轨（V_s 负极 → R_L 下端）表达，
+        // 仅 R_e1 下端保留接地符号 fx-gnd-e
+        ['comp-gnd-src', 'comp-gnd-rb', 'comp-gnd-rl', 'comp-gnd-ce'].forEach(x => fadeGroup(x, true));
+        // 集电极节点与整段集电极导线：等效后 C 节点移到 x=560（受控源支路挂点），
+        // 485→670 段收起，改由 eq-layer 内的 560→670 段承担（见 eq-layer）
+        fadeGroup('node-collector', true);
+        fadeGroup('wire-collector', true);
+        fadeGroup('wire-c-stub', true);   // 晶体管已移除，T 集电极—集电极导线之间的短接线一并收起（等效态导线由 eq-layer 承担）
+        // R_C 保持在整理态下挂位（x=640，与 R_L 并联）：等效后位置不变，学生视觉上不会跳变
+        showFx('rarr-rc', true);
+        const rcKeep = document.getElementById('rarr-rc');
+        if (rcKeep) rcKeep.style.pointerEvents = 'all';
+        showFx('fx-gnd-rc', false);     // 整理态 R_C 下端的接地符号收起（地由公共地轨表达）
+        showFx('fx-gnd-rail', false);   // 整理态公共地母线收起（等效态的地由 eq-layer 的公共地轨表达）
+        showFx('fx-gnd-jct', false);    // C_E/R_C 列并线段收起（第72轮自 fx-gnd-rail 拆出）
+        showFx('fx-re2-wire', false);   // RE1 下端直连导线收起（等效态发射极支路由 eq-re1 重画）
+        showFx('fx-gnd-e', true);       // 等效态发射极节点的接地符号
+        showFx('fx-c1', false);         // C_B 短接桥在 eq-layer 内重画（y=190）
+        showFx('fx-ce', false);         // C_E 短接桥收起（等效态发射极支路整体由 eq-re1 表达，残桥会悬在 R_C 下挂导线上）
+        showFx('fx-re2', false);        // RE2 短路标记收起（等效态不再出现 RE2）
+        showFx('fx-vee', false);        // −V_EE 接地标记收起（交流地已由 eq-layer 地轨 + fx-gnd-e 表达）
+        hideVccLabel();                 // 两个电源端子此时已整体收起，标注一并隐藏
+        // eq-layer 与其中可作答的 eq-rb / eq-re1 一起点亮（resetCircuit 会把它们 opacity 清零）
+        ['eq-layer', 'eq-rb', 'eq-re1'].forEach(id => showFx(id, true));
+        ['eq-rb', 'eq-re1'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.pointerEvents = 'all'; el.classList.remove('hit-off'); } });
+    }
+    // 整理电路：R_C 上端（接 +V_CC，交流中该点已接地）翻转下挂，从集电极节点垂直接到地
+    function moveCompDown(id) {
+        const d = S.draw[S.level - 1];
+        d.moved = d.moved || {};
+        if (d.moved[id]) return;
+        d.moved[id] = true;
+        if (id === 'comp-rc') {
+            fadeGroup('comp-rc', true); fadeGroup('wire-rc-top', true); fadeGroup('wire-rc-a', true);
+            fadeGroup('node-collector', true);  // R_C 下移后集电极只剩 C_C 一条引线，已非节点
+            showFx('rarr-rc', true);
+            ensureGndRail();                 // 第一个整理动作就是 R_C 下移时，同时启用公共地母线
+            showFx('fx-gnd-jct', true);      // R_C 底端(640)落母线行 → C_E/R_C 列并线段点亮（第72轮拆出）
+            const f2 = document.getElementById('rarr-rc');
+            if (f2) f2.style.pointerEvents = 'all';
+            // R_C 下移即接入交流地 → 顶部电源轨与 +V_CC 端子两端均已悬空，一并收起，
+            // fx-vcc 接地标记同时隐藏（交流地已由公共地母线 fx-gnd-rail 与 fx-gnd-e 表达）
+            ['wire-vcc-rail', 'comp-vcc'].forEach(x => fadeGroup(x, true));
+            showFx('fx-vcc', false);
+        }
+        render();
+    }"""),
+
+# ---------- 6. 下移菜单文案（本案例 R_C 与 R_L 并联） ----------
+("""                const pair = id === 'comp-rb1'
+                    ? [['与RB2串', false], ['与RB2并', true]]
+                    : [['与RL串', false], ['与RL并', true]];""",
+ """                // ★换案例：下移后与谁并联（本案例 R_C 下移后与 R_L 并联）
+                const pair = [['与RL串', false], ['与RL并', true]];"""),
+
+# ---------- 7. 门控引导 / 结算评语 / 调试钩子 ----------
+# （第77轮）门控引导与门控提示已由 _game-template.html 通用化：
+#   guide 读 c.gateTodo、setMsg 读 c.gateMsg；本案例只须在 _g3_C.txt 配置
+#   gateMsg / gateTodo / gateDoneMsg 三个字段，故此处不再需要补丁替换。
+("        const ev = S.score >= 90 ? '优秀！静动态分析掌握扎实。'",
+ "        const ev = S.score >= 90 ? '优秀！双电源共射静动态掌握扎实。'"),
+(": S.score >= 60 ? '及格。建议回看计算训练再听一遍讲解。'",
+ ": S.score >= 60 ? '及格。建议回看分段旁路再练一遍。'"),
+("""            execAct('comp-vcc', 'vcc-gnd'); d4.found['comp-vcc'] = true;
+            execAct('comp-c1', 'cap-short'); d4.found['comp-c1'] = true;
+            execAct('comp-c2', 'cap-short'); d4.found['comp-c2'] = true;
+            execAct('comp-ce', 'cap-short'); d4.found['comp-ce'] = true;
+            execAct('comp-src', 'vs-keep'); d4.found['comp-src'] = true;
+            execAct('comp-re', 're-remove'); d4.found['comp-re'] = true;
+            moveCompDown('comp-rb1'); moveCompDown('comp-rc');""",
+ """            execAct('comp-vcc', 'vcc-gnd'); d4.found['comp-vcc'] = true;
+            execAct('comp-vee', 'vee-gnd'); d4.found['comp-vee'] = true;
+            execAct('comp-c1', 'cap-short'); d4.found['comp-c1'] = true;
+            execAct('comp-c2', 'cap-short'); d4.found['comp-c2'] = true;
+            execAct('comp-ce', 'cap-short'); d4.found['comp-ce'] = true;
+            execAct('comp-src', 'vs-keep'); d4.found['comp-src'] = true;
+            execAct('comp-re2', 're2-remove'); d4.found['comp-re2'] = true;
+            execAct('comp-re1', 're1-keep'); d4.found['comp-re1'] = true;
+            moveCompDown('comp-rc');"""),
+# ---------- 8. 第47轮：TQUIZ 问3 epos（组B 受控源 x=560，与 C 红点同竖直线） ----------
+("ok: '受控源', epos: [530],", "ok: '受控源', epos: [560],"),
+
+# ================= 第65轮：第2关多顺序 + 第3关两套方案（路线①基极优先 / 路线②发射极优先） =================
+# ---------- 9. initState：注入路线/三方案辅助函数（mixRoute/mixSubsFor/mkMixState）+ S 新增 route / qPicked ----------
+("""    function initState() {
+        S = {
+            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0,
+            levelScore: LEVELS.map(() => 0),""",
+ """    // ---- 静态计算路线（第2关首步决定）与第3关三套框架/表达式方案（第65轮立、第76轮扩为三条）----
+    //   route='eq'   先算 I_EQ：I_CQ≈□ → 简化 → I_BQ → V_CEQ（用 subs）
+    //   route='cq'   先算 I_CQ（省 I_EQ）：I_CQ≈I_EQ → 简化 → I_BQ → V_CEQ（用 subsC）
+    //   route='base' 基极优先：I_BQ → 简化 → I_CQ → V_CEQ（用 subsBase）
+    function mixRoute() { const r = S.route; return (r === 'base' || r === 'cq') ? r : 'eq'; }
+    function mixSubsFor(c) {
+        if (!c) return [];
+        const r = mixRoute();
+        if (r === 'base') return c.subsBase || c.subs || [];
+        if (r === 'cq') return c.subsC || c.subs || [];
+        return c.subs || [];
+    }
+    // 块 qid 传导：无 qid 的子步沿用上一个带 qid 子步的 qid（框架 + 表达式成对同块 → 整块一起重排）
+    function mixQids(subs) {
+        let last = null;
+        return subs.map(sb => { if (sb.qid) last = sb.qid; return last; });
+    }
+    function mkMixStep(sb) {
+        return sb.type === 'fw'
+            ? { type: 'fw', opts: shuffle(sb.frameworks), chosen: [], solved: false, rem: sb.qpts, pen: sb.pen || 2 }
+            : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, full: b.pts, rem: b.pts, done: false })) };
+    }
+    function mkMixState(subs) {
+        const steps = subs.map(mkMixStep);
+        return { si: 0, subs: subs.slice(), steps: steps, stepsOrig: steps.slice() };
+    }
+    function initState() {
+        S = {
+            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0, route: null, qPicked: [],
+            levelScore: LEVELS.map(() => 0),"""),
+
+# ---------- 10. initState：mix 状态改由 mkMixState 生成（第3关按路线取 subs/subsC/subsBase） ----------
+("""            if (c.kind === 'mix') {
+                // 框架 + 表达式交错：subs[].type='fw' → 三选项框架题；'fill' → 一行表达式（per-blank 分值）
+                S.mix[i] = {
+                    si: 0,
+                    subs: c.subs.slice(),
+                    steps: c.subs.map(sb => sb.type === 'fw'
+                        ? { type: 'fw', opts: shuffle(sb.frameworks), chosen: [], solved: false, rem: sb.qpts, pen: sb.pen || 2 }
+                        : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, full: b.pts, rem: b.pts, done: false })) })
+                };
+                S.mix[i].stepsOrig = S.mix[i].steps.slice();   // 子步重排的原序副本（arrangeMixSubs）
+            }""",
+ """            // 框架 + 表达式交错：subs[].type='fw' → 三选项框架题；'fill' → 一行表达式（per-blank 分值）
+            // 第 3 关（静态）的 subs 由第 2 关所选路线决定 → mkMixState + mixSubsFor 生成
+            if (c.kind === 'mix') S.mix[i] = mkMixState(mixSubsFor(c));"""),
+
+# ---------- 11. 注入 qRouteOf（模板已原生提供 qSeqs/qLen/qAllIds/qAccept/qSpan，故仅补路线映射） ----------
+("""    // 交错关子步重排：带 qid 的子步按第 2 关实际点选顺序排列（I_BQ 与 V_CEQ 可互换）；无 qid 的保持原序
+    function arrangeMixSubs(i) {""",
+ """    // 首步 id → 所在顺序对应的计算路线（routes 见区 C：eq / cq / base）
+    function qRouteOf(c, id) {
+        const ss = qSeqs(c), rt = c.routes || ['eq', 'cq', 'base'];
+        for (let si = 0; si < ss.length; si++) if ([].concat(ss[si][0]).indexOf(id) >= 0) return rt[si] || 'eq';
+        return 'eq';
+    }
+    // 交错关子步重排：带 qid 的子步按第 2 关实际点选顺序排列（I_BQ 与 V_CEQ 可互换）；无 qid 的保持原序
+    function arrangeMixSubs(i) {"""),
+
+# ---------- 11b. arrangeMixSubs：静态关先按路线换套，再按第2关实际点选顺序整块重排 ----------
+("""    function arrangeMixSubs(i) {
+        const c = LEVELS[i] && LEVELS[i].cfg, mx = S.mix[i];
+        if (!c || c.kind !== 'mix' || !mx || !mx.stepsOrig) return;
+        const qi = LEVELS.findIndex(function (L2) { return L2.kind === 'qorder'; });
+        const picked = (qi >= 0 && S.qorder[qi] && S.qorder[qi].done) || [];
+        const pos = function (id) { const k = id ? picked.indexOf(id) : -1; return k < 0 ? 999 : k; };
+        const order = c.subs.map(function (sb, k) { return k; })
+            .sort(function (a, b) { return pos(c.subs[a].qid) - pos(c.subs[b].qid); });
+        mx.subs = order.map(function (k) { return c.subs[k]; });
+        mx.steps = order.map(function (k) { return mx.stepsOrig[k]; });
+    }""",
+ """    function arrangeMixSubs(i) {
+        const c = LEVELS[i] && LEVELS[i].cfg, mx = S.mix[i];
+        if (!c || c.kind !== 'mix' || !mx) return;
+        // 第76轮：静态 Q 点关先按第 2 关所选路线换套（eq / cq / base 三方案），再按实际点选顺序重排子步；
+        //   排序键为「块 qid」（mixQids：框架与表达式同块）→ I_BQ 与 V_CEQ 两块随第 2 关点选先后互换
+        const subs = (c.subsC || c.subsBase) ? mixSubsFor(c) : (c.subs || []);
+        const steps = subs.map(mkMixStep);
+        const keys = mixQids(subs);
+        const qi = LEVELS.findIndex(function (L2) { return L2.kind === 'qorder'; });
+        const picked = (qi >= 0 && S.qorder[qi] && S.qorder[qi].done) || [];
+        const pos = function (id) { const k = id ? picked.indexOf(id) : -1; return k < 0 ? 999 : k; };
+        const order = subs.map(function (sb, k) { return k; })
+            .sort(function (a, b) { return pos(keys[a]) - pos(keys[b]); });
+        mx.subs = order.map(function (k) { return subs[k]; });
+        mx.steps = order.map(function (k) { return steps[k]; });
+        mx.stepsOrig = steps.slice();
+        mx.si = 0; S.selBox = null; S.mixQ[i] = undefined;
+    }"""),
+
+# ---------- 12. pickQorder：首步定路线 S.route + 记录 S.qPicked（renderQorder/statusOf 已由模板原生提供 qSpan） ----------
+("""        const acc = qAccept(c, o.done);   // 多条合法路线取并集：下一步可接受的量
+        if (acc.indexOf(id) >= 0) {
+            o.done.push(id);
+            o.next++;
+            blinkGroup(id, '#34d399');""",
+ """        const acc = qAccept(c, o.done);   // 多条合法顺序取并集
+        if (acc.indexOf(id) >= 0) {
+            if (o.done.length === 0) S.route = qRouteOf(c, id);   // 首步定路线（供第 3 关选择 subs / subsC / subsBase）
+            o.done.push(id);
+            o.next++;
+            S.qPicked = o.done.slice();   // 第76轮：记录实际点击序列，第 3 关据此决定 I_BQ 与 V_CEQ 两块的先后
+            blinkGroup(id, '#34d399');"""),
+
+
+# ---------- 14. statusOf：mix 总步数按当前路线 ----------
+("        if (c.kind === 'mix') return { done: S.mix[i].si, total: c.subs.length };",
+ "        if (c.kind === 'mix') return { done: S.mix[i].si, total: (S.mix[i].subs || c.subs).length };"),
+
+
+# ---------- 17. 调试钩子：?lvl=3&rt=eq|cq|base 预览第 3 关三套方案 ----------
+("""        S.level = n;
+        // 多子问框架关预览：?lvl=5&fq=2 直接看第 2 个指标""",
+ """        S.level = n;
+        // 路线预览：?lvl=3&rt=eq|cq|base 直接看第 3 关的对应方案（eq 先算 I_EQ / cq 先算 I_CQ / base 基极优先）
+        //   emitter 为第65轮旧路线名，等价于 eq（兼容旧链接）
+        const mr = location.search.match(/[?&]rt=(base|emitter|eq|cq)/);
+        if (mr) { S.route = (mr[1] === 'emitter') ? 'eq' : mr[1]; if (S.mix[n - 1]) arrangeMixSubs(n - 1); }
+        // 多子问框架关预览：?lvl=5&fq=2 直接看第 2 个指标"""),
+
+# ---------- 18. setCircuitShift 基础位姿与区 B translate 同步（第66轮修复、第72轮 227→199） ----------
+#   resetCircuit() 进第4关时把 circuit-wrap 写回基准值 —— 必须与区 B 的 translate(18,199) 一致
+#   （第72轮整图上移 28：R_C 上端导线 55→27 减半），否则整图回落旧位姿、底部沉出可视区；
+#   up 分支同步 -40 → 159。
+("""        if (w) w.setAttribute('transform', 'translate(18, ' + (up ? 220 : 260) + ') scale(1)');""",
+ """        if (w) w.setAttribute('transform', 'translate(18, ' + (up ? 159 : 199) + ') scale(1)');"""),
+
+# ---------- 19. 第67轮：inkExtent 对嵌套分式的墨迹估算修正 ----------
+#   分母含嵌套分式时，内层分子框顶 ≈ -1.19×fs（原按 -0.88×fs 低估），
+#   导致外层分子抬得过高、内层分子框穿过外层分数线（cj-g3 第3关 I_CQ≈I_EQ 框架踩到）。
+("""            else if (t.frac) { top = Math.min(top, -fs * 0.88); bot = Math.max(bot, fs * 0.88); }""",
+ """            // 嵌套分式：top 按内层分子框顶实测 -1.19×fs 估（第67轮）；bot 为内层分母底 ≈0.59×fs
+            else if (t.frac) { top = Math.min(top, -fs * 1.20); bot = Math.max(bot, fs * 0.62); }"""),
+
+# ---------- 20. 第67轮：buildFrac 分母含嵌套分式时整体下移 ----------
+#   让内层分子顶（-1.19fs）落到分数线下方 ~0.15fs，两侧到分数线间距对称（=gap）
+("""        // 分子与分母到分数线的间距相等：以「分数线→分母墨迹顶端」为准，分子基线随之抬高，
+        // 使「分子墨迹底端→分数线」的间距与其相同（墨迹范围用 inkExtent 估算，勿用 getBBox）
+        const denBase = barY + fs * 0.96;""",
+ """        // 分子与分母到分数线的间距相等：以「分数线→分母墨迹顶端」为准，分子基线随之抬高，
+        // 使「分子墨迹底端→分数线」的间距与其相同（墨迹范围用 inkExtent 估算，勿用 getBBox）
+        // 分母含嵌套分式时整体下移（第67轮）：内层分子顶 -1.19fs 须回到分数线下方
+        const denHasFrac = (denToks || []).some(t => t.frac);
+        const denBase = barY + fs * (denHasFrac ? 1.35 : 0.96);"""),
+
+# ---------- 21. 第67轮：框架选项渲染按高度缩字（嵌套分式较高，原只按宽度缩） ----------
+("""                let eg = placeExpr(g, f.tokens, fsz, 1290, y + plan.h / 2, col);
+                const ew = eg.getBBox().width;
+                if (ew > 420) { eg.remove(); placeExpr(g, f.tokens, fsz * 420 / ew, 1290, y + plan.h / 2, col); }""",
+ """                let eg = placeExpr(g, f.tokens, fsz, 1290, y + plan.h / 2, col);
+                const bb0 = eg.getBBox(), ew = bb0.width, eh = bb0.height;
+                // 超宽或超高（嵌套分式）时整体缩字（第67轮加高度维度）
+                if (ew > 420 || eh > plan.h - 10) { const sc = Math.min(420 / ew, (plan.h - 10) / eh); eg.remove(); placeExpr(g, f.tokens, fsz * sc, 1290, y + plan.h / 2, col); }"""),
+
+# ---------- 22. mixFillDone：进入带 say 的子步时播报提示语 ----------
+("""    function mixFillDone(i) {
+        const mx = S.mix[i];
+        if (mx.si >= mx.steps.length - 1) completeLevel();
+        else { mx.si++; S.selBox = null; render(); }
+    }""",
+ """    function mixFillDone(i) {
+        const mx = S.mix[i];
+        if (mx.si >= mx.steps.length - 1) { completeLevel(); return; }
+        mx.si++; S.selBox = null; render();
+        // 第69轮：进入带 say 的子步（如「工程近似估算法简化」）时播报其提示语；第76轮改读当前路线子步
+        const sb = mx.subs[mx.si];
+        if (sb && sb.say) say(sb.say);
+    }"""),
+
+# ---------- 23. pickMixFw：框架答对推进后同样播报 say ----------
+("""                say('回答正确，获得' + Math.round(st.rem) + '分。', () => {
+                    mx.si++;
+                    S.selBox = null;
+                    render();
+                });""",
+ """                say('回答正确，获得' + Math.round(st.rem) + '分。', () => {
+                    mx.si++;
+                    S.selBox = null;
+                    render();
+                    // 第69轮：进入带 say 的子步时播报（第76轮改读当前路线子步）
+                    const sb2 = mx.subs[mx.si];
+                    if (sb2 && sb2.say) say(sb2.say);
+                });"""),
+
+# ---------- 24. 子步进度圆点 >6 步时去掉序号（第 3 关 8 子步，带序号会顶出面板右缘） ----------
+("        const dots = mx.subs.map((s2, k) => (k < mx.si ? '✓' : (k === mx.si ? '▶' : '·')) + (k + 1)).join(' ');",
+ "        // 子步 >6 时省略序号（第69轮）：8 子步带序号会超出面板宽度，仅保留 ✓/▶/· 状态点\n        const dots = mx.subs.map((s2, k) => (k < mx.si ? '✓' : (k === mx.si ? '▶' : '·')) + (mx.subs.length <= 6 ? (k + 1) : '')).join(' ');"),
+
+# ---------- 第74轮：C_E 支路左移（590 列）后的母线引下线状态件（第75轮支路再右移 8px 至 598 列） ----------
+("""         'fx-gnd-rail', 'fx-gnd-jct', 'fx-re2-wire',""",
+ """         'fx-gnd-rail', 'fx-gnd-jct', 'fx-ce-tail', 'fx-re2-wire',"""),
+("""        showFx('fx-gnd-rc', false);
+        showFx('fx-gnd-rail', true);
+    }""",
+ """        showFx('fx-gnd-rc', false);
+        showFx('fx-gnd-rail', true);
+        if (!d.ceGone) showFx('fx-ce-tail', true);   // C_E 支路仍在电路中 → 其下端补引下线到母线（第74轮）
+    }"""),
+("""            case 're2-remove':
+                ensureGndRail();                                         // 第一个整理动作：底部地收拢为一条公共母线""",
+ """            case 're2-remove':
+                const dx = S.draw[S.level - 1];
+                dx.ceGone = true;                                        // C_E 支路随 RE2 移除整体收起（第74轮：引下线随之收）
+                ensureGndRail();                                         // 第一个整理动作：底部地收拢为一条公共母线"""),
+("""                showFx('fx-ce', false);       // C_E 短接桥收起（接地作用已由 RE1 下方直连导线承担）""",
+ """                showFx('fx-ce', false);       // C_E 短接桥收起（接地作用已由 RE1 下方直连导线承担）
+                showFx('fx-ce-tail', false);  // C_E 母线引下线收起（第74轮：防悬空残段）"""),
+("""            showFx('fx-gnd-jct', true);      // R_C 底端(640)落母线行 → C_E/R_C 列并线段点亮（第72轮拆出）""",
+ """            showFx('fx-gnd-jct', true);      // R_C 底端(640)落母线行 → 竖直引下线点亮（第74轮改：直连母线）
+            if (!d.ceGone) showFx('fx-ce-tail', true);   // C_E 支路仍在 → 其引下线同时点亮（第74轮）"""),
+("""        showFx('fx-gnd-jct', false);    // C_E/R_C 列并线段收起（第72轮自 fx-gnd-rail 拆出）""",
+ """        showFx('fx-gnd-jct', false);    // R_C 母线引下线收起（第74轮改）
+        showFx('fx-ce-tail', false);    // C_E 母线引下线收起（第74轮新增）"""),
+# ---------- 33~35. buildExpr：dbox 显示框（第86轮需求4：白实线框 tk('□') 统一为黄虚框）----------
+#   dbox 与 box 渲染完全相同（黄虚线 rect），但不可填、不被 ctx.n 计数 → 框数仍与 blanks 对齐，计分不变
+("""            if (tok.box) {""",
+ """            if (tok.box || tok.dbox) {"""),
+("""                if (blankLevel !== undefined && blankLevel !== null) {""",
+ """                if (tok.box && blankLevel !== undefined && blankLevel !== null) {"""),
+("""                ctx.n++;""",
+ """                if (tok.box) ctx.n++;"""),
+# ---------- 36~39. 第4关状态位移（第91轮需求2/4：整理态上部上移15px接地不动 / 等效态保留件 +25 对齐 eq-layer）----------
+#   位移清单与工具函数（顶层定义，resetCircuit/showEquiv/ensureGndRail 三处调用）
+("""    function showEquiv() {""",
+ """    // 第91轮：第4关整理态——上部电路整体上移 15px（下方接地系统 fx-gnd-rail/jct/tail/re2-wire/vee 不动）；
+    //   等效态——仍保留的默认层件 +25 与 eq-layer（transform +25）的集电极横线/地轨对齐
+    const TIDY_UP_IDS = ['comp-t', 'wire-c-stub', 'wire-collector', 'comp-c2', 'fx-c1', 'fx-c2',
+        'wire-c2-out', 'wire-rl-a', 'comp-rl', 'wire-rl-b', 'comp-vo', 'rarr-rc',
+        'wire-emitter', 'comp-re1', 'wire-re1-b', 'node-re',
+        'wire-ce-a', 'wire-ce-b', 'comp-ce', 'fx-ce', 'wire-re2-a', 'comp-re2', 'fx-re2',
+        'wire-vi-top', 'comp-vi', 'wire-rs-top', 'comp-rs', 'wire-rs-bot', 'fx-vs', 'wire-vi-gnd',
+        'wire-rb-a', 'comp-rb', 'wire-rb-b'];
+    const TIDY_KEEP_IDS = ['fx-c2', 'comp-c2', 'wire-c2-out', 'wire-rl-a', 'comp-rl', 'wire-rl-b',
+        'comp-vo', 'rarr-rc'];
+    function tidyEl(id) {
+        return document.querySelector('#circuit-wrap g[data-id="' + id + '"]') || document.getElementById(id);
+    }
+    function tidyShift(sel, dy) {
+        (sel === 'up' ? TIDY_UP_IDS : TIDY_KEEP_IDS).forEach(id => {
+            const el = tidyEl(id);
+            if (el) el.setAttribute('transform', 'translate(0,' + dy + ')');
+        });
+    }
+    function tidyClear() {
+        TIDY_UP_IDS.concat(TIDY_KEEP_IDS).forEach(id => {
+            const el = tidyEl(id);
+            if (el) el.removeAttribute('transform');
+        });
+    }
+    function showEquiv() {"""),
+# ensureGndRail：整理态位移 + 接缝补线（三条整理路径 re2-remove / re1-keep / moveCompDown(comp-rc) 均汇聚于此）
+("""        showFx('fx-gnd-rc', false);
+        showFx('fx-gnd-rail', true);""",
+ """        showFx('fx-gnd-rc', false);
+        showFx('fx-gnd-rail', true);
+        tidyShift('up', -15);            // 第91轮：上部电路整体上移 15px，下方接地系统保持原位
+        showFx('fx-tidy-lines', true);   // 第91轮：上移后与地轨母线顶(525)的 5 段接缝补线"""),
+# showEquiv：保留件改 +25（与 eq-layer 对齐），整理态补线收起
+("""        ['eq-layer', 'eq-rb', 'eq-re1'].forEach(id => showFx(id, true));
+        ['eq-rb', 'eq-re1'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.pointerEvents = 'all'; el.classList.remove('hit-off'); } });""",
+ """        ['eq-layer', 'eq-rb', 'eq-re1'].forEach(id => showFx(id, true));
+        ['eq-rb', 'eq-re1'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.pointerEvents = 'all'; el.classList.remove('hit-off'); } });
+        tidyShift('keep', 25);           // 第91轮：等效态保留件 +25，与 eq-layer 集电极横线(201)/地轨(550)直接相接
+        showFx('fx-tidy-lines', false);  // 整理态接缝补线收起（保留件已平移到位）"""),
+]
+miss = []; dup = []
+for a, b in REPS:
+    n = s.count(a)
+    if n == 0: miss.append(a[:78].replace('\n', '⏎')); continue
+    if n > 1: dup.append('%dx %s' % (n, a[:78].replace('\n', '⏎')))
+    s = s.replace(a, b, 1)
+if miss:
+    raise SystemExit('以下锚点未找到（模板已变，请同步更新 _patch_g3.py）:\n  - ' + '\n  - '.join(miss))
+if dup:
+    raise SystemExit('以下锚点非唯一（会替换到错误位置，请加长锚点）:\n  - ' + '\n  - '.join(dup))
+
+s = s.replace("    // ===== 事件绑定（框架通用，勿改） =====",
+              "    " + MARK + "\n\n    // ===== 事件绑定（框架通用，勿改） =====", 1)
+wr(P, s)
+print('cj-g3 引擎补丁已应用（%d 处）' % len(REPS))

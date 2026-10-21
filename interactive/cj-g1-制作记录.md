@@ -918,3 +918,396 @@
 - 截图目检：默认态（缩略图重截）、信号源区、晶体管区、整理态、等效态——无压线无互压。
 - Playwright 双路径回归：**100 [10,16,27,14,33] / 82 [9,14,25,9,25]**、0 pageerror（r36.rcSize 断言 30→37 已同步）。
 - 版本号：data.js lab `cj-g1.html?v=43` + index.html data.js `?v=3.19`；制作规范.md 模板条目更新为 v2。
+
+### 第43轮（2026-10-09）NPN 符号统一改版
+- 用户要求：C/E 分得太开（夹角偏大）、太占垂直空间 → 总夹角收窄至 **≈75°**；发射极箭头太小 → 加大（参考图：大实心三角）。
+- 落地：斜线**终点（导线连接点）不动**，只改基极条上起点（C/E 各约 37.5°）；基极条相应加长；箭头改长约 28px、半宽 10px、尖端达线端点。
+- 本页（组A）：基极条 235-295→236-304，C (420,248→245)，E (420,282→295)，端点 (485,195)/(485,345) 不变；箭头 → 485,345 457,336 469,320。
+- 自检：布局检查 EXIT=0；截图目检达标；回归 100/100 ALL PASS（两轮）；缩略图重截；data.js lab ?v=47。
+
+### 第44轮（2026-10-09）NPN 65° + C/E 节点迁移
+- 用户两点要求：①C/E 总夹角 75° 仍偏大 → **65°**，两腿在基极条上 attach 间距减半；②C 极节点上移、E 极节点下移（同步 R_C 与发射极链，保持引线均衡）。
+- 几何：attach 245/295→258/282（间距 24）；腿长 dx=115、dy=±73（±32.4°）→ C(535,185)/E(535,355)（C↑10、E↓10、x+50）；R_C (517,60) 引线 45/45；R_E 下移 10（405-485）引线 34/40；发射极链/接地符号 x+50；等效层基线 195→185，受控源挂点 560→580。
+- 自检：补丁 56+6 处；布局检查 EXIT=0（不均衡 0）；三态截图目检达标；回归 100/100 ALL PASS；缩略图重截；data.js lab ?v=48。
+
+### 第45轮（2026-10-09）BJT 符号 4/7 长度 + 线宽加倍（本页为蓝本）
+- 用户三项要求：① 两斜线长度 → 原 4/7（136.2→≈77.8px）；② 基极竖条 → 1.5×（48→72px）；③ 线宽加倍（基极条 5→**10**、两斜线 3.5→**7**）。**夹角保持 65°**。
+- **关键推论**：三项量化 + 保持 65° 只能通过 **C/E 节点内移**同时满足——若锚定原节点（x=535），斜线缩到 78px 后挂点间距会反超基极条长且角度被迫回退（第43轮已否决大角度）。
+- 本页（组A 蓝本）几何：基极条 `(420,234)-(420,306)`；C 腿 `M 420 258 L 486 216`(w7)、E 腿 `M 420 282 L 486 324`(w7)；箭头 `points="486,324 457,317 468,301"`；C(486,216)/E(486,324)（原 535,185/535,355）；comp-t 命中框 `(394,205) 136×135`。
+- **全链路级联（75 处替换）**：R_C 与 R_E **x 535→486**、R_C **y 60→75**（引线 60/61 均衡）；集电极线/输出线 y 185→**216**（wire-collector `M 486 216 H 670`、C2 两板 y194-238、输出 `M 684 216 H 800` + `M 800 216 V 315`、fx-c2 桥 `(670,216)-(684,216)`）；发射极链整列右移（wire-emitter `M 486 324 V 371`、R_E rect 468,405、wire-re-b `M 486 485 V 525`、wire-ce-a `M 486 324 H 635 V 427`）；**接地符号四行 x 535/507/517/525→486/458/468/476**、地轨 `M 320 525 H 486`+`M 486 525 H 635`；**等效层顶排 y 185→216**（fx-t-rbe `216→315`、受控源 `M 580 216 V…`、rarr-rc `M 640 216 V 315`+circle(640,216)、eq-layer `M 90 216 H 420`/`M 580 216 H 670`、C1 桥/端子 `(150,216)`、R_B1/R_B2 节点、qdot B(420,216)/C(580,216)/E(420,525)）；V_CEQ 框 `(501,222) 68×96` 极性基线 y246/282/314、x 535。
+- 自检：布局检查 EXIT=0（导线不均衡 0 处）；默认态 + 等效态全页截图逐个目检达标；回归 **100/100 ALL PASS [10,16,27,14,33]**；缩略图重截；data.js lab `?v=49`、index.html `data.js?v=3.33`。
+- ⚠️ **本页为第45轮通用补丁蓝本**（`patch_r45.py`）——模板 `_game-template.html` 亦按本页几何回灌（仅剔除 2 条 g1 独有头部注释项）。
+
+### 第46轮（2026-10-09）分支挂接点撤离拐弯处
+- 用户三项要求：① C2 与集电极的连接点不放「R_C 下方导线与集电极连接拐弯点」上，上移，若太近 R_C 则 R_C 与 V_CC 同步上移；② C_E 与发射极的连接点不在「发射极与 R_E 上端导线拐弯处」，下移；③ **以后新建案例也不得把连接点放拐弯处**（已写入 `制作规范.md` ★「分支挂接点禁落拐弯处」）。
+- **集电极**：C2 分支点/节点圆 (486,216)→T 点 **(486,178)**（R_C 下引线 140→216 直段中点，距两端各 38px）。腾位：R_C rect y75→60 + 标签 y123→108、顶轨两端 y15→5、＋V_CC 端子 (805,15)→(805,5) + 标注 y64→54、fx-vcc 接地桥全套 y−10。级联：C2 两板 y194-238→156-200 + 标签 y188→150、fx-c2 桥 y216→178、输出线 `M 684 178 H 800` + `M 800 178 V 315`、rarr-rc `M 640 178 V 315` + circle(640,178)、I_CQ 箭头/标签/热区 −14、**等效层顶排 216→178**（eq 主线 `M 90 178 H 420`、C1 桥、Vi 端子、Rs/RB 上引线与节点、r_be 竖线 178→315、qdot B、eq 集电极段 `M 580 178 H 670`、受控源竖线 `M 580 178 V 328`）。
+- **发射极**：C_E 分支点/节点圆 (486,324)→T 点 **(486,365)**（E 端子 324→R_E 体顶 405 直段中点），`wire-ce-a M 486 365 H 635 V 427`。
+- 自检：布局检查 EXIT=0（不均衡 0 处）；默认/等效态截图目检达标（挂点均为直段 T 结、无压线）；回归 **100/100 ALL PASS [10,16,27,14,33]**；缩略图重截；data.js lab `?v=50`、index.html `data.js?v=3.34`。
+
+### 第47轮（2026-10-09）等效问3 E 红点动态对齐 C 红点 + 选项虚框与等号光学对齐（本页为蓝本）
+- **红点 epos 机制**（引擎 `setEPos` + TQUIZ 问3 `epos:[580]`）：问3（C+E 闪）时 E 红点动态移到受控源支路正下方（x=580），与 C 红点同竖直线（y178↔y525）；问1（B+E 问 r_be）E 红点保持 r_be 下端原位 (420,525) 不变。`setEPos` 插在 TQUIZ 定义前，showTQuizMenu/answerTQuiz 按 `q.epos` 应用/还原。
+- **修复第46轮漏改**：eq 层 R_B2 上引线 `M 320 216 V 315`→`178` + 节点圆 (320,216)→178（eq_block 的 rb_x 只覆盖 R_B1 支路）。
+- **受控源下端 T 结补白点**：fx-t-src 内加 `<circle cx="580" cy="525" r="7"/>`（reveal 时随受控源一起显示）。
+- **选项虚框与等号光学中线对齐**：`buildExpr` rect y `-0.58s`→`-0.70s`（框心 -0.18s→-0.30s，与分数线 barY 同口径）；`inkExtent` box 分支同步 `-fs*0.70/+fs*0.10`；lin-g1~g4 同步 rect y。fill 关答案按框几何中心自适应居中、自动跟随。
+- 验证：布局自检 EXIT=0；问3 红点/第5关选项卡截图目检达标；回归 **100/100 ALL PASS [10,16,27,14,33]**。
+
+### 第48轮（2026-10-09）全站同步：电极字符对称 + 集电极短接线 + C 红点
+- 从 cj-g2 第48轮回灌三项（详见 cj-g2-制作记录.md 第48轮）：①C/E 电极字符 E 下移 20px、同 x=511、关于基极条中线对称（组A C(511,242)/E(511,324)，组B C(511,237)/E(511,319)）；②`wire-rc-a` 截短为 R_C→T 结段，新增 `wire-c-stub`（T 集电极→集电极导线，R_C 下移后保留、showEquiv 时收起），ANNOS/STAGE_UNITS 同步；③fx-dot-c 上移至等效集电极导线左端 y=178（组B 176）。
+- 验证：布局自检 EXIT=0；回归通过（g5 97 含错路径预期）；缩略图重截。版本：cj-g1.html?v=51、index data.js?v=3.35
+
+### 第49轮（2026-10-10）等效态 C 端左移 + 顶轨节点对齐 + 悬停同步变色 + TTS 看门狗
+- 用户 4 点反馈的落地（全站同步轮，本页为蓝本）：
+  1. **元件-标注悬停同步变色补齐**：根因是纯 CSS 机制（`.interactive:hover .hot`/`.hot-label`）要求图形/文本挂类，等效层重绘件 `eq-rb1`/`eq-rb2` 与模型内件 `fx-t-rbe`/`fx-t-src` 漏挂 → 悬停完全无反馈。已补：组内 path/rect/line→`hot`、text→`hot-label`（circle 节点圆不加）。
+  2. **顶轨节点偏离**：第46轮顶轨 y15→5 时 `node-rc-top` 节点圆 cy=15 没跟随 → 悬空 10px（用户截图1红框）。改 cy=5（g1/g2/g4/模板四处同修）。
+  3. **等效态 C 端导线延长**：原 `M 580 178 H 670` 仅 90px，受控源菱形右顶点距 R_C 支路 30px 太挤 → C 端挂点 **580→530**：eq 集电极导线 `M 530 178 H 670`（140px）、fx-t-src 全套（竖线/菱形 `M 530 328 L 560 360 L 530 392 L 500 360 Z`/横线 500-530/下竖线/白点 530,525）、`fx-dot-c` cx=530、问3 `epos:[530]` 同步。r_be 标签（右缘≈481）与菱形左尖 500 净隙 20px 达标。g2=547、g3/g5=560 受 r_be 标签净隙约束不再左移（g2 菱形距 R_C 93px、g3/g5 40-50px，不拥挤）。
+  4. **第2关快速点击卡死**：根因=真实 Chrome 快速连续 `cancel()+speak()` 静默丢语音（onend/onerror 均不触发）→ `say(…, completeLevel)` 回调断裂关卡不推进，后续点击全落 `o.next>=seq.length` 静默 return（与"点啥都没反应、光标正常"吻合）。修复：`speakSeq` 每条 utterance 挂看门狗 `max(3000, 字数×200+2000)`，超时 `cancel()` 后照常推进（全站 10 页含 lin 系列同步）。headless 复现不了丢语音，已用"真实 TTS 挂死路径"验证看门狗 3.7s 兜底推进。
+- 自检：布局检查 EXIT=0（5 页）；q2/q3 截图目检（C 端 530、受控源-RC 间距舒展、红点/epos 跟随）；eq-rb1 悬停 hot=3/hot-label=1；快速连点压力测试（30 次 0ms 间隔）通关。版本 `?v=52`。
+
+---
+
+## 第 50 轮：第2/3关不再整图变紫 + 全案例统一「悬停变金/点选变绿」（2026-10-10，用户两点）
+
+### 用户反馈与根因
+1. **第2/3关整修电路变颜色**：进入第 2/3 关时 `highlightFor`→`highlightStage(0)` 给整个静态电路挂 `stage-purple`（紫 `#a78bfa`）**常驻**——既是"变颜色"的来源，又以 `#circuit-wrap` 开头的选择器（1,2,0）压过 `.interactive:hover .hot`（0,3,0），导致悬停金色反馈在第 2/3 关完全失效。
+2. **悬停只亮符号/点选不变绿**：并非缺失，而是被 `stage-purple` 盖住（同上）+ 无"悬停赢过高亮"的覆盖规则。
+
+### 修改（cj-g1/g2/g4/g5 + _game-template + _src_g3/_g3_C.txt + lin-g1~g4，共 10 页）
+- **L2/L3 去掉 `stageUnits: 0`**：静态阶段不再整级变紫；第 5 关（动态）保留 `stageUnits: 1`。
+- **阶段高亮改为"闪烁后自动恢复原色"**：`highlightStage` 的 720ms 定时改为同时撤 `color-blink` + `stage-purple`（lin-g* 的 `highlightAll` 同步）——任何关卡高亮都不再常驻。
+- **静态框架步闪烁对应电量**：新增 `fwBlinkQId(L, si)`（第 k 个框架子步 ↔ `qorder.seq[k]`，五案例顺序均核对一致：g1/g4 = VBQ→ICQ≈IEQ→IBQ→VCEQ，g2 = IBQ→ICQ→VCEQ，g3/g5 = VEQ→IEQ→ICQ→VCEQ）；`renderMix` 的 fw 分支加 `S.mixQ` 守卫，每个框架子步只闪一次（`red-blink`，红 3×0.22s），仅 `phase===0` 生效（第 5 关动态指标不在电路中，不闪）。
+- **CSS 悬停/作答覆盖规则**（10 页统一）：`.stage-purple/.color-blink … .interactive:hover .hot/text → 金 #ffe66d`；`.stage-purple .color-blink .hot/text → var(--blink-color)`（点选绿色不被阶段色盖住）。
+- **点选变绿已原生支持**（无需改）：`blinkGroup(id,'#34d399')` 的 `color-blink` 不撤 → 符号+文字持久绿色（本轮补的覆盖规则保证它在任何高亮态下可见）。**例外**：`#qlabel-layer` 的 q-* 电量标注按用户既定约定任何状态保持红色（悬停红光晕、作答透明度闪烁），不跟随金/绿。
+- **cj-g3 走生成链路**：改 `_game-template.html`（引擎/CSS）+ `_g3_C.txt`（stageUnits）→ 重跑 `_build_g3.py` + `_patch_g3.py`（15 处）；与旧版 diff 仅本轮 35 行改动，证实片段源无漂移。
+
+### 自检（第 50 轮）
+- node --check 10 页全过；svg-layout-check（cj 5 页+模板）EXIT=0。
+- verify50 定点（10 页）：cj 5 页+模板 L2/L3/L5 均无 `stage-purple`；lin 4 页阶段高亮恢复原色；悬停 comp-* 符号+文字均变金 `rgb(255,230,109)`；cj-g1 专项：框架步→电量映射 `['q-vbq',null,'q-ieq',null,'q-ibq',null,'q-vceq',null]`、进入 L3 第 1 框架步 q-vbq 加 `red-blink`、选中虚框后悬停 R_B2 变金、答对后 R_B2 符号+文字持久变绿、0 pageerror。
+- 五案例满分回归全绿：g1 **100 [10,16,27,14,33] / 82 [9,14,25,9,25]**、g2 ALL PASS 100、g3 100（12/18/28/18/24）、g4 100 [10,16,28,16,30]、g5 100/100，均 0 pageerror。
+  - ⚠️ 回归脚本 regress32.js 两处断言为第 45/46/49 轮之前的旧值（C_E 起点期望 `M 485 345`、eq 集电极导线期望 `M 560 195 H 670`/红点 560），已同步为现值 `M 486 365 H 635 V 427`、`M 530 178 H 670`/530——第 49 轮改 530 时漏同步了本脚本，**改几何必须同步回归脚本断言**（再次踩坑）。
+- 截图目检：L2/L3 电路纯白（紫高亮消失）、悬停 R_C 符号+文字同金色、答对 R_B2 符号+文字同绿色。
+- 版本：data.js lab `?v=` g1:53/g2:14/g3:9/g4:8/g5:8，**lin-g1~g4 首次加 `?v=1`**（本轮起改引擎必须破缓存），index data.js `?v=3.37`；制作规范新增「8）元件高亮反馈」。补丁 `tmp_cjg1/patch_r50.py`，备份 `网站/interactive/.bak-r50/`。
+
+### 第51轮（2026-10-10）菱形横线加长 + 下移重绘件变色补齐 + r_be 点选收窄
+- 用户 2 点反馈：① 第4关绘制的受控源菱形中横线太短；② 第5关填 Av 点 r_be 时 r_be 支路与受控源支路**全变绿**（应只 r_be 文字与电阻变绿）；点 R_C 时电阻没跟文字一起变绿；R_i/R_o 同样问题。全站检查修复。
+- **① 菱形横线**：受控源菱形内横线标准应为「连接左右顶点（全宽）」，g1/g4/模板此前只画左半段（500→530）→ 改全宽 `500→560`（g2/g3/g5 本已全宽合规）。
+- **② 高亮范围三处根因**：
+  - **r_be 全组变绿**：`blinkGroup('comp-t')` 在等效态选中整块 `#fx-tmodel`（含 fx-t-rbe + fx-t-src + i_b/βi_b 箭头），且 CSS `g.color-blink text` 不挑类把全部文字染绿 → 引擎加**收窄特判**：`g.id==='fx-tmodel'` 时改对 `#fx-t-rbe` 加 color-blink（只高亮 r_be 电阻体+标注）；CSS 文字选择器改 `g.color-blink .hot-label`（i_b/βi_b 红标注不再被误染，全站 11 页同步）。
+  - **R_C 电阻不变绿**：整理/等效态的 R_C 显示为下移重绘件 `rarr-rc`，其 path/rect/text 全部漏挂 hot/hot-label（第49轮审计只查了 comp-* 与 eq-* 叶子组，rarr-* 漏网）→ 补类后电阻体+文字一起变金/变绿。同批补齐：g1/g4/模板 `rarr-rb1`、g2 `rarr-rb`、g4 `fx-t-re1`、g3 片段 `rarr-rc`。
+  - **R_B2 标签（R_i 填空）**：整理态原标签被隐藏、改显静态副本 `rarr-rb2lab`（不在 comp-rb2 组内，悬停/作答都不变色）→ 改为**原标签 setAttribute 右移**到整理态位 (346,403/423,start)，保持在同一元件组内自动同步；rarr-rb2lab 废弃不显示；resetCircuit 恢复原坐标 (290,402/423,end)。
+- **验收**：5 页布局自检 EXIT=0；等效态截图目检——点 r_be 仅 r_be 电阻+文字绿（受控源白色、i_b/βi_b 红色不变）、点 R_C（rarr-rc）电阻+文字同绿、默认态 R_C 悬停符号+文字同金。**坑**：鼠标坐标须加 `#circuit-wrap` 的 translate(18,260) 偏移（elementFromPoint 诊断定位）。
+- 版本 `?v=54`（data.js?v=3.38；lin-g1~g4 同步 CSS 改 ?v=2）。补丁 `wb-g13/patch_r51.py`，备份 *.bak-r51。
+
+### 第52轮（2026-10-10）βi_b 箭头与受控源上端导线重合
+- 用户反馈：第4关受控源电流 βi_b 及箭头，箭头应与受控源上端导线重合。根因：第49轮受控源挂点 580→530 时 `fx-t-ic` 漏改——箭头仍悬空 x=580（偏右 50px），标签 (562,end) 还横压在支路导线上。
+- 修复：箭头竖线/头部 580→530（与 fx-t-src 上端导线同 x）；标签改放箭头右侧 (548,start，同 g2——左侧与 i_b 标签净隙仅≈12px 不达标)。
+- 同批检查：g2(547)/g3(560)/g5(560) 本已重合合规；g4/模板同款漏改一并修复。
+- 验收：布局自检 EXIT=0；等效态截图目检箭头落导线上、文字不压线；回归 100 [10,16,27,14,33] pageerror=0。版本 `?v=55`（index data.js?v=3.39）。补丁 `wb-g13/patch_r52.py`。
+
+---
+
+## 第 53 轮：标题去重复案例号 + 校徽金色粒子汇聚 + 作答高亮不染导线（2026-10-10，用户三点）
+
+### ① 左上角标题去掉「· 案例n」（全 10 页）
+- 黄色段改为只有电路名：`◆闯关挑战◆ 共射放大电路`（cj-g5/lin-g3 等同理）——案例号只保留下方案例行，消除重复。
+- 注释规范同步（替换区 A 说明 / lin-g 系列第③条）；制作规范 4）条更新。
+
+### ② 校徽金色粒子汇聚入场（全 10 页）
+- `<image>` 包进 `<g id="logo-fx">`：`#logoGlow` 径向渐变光晕 + **62 枚 `.lp` 金色粒子** + `#school-logo`。
+- **粒子坐标按校徽 PNG alpha 通道采样墨迹点**（620×94 → 462×70@(945,36) 等比映射；3×3 邻域 alpha>110、最小间距 12px、种子随机抖动/偏移/半径/时延），粒子自四周飞向墨迹点**汇聚成校徽形状**，1.02s 起校徽 0.95s 由模糊渐显（blur 9→0）「接收」粒子，总时长 ≈2s，进页播放一次。
+- ⚠️ 两个坑：a) 首版漏写 `data:image/png;base64,` 前缀（校徽空白），已修复并存档脚本同步；b) `chrome --headless --virtual-time-budget` **不推进合成器动画**，截图时 logo 仍 opacity:0——缩略图改用 Playwright 真实时间等 2.6s 再截。
+
+### ③ 作答/悬停高亮只染「本体 + 标注」，导线保持白色（cj-g1~g5 + 模板）
+- **根因**：整理/等效态的下挂重绘件（rarr-rb1、rarr-rb、rarr-rc、eq-rb1/eq-rb2/eq-rb/eq-re1、fx-t-rbe、fx-t-re1）**组内自带上下连接导线**（静态态导线是独立 data-id 组，无此问题），`g.color-blink .hot` 把它们一并染绿。
+- **修法**：组内导线加 `keepw` 类（`class="hot keepw"`，共 54 条：g1 10 / g2 8 / g3 8 / g4 12 / g5 6 / 模板 10），CSS `.hot.keepw { stroke:#fff !important; filter:none !important; animation:none !important }`——悬停金、作答绿/红、阶段紫任何高亮态导线都保持原白色，只有电阻矩形与文字变色。
+- 效果实测（截图）：第 5 关填 Av/Ri/Ro 点 R_C/R_B1/R_B2/r_be → 只有矩形+文字变绿，上下导线纯白；悬停 → 矩形+文字变金、导线仍白。
+- cj-g3 走生成链路：改 `_g3_A.txt`（标题）+ `_g3_B.txt`（keepw）→ `_build_g3.py` + `_patch_g3.py`（15 处）重建。
+
+### 自检（第 53 轮）
+- node --check 10 页全过；svg-layout-check（cj 5 页+模板+lin 4 页）EXIT=0。
+- verify53 定点（10 页）：标题无「· 案例」且案例行保留案例号、粒子 62 枚、校徽 data-uri 正常、渐显完成 opacity=1、粒子散场 opacity=0、keepw 数量符合（g1 10/g2 8/g3 8/g4 12/g5 6/模板 10）、0 pageerror；cj-g1 等效态专项：rarr-rc/eq-rb1/eq-rb2/fx-t-rbe 作答后电阻体+标注=绿、导线×2=白，真实鼠标悬停电阻体+标注=金、导线仍白。
+- 五案例回归：g1 **100 [10,16,27,14,33] / 82 [9,14,25,9,25]**、g2 100、g3 100（12/18/28/18/24）、g4 100/90、g5 100/97，均 0 pageerror。
+  - ⚠️ regress32.js 的 r_be 断言是第 51 轮旧口径（查 `#fx-tmodel` 的 class）——第 51 轮把 class 收窄到 `#fx-t-rbe` 后该断言必挂（round 52 未重跑此脚本故未暴露），已改为查 `#fx-t-rbe` 并补第 53 轮导线白色断言。
+- 缩略图 9 张重截（真实时间等动画结束）；版本 `?v=` g1:56/g2:16/g3:11/g4:11/g5:10、lin-g1~g4:3，index data.js `?v=3.40`；制作规范更新 4）/4b）/8）条；补丁 `tmp_cjg1/patch_r53.py`，备份 `网站/interactive/.bak-r53/`。
+
+---
+
+## 第 54 轮：校徽粒子改 1/6 大小 ×20 数量（1240 枚）+ 级联式自左向右汇聚（2026-10-10，用户两点）
+
+### ① 粒子 1/6 大小、数量 ×20
+- 半径 [2.0,2.4,2.8,3.2,3.6] → **[0.33,0.40,0.47,0.53,0.60]**（精确 1/6）；62 枚 → **1240 枚**。
+- **实现方式重构：静态 62 枚标记删除，改由页尾 JS `initLogoFx()` 运行时生成**——把校徽 data-uri 画到 canvas 读 alpha（3×3 邻域>110、步长 2、最小间距 2.2px、mulberry32 种子 20261010）采样 1240 个墨迹点。文件反而更小（-9KB 静态标记 +4KB JS）；**换校徽图片不再需要重新采样**（每次加载自动按新图重算），canvas 采样失败时退化为无粒子、校徽照常揭示。
+
+### ② 级联式自左向右汇聚（替换第 53 轮的整图 blur 渐显）
+- **粒子按目标点 x 位置分批到达**：delay = 0.05 + u×1.35（u=(x−945)/462，飞行 0.5s）——最左侧先到、汇聚点自左向右推进。
+- **校徽用 `clip-path: inset(0 100%→0 0)` 由左向右揭示**（0.62s 起 1.30s，比粒子落点滞后 ≈0.07s，读作「粒子落定→校徽随即显现」）；已实测 SVG `<image>` 的 clip-path 参考框=自身 bbox（cliptest 验证）。opacity 0→1 保底：clip-path 异常的环境不至于闪现全图或永久隐藏。
+- **新增 `.logo-sweep` 金色扫掠光柱**（#logoSweepGrad 横向渐变，x 930→1392+462 同步平移）标出当前汇聚点位置。
+- 总时长 ≈2s：粒子 delay 0.05~1.40s、扫掠/揭示 0.55/0.62~1.90s、光晕 1.5s 起。
+
+### 自检（第 54 轮）
+- node --check 10 页全过；svg-layout-check（cj 5 页+模板+lin 4 页）EXIT=0。
+- verify54 定点（10 页全 PASS）：.lp=1240、r 0.33~0.60、**delay 按 x 排序严格单调（monoBad=0）**、delay 跨度 0.05~1.40、终态 clip 全开 + opacity=1 + 粒子全部散场（alive=0）、0 pageerror。
+- 级联过程截图目检（t=0.7/1.0/1.3/1.6/2.6s）：左侧粒子云 → 汇聚光柱右移至「桂林」处、校徽已揭示左段 → 全部显现、粒子散尽。
+- 五案例回归：g1 **100 [10,16,27,14,33] / 82 [9,14,25,9,25]**、g2 ALL PASS 100、g3 100（12/18/28/18/24）、g4 ALL PASS 100/90、g5 回归全部通过，均 0 pageerror。
+- 版本：data.js lab `?v=` g1:57/g2:17/g3:12/g4:12/g5:11、lin-g1~g4:4，index data.js `?v=3.41`；制作规范 4b) 更新为级联式；补丁 `tmp_cjg1/patch_r54.py`，备份 `网站/interactive/.bak-r54/`；缩略图无需重截（终态与原一致）。
+
+---
+
+## 第 55 轮：金色粒子改「烟雾汇聚」——起飞区扩至整个页面上半部 + 去除遮挡（2026-10-10，用户两点）
+
+### 用户需求
+1. 粒子汇聚范围太小 → 从**整个页面上 1/2 部分随机位置**飞过去，粒子随机、像烟雾。
+2. LOGO 仍从左往右显示，但**去除遮挡感**（第 54 轮的 clip-path 硬边 + 金色扫掠光柱读作「有东西挡着」）——纯粹用大量烟雾状粒子汇聚显形，**汇聚的粒子不断消散**。
+
+### ① 去遮挡
+- **删除 `.logo-sweep` 扫掠光柱**（rect + `#logoSweepGrad` 渐变 + logoSweep/logoWipe 关键帧全删）。
+- 校徽揭示改 **SVG 软边遮罩 `#logoReveal`**（defs 内，`maskUnits=userSpaceOnUse`）：全白底 rect（900,16,620,112）+ 黑色矩形 B（x=645,w=920），B 左沿用 `#maskEdgeGrad`（objectBoundingBox，0%白→32.6%黑→100%黑）**羽化 ≈300px**；B 由 SMIL `animateTransform` translate 0→1062 平移（begin 0.5s dur 1.6s linear）→ 前沿自左向右扫过校徽，柔和浮现无硬边。`<image>` 加 `mask="url(#logoReveal)"`。
+- 保留 `logoFade` 0.35s@0.45s 作遮罩异常保底；实测 Chrome 对 `<mask>` 用亮度语义（masktest.html 验证：白=显、黑=隐）。
+
+### ② 烟雾化粒子（两层，页尾 initLogoFx 重写）
+- **起飞点 = 整个页面上半部分随机**（sx=rnd×1600, sy=rnd×470），CSS 变量 `--dx/--dy` = 起飞点−目标点；keyframes 0% translate(--dx,--dy) → 62% 归零（到达）→ 100% 漂移消散（`--exd` ±45px、`--eyd` −10~−60px 上飘，opacity→0）＝**到达后不断消散**。
+- **起飞时刻与到达级联解耦**（关键修正，首版 delay 按目标 x 推导导致左半页前 0.8s 空场）：`st=rnd×0.55` 陆续起飞、`A=0.55+u×1.10`（u=目标 x 归一）左先右后、`dur=max(0.55, A−st)`。
+- ①细粒子 **1300 枚**：实心金尘 r∈[0.70,1.30]、opacity 0.40~0.95，目标=墨迹采样点；②烟雾层 **180 枚**：radialGradient `#lpGoldA/#lpGoldB` 软边烟团 r∈[5,16]、opacity 0.14~0.32，目标=校徽框内随机点（营造体积感）。
+- 去掉 scale（transform-box/fill-box 方案实测无帧率收益且徒增风险）；光晕改 0.9s@1.3s。
+- 性能：headless 实测 ≈20ms/帧（p90 33ms），与第 54 轮基线（17.9ms/33ms）相当。
+
+### 自检（第 55 轮）
+- node --check 10 页全过；svg-layout-check EXIT=0。
+- SMIL 时钟精确截帧（r55c-p00~p08）：p00 烟雾布满上半页、校徽未显 → p01 左 70% 显现+烟团环绕 → p03 全显、粒子消散 → rest 终态纯净；masktest.html 验证遮罩亮度语义与动画在 mask 内可用。
+- 抽查 cj-g3/lin-g1/_game-template：mask 生效、e=1062、opacity=1、.lp=1480、0 pageerror。
+- 五案例回归：g1 82/100、g2 ALL PASS 100、g3 ALL PASS 90（含错路径），均 0 pageerror。
+- 版本：data.js lab `?v=` g1:58/g2:18/g3:13/g4:13/g5:12、lin-g1~g4:5，index data.js `?v=3.42`；制作规范 4b) 更新为烟雾汇聚式；补丁 `tmp_cjg1/patch_r55.py`，备份 `网站/interactive/.bak-r55/`；缩略图无需重截（终态与原一致）。
+
+---
+
+## 第 56 轮：第4关 r_be 下端补节点圆（2026-10-10，用户 1 点）
+
+### 用户需求
+第4关，B、E 等效的 r_be 下方缺少节点。
+
+### 根因与修法
+r_be 支路下端 (420,525) 与公共地轨成 **T 形三线交汇**（地轨左右两段 + r_be 下引线），按「分支挂接点须补 r=7 节点圆」约定应画白点，但 fx-t-rbe 内漏画 → 等效后读作导线拐角。cj-g2 / cj-g4 原本已有（cj-g2 在 fx-t-rbe 内 (420,525)、cj-g4 在 fx-t-re1 内 (420,445)，与 r_be 下端同点、第 1 问同时揭示），**cj-g1 / cj-g3 / cj-g5 / 模板漏**：
+
+- cj-g1 / _game-template：fx-t-rbe 下端引线后补 `<circle cx="420" cy="525" r="7" fill="#ffffff"/>`（无 class，不参与悬停/作答染色）。
+- cj-g5：同上 (420,525)（r_be 下端 / 发射极交流地连线 / fx-gnd-e 接地符号三线交汇）。
+- cj-g3：经生成链补 `_src_g3/_g3_B.txt` (420,420)（r_be 下端 / 发射极节点横线 / eq-re1 三线交汇），重跑 _build_g3.py + _patch_g3.py，与旧版 diff 仅此一处。
+- 同步改掉各页 eq-layer 里过时注释「地线不另画落点白点：白点会盖住闪烁红点」→ 改为「节点圆由 fx-t-rbe / fx-t-re1 内 r7 提供；fx-dot-e 在 fx-layer 最末整组后绘，闪烁时盖在节点圆上，互不冲突」（cj-g1 / g2 / g4 / 模板）。
+
+### 自检（第 56 轮）
+- verify56.js（Playwright，?lvl=4&ts=6 / ts=1）：6 页（g1×2 / g3 / g4 / g5 / 模板）节点圆均命中（cx=420、cy=525/420/445、r=7、无 class）、fx-t-rbe opacity=1、0 pageerror；ts=1 时红点整组后绘盖在白点之上（截图目检无叠影突兀）。
+- 截图目检：g1 ts6 底轨五节点（220 / 320 / 420 新 / 486 / 530）齐全；g3 (420,420)、g5 (420,525) T 结带点。
+- node --check 10 页全过；svg-layout-check EXIT=0。
+- 回归：g1 含错路径 82/100、g2 满分 100、g3 含错路径 90——均与第 55 轮基线一致，0 pageerror。
+- 版本：data.js lab ?v= g1:59 / g2:19 / g3:14 / g4:14 / g5:13，index data.js ?v=3.43；lin 各页本轮未动（仍 ?v=5）。缩略图无需重截（默认态该层 opacity=0 不可见）。
+- 备份 .bak-r56/（10 页 + _g3_B.txt）；补丁 tmp_cjg1/patch_r56.py、验证 tmp_cjg1/verify56.js；制作规范新增「★ 等效态 r_be 下端必须补节点圆」条目。
+
+---
+
+## 第 57 轮：第4关整理态 R_B1 / R_C 下端补节点圆（2026-10-10，用户 1 点）
+
+### 用户需求
+第4关，点击 RB1 和 RC 整理选项后：RB1 与 RB2 并联时下方缺少节点；RC 与 RL 并联时 RC 下方缺少节点。点击 BJT 等效后 RB1 下方有节点了，只是 RC 下方仍缺。
+
+### 根因与修法
+- 整理下挂件 **rarr-rb1 / rarr-rc 只画了上端节点圆**（(220,265) / (640,178)），下端与地轨的 T 形三线交汇点 (220,525) / (640,525) 漏画 → 读作拐角。等效态 R_B1 由 eq-rb1 的 (220,525) 圆接续（与用户观察一致），R_C 等效后仍沿用 rarr-rc → 两态都缺。cj-g2 的 rarr-rc 已有 (670,525) 同规圆。
+- **修复（cj-g1 / cj-g4(y=560) / _game-template）**：rarr-rb1、rarr-rc 各补下端 r7 白圆（无 class）。g3/g5 的 rarr-rc 下端落在独立接地符号 fx-gnd-rc 上属端子、不需节点；g2 无 rarr-rb1、rc 圆已有 → 不动。
+- **级联：node-ce（C_E 接地点）由 635 右移 5px 至 640**，与 R_C 下挂点重合——否则「先下移 R_C、后移除 R_E」的中间态里 (635)/(640) 两枚 r7 圆重叠成胖点。合并后中间态只显一枚圆（C_E 下引线落点 635 在 r7 覆盖内），地轨分段点 `wire-gnd-m2 / wire-gnd-r` 同步 640，R_E 移除后 node-ce 收起、由 rarr-rc 的同名圆接续。
+- 断言同步：regress32.js（nodeCe 635→640）、verify41.js（顺带把第 44~46 轮遗留的旧坐标断言 485/195 更新为 486/216/640，恢复可用）。
+
+### 自检（第 57 轮）
+- dbg57.js 两种点击顺序（先移除 R_E / 先下移后移除）：rarr-rb1 两圆 (220,265)+(220,525)、rarr-rc 两圆 (640,178)+(640,525) 均命中，0 pageerror；中间态截图目检 node-ce 与 R_C 节点合一枚。
+- g4spot.js：cj-g4 ?lvl=4&tidy=1 下 (220,560)/(640,560) 节点齐全、node-ce(640,560) 已收起、0 pageerror。
+- 布局自检 EXIT=0；JS 提取 --check 10 页全过（managed node 短暂 EBUSY，改用系统 node 复核，与代码无关）。
+- 回归：cj-g1 满分路径 + 含错路径通过（regress32 全套断言含新 nodeCe=640）。
+- 版本：data.js lab ?v= g1:60 / g4:15（g2/g3/g5/lin 本轮未动），index data.js ?v=3.44。缩略图无需重截（默认态不可见下挂件）。
+- 备份 .bak-r56/*.r56（改前状态）；补丁 tmp_cjg1/patch_r57.py；制作规范新增「★ 整理态下挂件下端必须补节点圆」。
+
+### 第60轮（2026-10-10 夜）语音读音规约：得X分 → 得到X分
+- 用户反馈：所有案例语音中的「得X分」被 TTS 读成 děi（应为获得的得 dé）。根因：Web Speech 汉语分词把单字「得」+数字判成「得děi」。
+- 改法：**只改送入语音引擎的文本**（say / saySeq / announce），一律写「得到X分」（dé dào，读音唯一）；界面显示文本（setMsg / mkText 的「得 X 分」）保持原样不动。
+- 本页改动点：'+'回答正确，得到' / '回答错误，本项得到' / announce「答对得到」；lin 页另有「构成…，得到」「框架选对了 A? 得到」「填对了，得到」「av.say 得到」，并顺带把「本题不得分」改为「本题不能得分」（避免「不得」被误读）。
+- 验收：运行时录制送入语音引擎的文本——含「得」91 句、残留「得+数字」0 句；回归 100 分全绿。
+
+### 第68轮（2026-10-12）语音报分改「获得」，分数 2 读「两」
+- 语音「得到X分」→「获得X分」（say / saySeq / announce 全量静态替换，14 处/页）；`speechify()` 新增 `.replace(/(^|[^0-9])2分/g, '$1两分')`，使「获得2分」「扣2分」读作「获得两分」「扣两分」（原来读 èr）。
+- 界面显示文本不动（如 setMsg「错误，扣 2 分。」）。speechify 是唯一语音入口，10 页副本逐页同步。
+- 验收：运行时录制送引擎文本——含「得到」0 句、含「2分」0 句，样本「回答正确，获得两分。」；回归满分 ALL PASS。版本 `?v=` 见 data.js（index data.js?v=6.51）。补丁 wb-g13/patch_r61.py。
+
+### 第76轮（2026-10-13）整理态 R_C 下挂线与 C_E 支路错列（全站排查同款隐患）
+- 排查发现同类隐患：C_E 极板（613~657 × 427/443）横穿整理态 R_C 下挂竖线（640 列 405~525），wire-ce-b（635 列）与之下挂段几乎重合（相距 5px）——「先整理 R_C」中间态必重叠。
+- 修复（与 g4 同规则）：C_E 支路 635→598（wire-ce-a/极板 576~620/wire-ce-b/fx-ce/node-ce 圆 (598,525)）；C_E 标注改极板左侧 (562,442,end)。地轨分段与 rarr-rc 不动。
+- 验收：布局检查 EXIT=0；组合态探针截图目检达标；回归 100 分 ALL PASS。版本 `?v=63`（index data.js?v=6.59）。补丁 wb-g13/patch_r76.py。
+
+### 第77轮（2026-10-14）门控提示区分「信号源 / 电源 / 恒流源」
+- 用户反馈：所有案例画直流通路与交流等效电路时，不能将信号源与电源统称为电源；右边方框提示改为「先处理信号源和电源」/「先处理信号源与 x 个电源」/「先处理信号源、x 个电源和恒流源」，恒流源不跟电容放一起处理；同步修改语音。
+- 本页构成：1 信号源（Vs）+1 电源（+Vcc），两关同构。L1/L4 各配 `gateMsg`/`gateTodo`/`gateDoneMsg` 三字段（guide、setMsg 改读配置，引擎通用化）；announce 语音同步（界面「2 个电源」、语音「两个电源」）。
+- 验收：布局自检 EXIT=0；L1/L4 截图目检文案正确、无面板溢出（首版带括号型号曾溢出，已去型号收紧）；回归 100 分 ALL PASS。版本 `?v=64`（index data.js?v=9.60）。补丁 `wb-g13/patch_r77.py` + `patch_r77b.py`。
+
+### 第78轮（2026-10-14 深夜）面板文案去答案化
+- 用户反馈：右侧面板关卡号下方小字直接给出处理方式（漏答案），要求只提示处理环节。
+- 本页改动：第 4 关 subLine「电容短路、电源置零，再整理电路并等效晶体管」→「分三步处理：鼠标移到元件上，在菜单里选择处理方式」。
+- 验收：布局自检 EXIT=0；L4 面板截图目检无泄漏、不溢出；回归 ALL PASS。版本 `?v=65`（index data.js?v=9.61）。补丁 wb-g13/patch_r78.py。
+
+---
+
+## 第 58 轮：I_EQ 独立标注 + 第2关计算顺序支持「I_BQ/V_CEQ 互换」+ 第3关子步随序重排（2026-10-16，用户两点）
+
+### 用户需求
+1. 第2关标注「I_CQ≈I_EQ」改为只写 I_CQ；给 BJT 发射极补 I_EQ 文字与箭头，位置在 R_E 右侧。
+2. 静态工作点计算顺序调整为 V_BQ→I_EQ→I_CQ→I_BQ→V_CEQ 或 V_BQ→I_EQ→I_CQ→V_CEQ→I_BQ（后两量顺序可互换）；选框架/填表达式不增加子步，只把「I_CQ≈I_EQ」中的 I_EQ 变成方框；V_CEQ 与 I_BQ 按选择的顺序出框架与表达式。
+
+### ⚠️ 并行会话发现（动页前必读）
+页面在 10-10 夜~10-14 已被另一会话链（wb-g13）推进过第 60/68/76/77/78 轮：语音「获得X分」、**C_E 支路 635→598 错列（node-ce 598,525 独立成结）**、门控三字段、L4 subLine 去答案化；版本体系 ?v=65 / data.js?v=10.65。第 57 轮的「node-ce=640 两圆合一」已被第 76 轮错列方案取代。本轮补丁锚点全部命中现值，无覆盖。
+
+### 修改内容
+- **①标注拆分**（qlabel-layer）：集电极标注 data-id `q-ieq`→`q-icq`、文字改 `I_CQ`（热区宽 150→92，箭头/位置不动）；新增 `q-ieq` 发射极标注——红色箭头 x=520（R_E 体右缘 504 右侧 16px，与 I_CQ 同规格）y458-510，文字 (529,494)。C_E 标签占 x517-562/y409-454，故整体下移避让（与 C_E 标签净距 19、与地轨 525 净距 31/15，截图目检通过）。
+- **②第2关**：`seq: ['q-vbq','q-ieq','q-icq',['q-ibq','q-vceq']]`（末项=无序组，组内全点完才推进、先后不限）；names 增 q-icq/q-ieq；引擎加 `flatSeq()/groupOf()`，pickQorder 按 `o.done` 判组推进、进度行按实际点击顺序点绿 + 5 量序列行自适应缩字（面板宽 520）；`renderProgress` 的 done/total 按展开数。满分仍 16（错一次扣 2 进本关分值池）。
+- **③第3关**：I_CQ 两组子步改「I_CQ 框架/表达式」，框架与 fullExpr 的 I_EQ 改 `{box:1}`（作答点=q-ieq 发射极标注）；blanks 变 4 空（I_EQ 1 分 + V_BQ 1 + V_BE 1 + R_E 1，R_E 由 2 分匀出 1 分），Σ 仍 27。I_BQ/V_CEQ 表达式的 I_CQ 空改点 `q-icq`。每子步加 `qid`；completeLevel 进 mix 关时 `arrangeMixSubs()` 按第 2 关 done 重排 mx.subs/mx.steps（stepsOrig 原序副本、幂等）；renderMix 读 mx.subs；fwBlinkQId 改读 subs[si].qid（与 seq 解耦）。announce 去固定顺序描述，改「顺序与第二关的点选顺序一致」。
+- **模板同步**：_game-template.html 同锚点应用（页头案例注释除外，模板本无）+ 两处描述注释两页同步更新。
+
+### 自检（第 58 轮）
+- verify58.js（Playwright，TTS stub）：顺序 A/B 第2关均满分 16、错序只扣分值池不推进（rem 16→14）；第3关子步重排顺序 B→V_CEQ 组在前、顺序 A→I_BQ 组在前；I_CQ 填空序列 [q-ieq,q-vbq,q-vbe,comp-re]、分值配平 27；I_EQ 标注截图目检（r58-lvl2-ieq-zoom.png：箭头+文字与 C_E 标签/地轨无冲突）；第3关 I_CQ 框架子步目检（≈ 后即方框）。0 pageerror。
+- verify58tpl.js：模板顺序 B 满分 + 重排正确。
+- 回归 regress32.js（含错路径）：驱动序列更新为 5 量、blanks3 更新为 14 空、m40 断言更新为 76 轮口径（598）+ 拆分标注断言（q-icq y=148<180、q-ieq y=494>400）→ 82/100 通过、0 pageerror。
+- node --check 10 页全过；svg-layout-check EXIT=0。
+- 版本：data.js lab cj-g1 ?v=65→66（并行会话编号体系，g2~g5/lin 未动），index data.js?v=10.65→10.66。
+- 备份 .bak-r58/（10 页）；补丁 tmp_cjg1/patch_r58.py + patch_r58_tpl.py、验证 verify58.js / verify58tpl.js；规范新增「第58轮」条目。缩略图无需重截（第2关默认态标注差异不影响缩略图构图——集电极文字变短、发射极多一枚小标注，仍在原位）。
+- **待定**：cj-g4（同为 I_CQ≈I_EQ 合并标注 + 同 seq 结构，但为 R_E1+R_E2 双电阻、C_E 在 y494/510）如需同口径，需单独定位 I_EQ 标注位置。
+
+---
+
+## 第 59 轮：第2关计算顺序升级为「4 条合法路线」（I_EQ 可选 + I_BQ/V_CEQ 互换）（2026-10-16，用户三点）
+
+### 用户需求
+1. 第2关标注「I_CQ≈I_EQ」改 I_CQ、发射极补 I_EQ（R_E 右侧）——**第 58 轮已完成，本轮核对无改动**。
+2. 计算顺序调整为：V_BQ→I_EQ→I_CQ→I_BQ→V_CEQ 或 V_BQ→I_EQ→I_CQ→V_CEQ→I_BQ；**也可以是** V_BQ→I_CQ→I_BQ→V_CEQ 或 V_BQ→I_CQ→V_CEQ→I_BQ——即 **I_EQ 变为可选步骤**（第 58 轮只支持含 I_EQ 的两条）。
+3. 第3关不增子步、I_CQ≈I_EQ 中的 I_EQ 变方框、I_BQ/V_CEQ 随所选顺序出框架与表达式——第 58 轮已实现，本轮核对无改动。
+
+### 修改内容（cj-g1 + _game-template 同锚点）
+- **第 2 关配置**：`seq: ['q-vbq','q-ieq','q-icq',['q-ibq','q-vceq']]`（无序组）→ `seqs:` 四条合法路线（含/不含 I_EQ × I_BQ/V_CEQ 两序）。I_EQ 可选的电学依据：I_CQ≈I_EQ，可由 V_BQ 直接写出 I_CQ。
+- **引擎升级**（与 cj-g3 第 81 轮同口径）：groupOf 后新增 `qSeqs/qLen/qAllIds/qAccept/qSpan`；`pickQorder` 改按「已点前缀 + qAccept 并集」判定（终止 `qAccept(...).length===0`），`renderQorder` 进度行改「已点名称按实际点击顺序 + □ 占位至 qSpan」（总步数随路线收敛 5/4），`statusOf` 同步 qSpan，`initState` 的 `flat` 改存 qAllIds。`flatSeq/groupOf` 保留（该页已无调用方）。
+- 第 3 关不动：8 子步、I_EQ 方框、`arrangeMixSubs` 按 qid 重排——4 量路线下 done=[vbq,icq,ibq,vceq] 等仍能正确重排（已验证）。
+- 引擎头注释同步（qorder 关描述）。
+
+### 自检（第 59 轮）
+- verify59.js（Playwright，g1）：A/B（5 量）、C/D（4 量）四条路线全部满分 16、自动进第 3 关；进度条收敛断言「已完成 2 / 4 步」（4 量）与「2 / 5 步」（5 量）；第 3 关 qid 序列随路线重排（B/D 为 vceq 组在前）；容错四例——点普通元件提示不扣分、跳步（V_BQ→I_EQ→V_CEQ）扣 2 不推进、4 量路线下回补 I_EQ 判错、重复点已选量不扣分。0 pageerror。
+- verify59tpl.js（模板）：ALL PASS。
+- regress32.js 五案例回归通过（第 2 关驱动不变：`o.flat`=qAllIds 长度仍 5）；node --check 10 页全过；svg-layout-check EXIT=0。
+- 截图目检：r59-lvl2-start.png（□×5 起始态、I_CQ/I_EQ 标注在位）、r59-lvl2-r4.png（4 量路线 V_BQ→I_CQ 后进度行「V_BQ → I_CQ → □ → □」、已处理 2/4 项）。
+- 版本：data.js lab cj-g1 ?v=66→67，index data.js?v=10.69→10.70；模板不在 data.js（无需）。缩略图无需重截（第 2 关起始态视觉与上轮一致）。
+- 备份 `.bak-r59/`（10 页）；补丁 tmp_cjg1/patch_r59.py；制作规范第 58 轮条目加「已被第 59 轮取代」标注 + 新增第 59 轮条目。
+
+---
+
+## 第 60 轮：C_E 标签右移 + 先处理 C2 地轨无断头 + I_EQ 上移到绿框位（2026-10-16，用户三点）
+
+### 用户需求
+1. 电路图中 CE 文字放到电容右侧，选项位置不变。
+2. 第 1 关绘制直流通路：按 C1、CE、C2 顺序处理没问题；如先处理 C2，应移除 C2 所在支路（集电极节点→CE 下方节点）的对象。
+3. I_EQ 及箭头上移到用户截图绿框位置（R_E 右上口袋，原 C_E 标签占位）。
+
+### 根因诊断（第 2 点）
+Playwright 实测「门控→C2 断路」中间态：C2 支路本体（wire-collector/node-collector/wire-c2-out/comp-rl/wire-rl-a/wire-rl-b/comp-vo）+ wire-gnd-r(640-800) + node-ce 均已连锁淡出，但 **wire-gnd-m2 的 598→640 段仍全亮、在 640 处悬空断头**——该段随输出回路断开已无连接，却因 m2 只在 C_E 与 C_2 都断开后才整体收起（fadeWhenAll）而残留。同时 (598,525) 处 C_E 下接线与地轨成 L 直角（非 T 结），node-ce 淡出正确。
+
+### 修改内容（cj-g1 + _game-template 同锚点，patch_r60.py 原子补丁）
+- **C_E 标签右移**：comp-ce 文字 `x=562 anchor=end` → `x=640 anchor=start`（极板右缘 620+20 净距）；热区/菜单不动。
+- **地轨分界 640→598**：wire-gnd-m2 改 `M 486 525 H 598`（R_E 接地点—C_E 下端节点），wire-gnd-r 改 `M 598 525 H 800`（C_E 下端节点—R_L 下端）。gnd-r 本就在 C2 的 fadeWith 表 → 598-640 段随 C2 自动收起，零新增元素、resetCircuit 不动；两 data-name 与地轨分段注释同步更新。
+- **I_EQ 上移**：q-ieq 箭头 x=530 / y396-424 + 尖 (530,436)、文字基线 (539,418)、热区 (514,390,112,58)——落进 C_E 标签腾出的口袋（与 R_E 体净距 21、与 y365 发射极导线净距 25）；注释重写。
+- STAGE_UNITS/ANNOS/fadeWith/fadeWhenAll/JS 逻辑零改动。
+
+### 自检（第 60 轮）
+- svg-layout-check：cj-g1 与 _game-template 均 EXIT=0（标签无压线、导线端点全部连接、无交叉）。
+- verify60.js（Playwright）：场景 1（门控→C2 断路）输出段(598-800)随 C2 收起、延伸段(486-598)保持亮、node-ce 收起、C_E 支路保持；CE 断开后延伸段收起；C1 断路后满分 10 进第 2 关。场景 2（标准序 C1→CE→C2）地轨整体保持至 C2 收尾、满分 10。场景 3 第 2 关截图目检：I_EQ 在 R_E 右上口袋、C_E 标签在电容右侧（r60-v-lvl2.png）。0 pageerror。
+- 回归：verify59.js（4 条路线满分+进度收敛+子步重排+容错）ALL PASS；verify59tpl.js ALL PASS；regress32.js 含错路径 82/100、0 pageerror（与既有口径一致）。
+- 版本：data.js lab cj-g1 ?v=67→68；index data.js?v=10.70→10.71。缩略图 assets/thumb-cj-g1.png 已重截（1280×720，粒子入场走满 4.2s）。
+- 备份 bak-r60/（cj-g1.html + _game-template.html）；补丁 tmp_cjg1/patch_r60.py；验证 verify60.js；制作规范新增「第60轮」条目。
+
+---
+
+## 第 61 轮：β 与 R_C 同轴 + V_CEQ 改 ≈ + R_i 三电阻并联乱序（2026-10-16，用户三点）
+
+### 用户需求
+1. 标注的 β 位置往右移一点，与 R_C 矩形电阻符号垂直同轴。
+2. 第 3 关，V_CEQ 的框架与填写表达式，将 VCEQ= 变成 VCEQ≈。
+3. 第 5 关，Ri 填写表达式时，3 个电阻并联，不限顺序。
+
+### 修改内容（cj-g1.html + _game-template.html 同步，Edit 工具逐处替换）
+1. **β 同轴 R_C**：q-beta 文字 `x=462` → `x=486`（=comp-rc 矩形中心 468+18），热区 rect `x=436` → `x=460`（w52 保持同心）。
+   - **自检发现次生挤压并修复**：getBBox 实测 β 右移后与 q-vceq（x=535）y 带重叠 29px、水平净隙仅 5.6px（规约 ≥14~21px）→ q-vceq 整组右移 14px：热区 501→515、三个 text x 535→549。恢复净隙 **19.6px**；顺带 C 电极标注与「＋」贴边 2.8→16.8px。
+2. **V_CEQ 改 ≈**：`tk('V', 'CEQ'), tk('=')` 全 4 处（3 框架 + fullExpr）→ `tk('V', 'CEQ'), tk('≈')`（replace_all，精确锚点只匹配 V_CEQ，不波及 V_BQ/I_BQ 的 `=`）。
+3. **R_i 乱序**：R_i 表达式 3 个 blank 各改 `ansIds:['comp-rb1','comp-rb2','comp-t'] + grp:'ri-par' + labels`（三 id→R_B1/R_B2/r_be 映射）。机制=引擎 dup 检查（同 grp 禁重填同量）+ 各空接受全部 3 id → 任意排列均判对；显示走 `b.labels[b.picked]`，乱序回显正确。
+
+### 自检（第 61 轮）
+- svg-layout-check：两页均 EXIT=0。
+- verify61.js（Playwright/Chrome）：0 pageerror；β DOM x=486 = R_C 中心 486；V_CEQ fw（3 框架 tokens[1].main）与 fill（fullExpr[0][1].main）均 '≈'；R_i 乱序作答 box0←comp-t/box1←comp-rb2/box2←comp-rb1 全部接受、得分 0→9（3×3 全分）。ALL PASS。
+- gap 实测（getBBox，SVG 用户坐标）：β 墨迹 473.5-496.5、V_CEQ 516.1-584.5 → 净隙 19.6px ✓。
+- node --check 两页 JS 语法过；截图目检 L3（β 正对 R_C 下方、「β↔V_CEQ」「C↔＋」间距舒展）与 L5（R_i 表达式乱序回显 r_be∥R_B2∥R_B1）。
+- 缩略图无需重截（β/V_CEQ 属 qlabel-layer，L1 默认态不可见）。
+
+### 版本与归档
+- 版本：data.js lab cj-g1 `?v=68→69`；index `data.js?v=10.71→10.72`。模板不在 data.js（无需）。
+- 备份 bak-r61/（cj-g1.html + _game-template.html，定稿态）；验证脚本 .workbuddy/verify61.js + gap61.js；制作规范新增「第61轮」条目。
+
+---
+
+## 第 62 轮（2026-10-17）：同级运算乱序 + R_B1 下挂标签同轴 + 误击空白不扣分
+
+### 需求与实现
+1. **V_CEQ 括号内 R_C+R_E 不区分先后**（并推广到后续同级运算）：L3 `q-vceq` fill 两空 ansIds 均改 `['comp-rc','comp-re']` + grp `vceq-sum` + labels 映射；L5 `A_v` fill 分子 `R_C∥R_L` 同法（grp `av-par`）。全站审计：V_BQ 分母（vbq-den）、R_i（ri-par）已有，其余为乘除因子不适用，无遗漏。
+2. **R_B1 下移后文字与矩形电阻符号水平同轴**（rarr-rb1）：标签 (246,330,anchor start) → (270,403,anchor middle)，两体间隙正中、与 R_B2 标签同排；实测墨迹 240.4-299.6 × 370-414.6，与两体净隙各 2.4px、与 V_i 标注零重叠、标签中心 Y 392.3 vs 体心 395。
+3. **误击空白不扣分**：`pickDrawUnit` 对非 `comp-` 前缀 id 只提示不扣分（误点 comp-* 仍扣 1 分）。根因背景： penalize 受 levelScore 池底钳制，需灌池后才可真实测试。
+
+### 自检
+- verify62.js（Playwright/Chrome）：0 pageerror；
+  - T1 L3：box3←comp-re、box2←comp-rc 乱序全接受（0→2 分）；同组查重生效（comp-rc 填过 box2 后 box3 再点 comp-rc 被拒、box3.done=false）；
+  - T2 L5：Av 分子 box0←comp-rl、box1←comp-rc 乱序全接受（0→9 分，含 r_be）；
+  - T3 L4 整理态（addScore(4) 灌池后）：误击导线（真实 DOM 事件）/节点/qlabel 热区/空白均 0 扣分；误点 comp-vi 对照 -1 扣分；
+  - 标签实测：同轴、无重叠、与 R_B2 标签同排（t/bt 一致）。
+- svg-layout-check 两页 EXIT=0；node --check 两页 JS 过；截图目检整理态 R_B1/R_B2/V_i 列无压叠。
+
+### 版本与归档
+- 版本：data.js lab cj-g1 `?v=69→70`；index `data.js?v=10.72→10.73`。
+- 备份 bak-r62/（cj-g1.html + _game-template.html，定稿态）；_game-template.html 同锚点四处同步；验证脚本 .workbuddy/verify62.js；制作规范新增「第62轮」条目。
+
+---
+
+## 第 63 轮（2026-10-17）：第 5 关 β 上移居中 + Av 的 β 方框化
+
+### 需求与实现
+1. **第 5 关起 β 移到交流等效电路上方空白处、水平居中**：updateQlabels 增加 phase 1 分支——qlabel-layer 在 L5 变可见/可点，但仅 q-beta 显示（其余 Q 点标注逐体隐藏），β 坐标由 JS 覆写为 (450,105)（热区 424,71）；②③ 关保持原位 (486,278)。静态关 β 位置与行为零变化。
+2. **动态指标中的 β 变成方框**：Av 三个框架选项 + fullExpr 的 β 全部改 `{box:1}`，新增首位 blank（ansIds ['q-beta']，点电路中 β 标注作答，3 分）。分值再平衡：三个框架题 4→3 分，L5 总分仍 33（9+24），Σ==pts 校验通过。
+
+### 自检
+- verify63.js（Playwright/Chrome）：0 pageerror；
+  - T1 L5 等效态：β 位于 (450,105)/热区 (424,71)、可见可点，其余 Q 标注全隐藏；真实 DOM 点 β 热区 → Av 首空填好得 3 分，四空全接受；fw/fill 的 β 均方框、填空数 4、Σ=33=pts；
+  - 几何净距：β 墨迹 437.5-460.5 × 72-113，与等效电路顶（y=170）57px、与淡出顶轨（y=5）67px、与 R_C 上端接线（x=486）25.5px，均 ≥14；
+  - T2 L3 回归：β 回 (486,278) 可见，I_CQ 的 β 空点它作答 +1 分；T3 L2 回归：β 原位可见。
+- svg-layout-check 两页 EXIT=0；node --check 两页过；截图目检 L5（β 居电路上方空白带、Av 框架选项方框渲染正常、无压叠）。
+
+### 版本与归档
+- 版本：data.js lab cj-g1 `?v=70→71`；index `data.js?v=10.73→10.74`。
+- 备份 bak-r63/（cj-g1.html + _game-template.html，定稿态）；模板同锚点三处同步；验证脚本 .workbuddy/verify63.js；制作规范新增「第63轮」条目。
+
+---
+
+## 第 64 轮（2026-10-18）：BJT 红框触发区 + 等效态 R_B1/R_B2 标签同轴
+
+### 需求与实现
+1. **BJT 触发不灵敏 → 截图红框位置变成触发区**（用户附截图 `clipboard-2026-10-18T11-57-21-601Z-e4cb9af2.png`，881×504，L4 整理态）：
+   - 根因实证：qlabel-layer（`opacity=0 + pointer-events:none`）内子组的 `rect.hot[fill="none"]` 被 `.interactive rect[fill="none"]{PE:all}` 重新赋权，压过父层属性 → q-beta/q-vceq/q-vbe/q-ibq 四块隐形热区参与 elementFromPoint，正压晶体管区，L4 悬停 comp-t 的 mouseenter 被拦截 → 「等效」菜单不弹。
+   - 红框热区：PIL 标定（红框像素扫描 + B/C/E 黄标注 2D 连通域聚类 + 最小二乘仿射，三点复核 ≤1.5px）→ 红框=SVG x 374.4~545.7 × y 185.7~360.6 → comp-t 热区 rect (394,205,136×135) 扩至 **(374,185,173×177)**。
+   - hit-off 命中隔离（移植 cj-g4 第 69 轮方案）：① CSS `.hit-off, .hit-off * { pointer-events: none !important; }`；② updateQlabels 关态整层 toggle、dyn 态逐子组（只留 q-beta）；③ fadeGroup 全隐件（opacity 0）加 hit-off（半隐 0.15 不加）；④ resetCircuit inline 清理后扫除（class 形式不随 inline 恢复）。
+   - 设计决策：红框内 x=486 两条 4.5px 引线条带维持不动（g4 r69 定稿先例同款未处理；改引线 PE 有 L1 误击 -1 回归风险）。
+2. **点 BJT 等效后 R_B1/R_B2 文字下移、与矩形体水平同轴且不重叠**：eq-rb1 (246,305,start) → **(270,368,middle)**（两体间隙正中，墨迹 240.4-299.6，与两体各 2.4px）；eq-rb2 (346,305,start) → **(340.5,368,start)**（R_B2 体与 r_be 体间隙右侧，墨迹 340.5-399.6，两侧各 2.5px）；基线 368=体重心 360+8，与 r_be/R_C 标签同排（cj-g4 第 70 轮同轴先例，几何死局下 2.4-2.5px 净距为定稿口径）。
+
+### 自检
+- verify64.js（Playwright/Chrome，真实 DOM 事件）：**41 断言 ALL PASS，0 pageerror**；
+  - T1 L4 用户截图态：12 点全命中 comp-t；qlabel 层 hit-off、rect PE=none；菜单解锁；
+  - T2 真实鼠标悬停红框中心/右下/左上 → 「等效」菜单稳定弹出、移开消失；
+  - T3 菜单点击→等效→TQUIZ 链路；comp-t 全隐带 hit-off；标签几何（位置/同轴/墨迹净距 ≥2px/2-D 与其它文本导线无碰）；
+  - T4 L3 回归（qlabel 激活、β 可命中、点 β 作答 +1）；T5 L5 回归（dyn β (450,105)、非 β 全 hit-off、q-vceq 旧位不再被抢占、点 β +3）；T6 重玩回归（hit-off 清理、comp-t 恢复）；T7 L1 全流程（门控锁定→过门控→V_s 置零/Vcc 保留/C1 断路真实悬停点击 + C1 半隐 0.15 未误加 hit-off + 得分）。
+- svg-layout-check 两页 EXIT=0（47 交互单元）；deliver_check.js 双通道 PASS（8765 HTTP 200 / file://：标题含「分压式偏置」、79 电路组、引擎运行、0 错误、429148 字节）；截图目检 zoom_eq_labels / zoom_l5_rb2 同轴无压叠。
+- g4 第 69 轮日志「cj-g1 同源隐患待用户指示再动」事项本轮闭环。
+
+### 版本与归档
+- 版本：data.js lab cj-g1 `?v=71→72`；index `data.js?v=10.83→10.84`（递增前 grep 现值）。
+- 备份 bak-r64/（cj-g1.html + _game-template.html，补丁前快照）；_game-template.html 同锚点八处同步；补丁脚本 .workbuddy/patch_r64.py（rep 唯一性校验）；标定脚本 calib_r64.py/b/c；诊断 diag_r64.js；验证 .workbuddy/verify64.js；制作规范新增「第64轮」条目。

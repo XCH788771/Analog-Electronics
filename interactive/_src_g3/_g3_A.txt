@@ -1,0 +1,6 @@
+        <!-- ▼▼▼ 替换区 A：左上角大标题 + 案例行（换成自己的案例名与题面） ▼▼▼ -->
+        <!-- ====== 标题（左上）+ 题目 ====== -->
+        <text x="70" y="90" fill="none" font-size="43" font-weight="bold"><tspan fill="#ff00ff">◆闯关挑战◆</tspan><tspan fill="#ffd93d"> 双电源共射电路</tspan></text>
+        <text x="70" y="172" fill="rgba(255,255,255,0.85)" font-size="36">案例1：双电源共射 · 求静态工作点与动态指标</text>
+        <!-- ▲▲▲ 替换区 A 结束 ▲▲▲ -->
+        <text x="70" y="210" fill="rgba(255,255,255,0.6)" font-size="26">已知：V<tspan class="sub">CC</tspan>、V<tspan class="sub">EE</tspan>、R<tspan class="sub">C</tspan>、R<tspan class="sub">E1</tspan>、R<tspan class="sub">E2</tspan>、R<tspan class="sub">B</tspan>、R<tspan class="sub">S</tspan>、R<tspan class="sub">L</tspan>、β，V<tspan class="sub">BE</tspan>=0.7V</text>

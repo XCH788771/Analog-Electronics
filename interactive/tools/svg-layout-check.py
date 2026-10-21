@@ -281,9 +281,12 @@ def parse(html_text):
 
         pos = m2.end()
 
-    # 剔除右侧面板内的元素（lin-l1/lin-t4 面板与电路同 svg）与顶部表头带(分隔线/校徽 y≤130)
-    items = [it for it in items if it.bbox[0] < panel_left_inner - 1 and it.bbox[3] > 130]
-    return items, panel_left_inner
+    # 剔除右侧面板内的元素（lin-l1/lin-t4 面板与电路同 svg）与顶部表头带(分隔线/校徽)。
+    # 表头带阈值按 translate 相对化（第72轮）：circuit-wrap 内是纯电路元素（表头件在 wrap 外、
+    # 根本不进 body），旧绝对阈值 130 会把上移后的高位电路元件（如 cj-g3 R_C 体 60~115）误剔除，
+    # 造成其接线端点「假悬空」。ty=0 的旧版页面阈值不变。
+    items = [it for it in items if it.bbox[0] < panel_left_inner - 1 and it.bbox[3] > 130 - ty]
+    return items, panel_left_inner, ty
 
 
 def seg_dist(p, s):
@@ -398,7 +401,7 @@ def main():
           % (len(su), len(set(ann)), 'OK' if not (miss_ann or dup or (su and miss_su)) else '见报告'))
 
     # ---------- 解析 ----------
-    items, panel_left = parse(html_text)
+    items, panel_left, wrap_ty = parse(html_text)
     comps = [i for i in items if i.kind == 'comp']
     labels = [i for i in items if i.kind == 'label']
     wires = [i for i in items if i.kind == 'wire']
@@ -552,7 +555,7 @@ def main():
         b = it.bbox
         if b[2] > panel_left - PANEL_GAP:
             problems.append('越入右侧面板: %s 右缘 %.0f > %.0f' % (it.owner, b[2], panel_left - PANEL_GAP))
-        if b[1] < TOP_LIMIT:
+        if b[1] < TOP_LIMIT - wrap_ty:   # 顶界按 translate 相对化（第72轮）：wrap 页电路可合理高于 wrap 原点，屏面 y≥20 即可
             problems.append('越过顶部: %s 上缘 %.0f' % (it.owner, b[1]))
         if b[3] > BOTTOM_LIMIT:
             problems.append('越过底部安全线: %s 下缘 %.0f' % (it.owner, b[3]))

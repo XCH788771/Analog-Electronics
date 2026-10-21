@@ -1,0 +1,645 @@
+    /* ▼▼▼ 替换区 C：本案例关卡配置 GAME_CONFIG（两阶段五关，换新案例整块替换）▼▼▼
+       ★ 表达式一律分式写法：tk('I','CQ') 下标、{box:1} 虚线框、fr([分子],[分母]) 分式
+       ★ pts 合计=100 且各 fill/mix 空数整除；④关 gate 门控 + targets 二级菜单（串/并、置零）
+       ★ 本案例（双电源共射·分段发射极电阻）：计分 [12, 6, 43, 18, 21] = 100
+         （第72轮：第2关 18→6，3 个量各 2 分；腾出的 12 分调入第3关 4 个框架题 3→6 分）
+         —— ①6 项×2  ②3 量各 2 分共 6  ③4 框架×6 + 填空 19 分 = 43  ④8 项×2 + 五问 2  ⑤3 框架×4 + 8 空共 9 分 = 21 */
+    // ---- 案例配置（★ 换案例改这里；tk(主,下标) 为文本片段） ----
+    // 案例：双电源（±V_CC）共射放大电路 —— R_e1 + R_e2 分段发射极电阻，C_E 只旁路 R_e2（部分旁路）
+    //   静态：V_BQ≈0（R_B 接地、I_BQ 很小）→ I_CQ≈I_EQ=(V_EE−V_BE)/(R_e1+R_e2)
+    //         → I_BQ=I_CQ/β → V_CEQ≈V_CC+V_EE−I_CQ(R_C+R_e1+R_e2)
+    //   动态：C_E 短路只旁路 R_e2，R_e1 保留 → A_v=−β(R_C∥R_L)/(r_be+(1+β)R_e1)
+    //         R_i=R_B∥[r_be+(1+β)R_e1]，R_o≈R_C
+    // 已知符号：V_CC、V_EE、R_C、R_e1、R_e2、R_B、R_S、R_L、β；V_BE=0.7V；r_be 由 Q 点求出
+    //   （填空中 r_be 点晶体管 comp-t 作答，第 4 关后晶体管已换成微变模型，点击模型同样按 comp-t 计）
+    function tk(main, sub) { return { main: main, sub: sub }; }
+    function fr(num, den) { return { frac: [num, den] }; }   // 分式（上下式）
+    const GAME_CONFIG = {
+        phases: [
+            {
+                name: '静态分析',
+                steps: [
+                    {
+                        kind: 'draw', mode: 'remove', title: '第 1 关 · 绘制直流通路', pts: 12, short: '绘制直流通路',
+                        q: '先处理信号源与 2 个电源，再悬停电容选择正确的处理方式',
+                        subLine: '悬停元件，在菜单里选短路/断路、置零/保留',
+                        gateMsg: '请先处理信号源与 2 个电源，再处理电容。',
+                        gateTodo: '当前：先处理信号源与 2 个电源',
+                        gateDoneMsg: '信号源与电源已处理，现在处理三只电容',
+                        targets: [
+                            { id: 'comp-c1', name: '输入耦合电容CB', menu: [
+                                { label: '短路', act: 'cap-short', ok: false },
+                                { label: '断路', act: 'cap-open', ok: true }] },
+                            { id: 'comp-c2', name: '输出耦合电容CC', menu: [
+                                { label: '短路', act: 'cap-short', ok: false },
+                                { label: '断路', act: 'cap-open', ok: true }] },
+                            { id: 'comp-ce', name: '旁路电容CE', menu: [
+                                { label: '短路', act: 'cap-short', ok: false },
+                                { label: '断路', act: 'cap-open', ok: true }] },
+                            { id: 'comp-src', name: '信号源Vs', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vs-short', ok: true },
+                                    { label: '断路', act: 'vs-open', ok: false }] },
+                                { label: '保留', act: 'vs-keep', ok: false }] },
+                            { id: 'comp-vcc', name: '直流电源+Vcc', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vcc-gnd', ok: false },
+                                    { label: '断路', act: 'vcc-open', ok: false }] },
+                                { label: '保留', act: 'vcc-keep', ok: true }] },
+                            { id: 'comp-vee', name: '直流电源−Vee', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vee-gnd', ok: false },
+                                    { label: '断路', act: 'vee-open', ok: false }] },
+                                { label: '保留', act: 'vee-keep', ok: true }] }
+                        ],
+                        // 门控：Vs 与两个直流电源必须先处理完，三只电容才解锁——否则 C_B 断路会连锁移除 Vs，导致关卡无法完成
+                        gate: ['comp-src', 'comp-vcc', 'comp-vee'],
+                        // 选「断路」后，被隔断回路里的元件与导线连锁移除（fadeWith 半隐 0.15）；
+                        // fadeWithFull = 彻底移除（opacity 0）：节点圆（断开后只剩两条导线，不再是节点）与接地符号
+                        fadeWith: {
+                            'comp-c1': ['wire-vi-top', 'wire-base-in', 'comp-vi', 'wire-vi-gnd', 'comp-src', 'wire-rs-top', 'wire-rs-bot', 'comp-rs'],
+                            'comp-c2': ['wire-collector', 'wire-c2-out', 'comp-rl', 'wire-rl-a', 'wire-rl-b', 'comp-vo'],
+                            'comp-ce': ['wire-ce-a', 'comp-ce', 'wire-ce-b']
+                        },
+                        fadeWithFull: {
+                            'comp-c1': ['node-base', 'comp-gnd-src'],
+                            'comp-c2': ['node-collector', 'comp-gnd-rl'],
+                            'comp-ce': ['node-re', 'comp-gnd-ce']
+                        },
+                        announce: '进入第一关，绘制直流通路。先处理信号源与两个电源，再悬停电容，在弹出的菜单里选择正确的处理方式，答对获得12分。',
+                        doneSay: '直流通路画好了。',
+                        why: '画直流通路：C_B、C_C、C_E 开路；输入信号源 Vs 置零后短路（电压源置零即短路），随 C_B 断开的输入回路一并移除；两个直流电源都保留。'
+                    },
+                    {
+                        kind: 'qorder', title: '第 2 关 · Q点计算步骤', pts: 6, short: 'Q点计算步骤',
+                        q: '按计算顺序，依次点击电路中要计算的电量',
+                        subLine: '三种计算顺序都对，按其中之一依次点击',
+                        // ★合法计算顺序（第76轮用户指定：静态工作点计算顺序调整）：
+                        //   ① 先算 I_EQ（第76轮新增，首步点发射极的 I_EQ）：I_EQ → I_CQ → I_BQ → V_CEQ
+                        //   ② 先算 I_CQ（省 I_EQ）：I_CQ → I_BQ → V_CEQ
+                        //   ③ 先算 I_BQ：I_BQ → I_CQ → V_CEQ
+                        //   其中 ① ② 的 I_BQ 与 V_CEQ 可以交换顺序（两条都算对）
+                        //   每步可写「id」或「可接受 id 数组」；seqs 为多条合法顺序（引擎按已点前缀取并集判定）
+                        seqs: [
+                            ['q-ieq', 'q-icq', 'q-ibq', 'q-vceq'],
+                            ['q-ieq', 'q-icq', 'q-vceq', 'q-ibq'],
+                            ['q-icq', 'q-ibq', 'q-vceq'],
+                            ['q-icq', 'q-vceq', 'q-ibq'],
+                            ['q-ibq', 'q-icq', 'q-vceq'],
+                            ['q-ibq', 'q-vceq', 'q-icq']
+                        ],
+                        // 每条顺序对应的静态计算路线（记录在第 2 关首步作答里，决定第 3 关用哪套子步）：
+                        //   ① ② 首步 I_EQ → 'eq'（subs）｜③ ④ 首步 I_CQ → 'cq'（subsC）｜⑤ ⑥ 首步 I_BQ → 'base'（subsBase）
+                        routes: ['eq', 'eq', 'cq', 'cq', 'base', 'base'],
+                        names: { 'q-ieq': 'I<tspan class="sub">EQ</tspan>', 'q-ibq': 'I<tspan class="sub">BQ</tspan>',
+                                 'q-icq': 'I<tspan class="sub">CQ</tspan>', 'q-vceq': 'V<tspan class="sub">CEQ</tspan>' },
+                        announce: '进入第二关，电路中已标出各电量。按计算顺序依次点击对应的电量，答对获得6分。',
+                        extra: '点错了扣2分，可以继续点。'
+                    },
+                    {
+                        // 框架 + 表达式交错关：每个电量先选框架、再填表达式。
+                        // ★第76轮：按第 2 关所选路线分发「三套方案」，且 I_BQ / V_CEQ 两块顺序跟随第 2 关实际点击顺序
+                        //   路线 eq（第2关首步点 I_EQ）：I_CQ≈□=(V_EE−V_BE)/[R_B/(1+β)+R_e1+R_e2]（□ 填 I_EQ，点发射极标注）
+                        //        → 简化 I_CQ≈I_EQ≈(V_EE−V_BE)/(R_e1+R_e2) → I_BQ=I_CQ/β → V_CEQ 同式
+                        //   路线 cq（第2关首步点 I_CQ）：I_CQ≈□=(V_EE−V_BE)/[R_B/(1+β)+R_e1+R_e2]
+                        //        → 简化 → I_BQ=I_CQ/β → V_CEQ
+                        //   路线 base（第2关首步点 I_BQ）：I_BQ=(V_EE−V_BE)/[R_B+(1+β)(R_e1+R_e2)]
+                        //        → 简化 I_BQ≈(V_EE−V_BE)/[β(R_e1+R_e2)] → I_CQ=β·I_BQ（第72轮：两因子可交换）→ V_CEQ
+                        // 每套 8 子步（4 框架 + 4 填空），分值各自配平到 43（框架 4×6=24 + 填空 19）
+                        //   eq：主式 7 空 7 分（首位 I_EQ；V_EE 由 2 分降为 1 分配平）/ 简化 4 / I_BQ 2 / V_CEQ 6
+                        //   cq：主式 7 空 7 分（V_EE 1 分，首位 I_EQ＝q-ieq）/ 简化 4 / I_BQ 2 / V_CEQ 6
+                        //   base：主式 6 空 6 分 / 简化 5 空 5 分 / I_CQ 2 空 2 分 / V_CEQ 6 空 6 分
+                        // 闪烁提示改用子步自带的 qid 字段（第76轮）；I_BQ / V_CEQ 子步带 blk 标记供引擎交换两块
+                        kind: 'mix', title: '第 3 关 · Q点计算', pts: 43, short: 'Q点计算',
+                        subLine: '每个电量先选表达式框架，再点虚线框填表达式',
+                        // ===== 方案①（subs）：先算 I_EQ —— 第 2 关首步点 I_EQ 时走这套（第76轮新增） =====
+                        //   ★用户指定：框架与填空都不增加选项，只把原「I_CQ≈I_EQ」里的 I_EQ 变成方框 ——
+                        //   该方框点发射极标注 q-ieq 作答，表示「先算 I_EQ」；其余子步与 subsC 完全一致
+                        subs: [
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">CQ</tspan>≈□ 框架', qpts: 6, pen: 2,
+                                qid: 'q-ieq',
+                                fwQ: '集电极电流 I<tspan class="sub">CQ</tspan> ≈ □ 的表达式框架：',
+                                // 先算 I_EQ：式子左边 I_EQ 的位置为方框（框架内以方框示意）
+                                //   干扰项②分母漏掉 R_B 的 (1+β) 分流（写成 R_B+R_e1+R_e2）；③分子加减号写反
+                                frameworks: [
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }])] },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('+'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 表达式',
+                                // 7 空 7 分：首位 I_EQ（先算 I_EQ → 点发射极标注 q-ieq）；V_EE 由 2 分降为 1 分配平
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['q-ieq'], label: [tk('I', 'EQ')], pts: 1 },
+                                    { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">CQ</tspan>≈□ 简化框架', qpts: 6, pen: 2,
+                                qid: 'q-ieq',
+                                // ★ 进入本子步时播报（第69轮：引擎 _patch_g3.py #22/#23 读取 sub.say）
+                                say: '按工程近似估算法，忽略阿尔碧，则艾C口的计算框架可简化为',
+                                fwQ: '工程近似估算：I<tspan class="sub">CQ</tspan>≈□ 的简化框架：',
+                                // 忽略 R_B → I_CQ≈I_EQ ≈ (V_EE − V_BE)/(R_e1 + R_e2)
+                                //   （I_EQ 已在首步确定，此步不再设方框）
+                                //   干扰项②分子加减号写反；③分母多一项（相当于没忽略 R_B 的分流）
+                                frameworks: [
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('≈'), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])] },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 简化表达式',
+                                // 4 空 4 分：分子 V_EE、V_BE；分母 R_e1、R_e2（可交换）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { dbox: 1 }, tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-sden',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-sden',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">BQ</tspan> 框架', qpts: 6, pen: 2, blk: 'ibq',
+                                qid: 'q-ibq',
+                                fwQ: '基极电流 I<tspan class="sub">BQ</tspan> 的表达式框架：',
+                                // 已求得 I_CQ → I_BQ = I_CQ/β；β 也作填空
+                                frameworks: [
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'BQ'), tk('='), { box: 1 }, tk('·'), { box: 1 }] },
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 表达式', blk: 'ibq',
+                                // 分子 I_CQ 点电路标注 q-icq；分母 β 点标注 q-beta（点晶体管同样认可）
+                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['q-icq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'V<tspan class="sub">CEQ</tspan> 框架', qpts: 6, pen: 2, blk: 'vceq',
+                                qid: 'q-vceq',
+                                fwQ: '管压降 V<tspan class="sub">CEQ</tspan> 的表达式框架：',
+                                // V_CEQ ≈ V_CC + V_EE − I_CQ(R_C+R_e1+R_e2)（I_EQ 用 I_CQ 代替，故取 ≈）
+                                frameworks: [
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')], correct: true },
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')] },
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('−'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'V<tspan class="sub">CEQ</tspan> 表达式', blk: 'vceq',
+                                // 两电源可交换（grp vceq-sup）；括号内三只电阻任意两只不可重复（grp vceq-res）
+                                fullExpr: [[tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')]],
+                                blanks: [
+                                    { ansIds: ['comp-vcc', 'comp-vee'], grp: 'vceq-sup',
+                                      labels: { 'comp-vcc': [tk('V', 'CC')], 'comp-vee': [tk('V', 'EE')] },
+                                      label: [tk('V', 'CC')], pts: 1 },
+                                    { ansIds: ['comp-vcc', 'comp-vee'], grp: 'vceq-sup',
+                                      labels: { 'comp-vcc': [tk('V', 'CC')], 'comp-vee': [tk('V', 'EE')] },
+                                      label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-icq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'C')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            }
+                        ],
+                        // ===== 方案②（subsC）：先算 I_CQ（省 I_EQ）—— 第 2 关首步点 I_CQ 时走这套 =====
+                        subsC: [
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">CQ</tspan>≈□ 框架', qpts: 6, pen: 2,
+                                qid: 'q-ieq',
+                                fwQ: '集电极电流 I<tspan class="sub">CQ</tspan> ≈ □ 的表达式框架：',
+                                // I_CQ≈I_EQ = (V_EE − V_BE)/[R_B/(1+β) + R_e1 + R_e2]（分母不忽略 R_B）
+                                //   干扰项②分母漏掉 R_B 的 (1+β) 分流（写成 R_B+R_e1+R_e2）；③分子加减号写反
+                                frameworks: [
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }])] },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('+'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 表达式',
+                                // 7 空 7 分：首位 I_EQ（点发射极标注 q-ieq）；分子 V_EE（点 comp-vee，1 分——偏置电源为主项）、V_BE（点 q-vbe / 晶体管）；
+                                //   分母 R_B/(1+β)（R_B 点 comp-rb、β 点 q-beta / 晶体管）+ R_e1 + R_e2（可交换）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['q-ieq'], label: [tk('I', 'EQ')], pts: 1 },
+                                    { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">CQ</tspan>≈□ 简化框架', qpts: 6, pen: 2,
+                                qid: 'q-ieq',
+                                // ★ 进入本子步时播报（第69轮：引擎 _patch_g3.py #22/#23 读取 sub.say）
+                                say: '按工程近似估算法，忽略阿尔碧，则艾C口的计算框架可简化为',
+                                fwQ: '工程近似估算：I<tspan class="sub">CQ</tspan>≈□ 的简化框架：',
+                                // 忽略 R_B → I_CQ≈I_EQ ≈ (V_EE − V_BE)/(R_e1 + R_e2)
+                                //   干扰项②分子加减号写反；③分母多一项（相当于没忽略 R_B 的分流）
+                                frameworks: [
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('≈'), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])] },
+                                    { tokens: [tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 简化表达式',
+                                // 4 空 4 分：分子 V_EE、V_BE；分母 R_e1、R_e2（可交换）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { dbox: 1 }, tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-sden',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-sden',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">BQ</tspan> 框架', qpts: 6, pen: 2, blk: 'ibq',
+                                qid: 'q-ibq',
+                                fwQ: '基极电流 I<tspan class="sub">BQ</tspan> 的表达式框架：',
+                                // 已求得 I_CQ → I_BQ = I_CQ/β；β 也作填空
+                                frameworks: [
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])], correct: true },
+                                    { tokens: [tk('I', 'BQ'), tk('='), { box: 1 }, tk('·'), { box: 1 }] },
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 表达式', blk: 'ibq',
+                                // 分子 I_CQ 点电路标注 q-icq；分母 β 点标注 q-beta（点晶体管同样认可）
+                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])]],
+                                blanks: [
+                                    { ansIds: ['q-icq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'V<tspan class="sub">CEQ</tspan> 框架', qpts: 6, pen: 2, blk: 'vceq',
+                                qid: 'q-vceq',
+                                fwQ: '管压降 V<tspan class="sub">CEQ</tspan> 的表达式框架：',
+                                // V_CEQ ≈ V_CC + V_EE − I_CQ(R_C+R_e1+R_e2)（I_EQ 用 I_CQ 代替，故取 ≈）
+                                // 干扰项②括号漏掉一只电阻；③ V_EE 符号写反
+                                frameworks: [
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')], correct: true },
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')] },
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('−'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'V<tspan class="sub">CEQ</tspan> 表达式', blk: 'vceq',
+                                // 两电源可交换（grp vceq-sup）；括号内三只电阻任意两只不可重复（grp vceq-res）
+                                fullExpr: [[tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')]],
+                                blanks: [
+                                    { ansIds: ['comp-vcc', 'comp-vee'], grp: 'vceq-sup',
+                                      labels: { 'comp-vcc': [tk('V', 'CC')], 'comp-vee': [tk('V', 'EE')] },
+                                      label: [tk('V', 'CC')], pts: 1 },
+                                    { ansIds: ['comp-vcc', 'comp-vee'], grp: 'vceq-sup',
+                                      labels: { 'comp-vcc': [tk('V', 'CC')], 'comp-vee': [tk('V', 'EE')] },
+                                      label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-icq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'C')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            }
+                        ],
+                        // ===== 方案①（subsBase）：基极优先 —— 第 2 关首步点 I_BQ 时走这套 =====
+                        subsBase: [
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">BQ</tspan> 框架', qpts: 6, pen: 2, blk: 'ibq',
+                                qid: 'q-ibq',
+                                fwQ: '基极电流 I<tspan class="sub">BQ</tspan> 的表达式框架：',
+                                // I_BQ = (V_EE − V_BE)/[R_B + (1+β)(R_e1+R_e2)]（基极优先，不忽略 R_B）
+                                //   干扰项②分母括号里漏一只电阻；③分子加减号写反
+                                frameworks: [
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])], correct: true },
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), { box: 1 }])] },
+                                    { tokens: [tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 表达式', blk: 'ibq',
+                                // 6 空 6 分：分子 V_EE、V_BE；分母 R_B + (1+β)(R_e1+R_e2)
+                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])]],
+                                blanks: [
+                                    { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ibq-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ibq-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'I<tspan class="sub">BQ</tspan> 简化框架', qpts: 6, pen: 2, blk: 'ibq',
+                                qid: 'q-ibq',
+                                // ★ 进入本子步时播报（第69轮）
+                                say: '按工程近似估算法，可忽略阿尔碧，则艾碧口的计算框架可简化为',
+                                fwQ: '工程近似估算：I<tspan class="sub">BQ</tspan> 的简化框架：',
+                                // 忽略 R_B（且 1+β ≈ β，1 亦可忽略）→ I_BQ ≈ (V_EE − V_BE)/[β(R_e1+R_e2)]
+                                //   干扰项②分母把 β 写成相加（漏掉相乘）；③分子加减号写反
+                                frameworks: [
+                                    { tokens: [tk('I', 'BQ'), tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])], correct: true },
+                                    { tokens: [tk('I', 'BQ'), tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }])] },
+                                    { tokens: [tk('I', 'BQ'), tk('≈'), fr([{ box: 1 }, tk('+'), { box: 1 }], [tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 简化表达式', blk: 'ibq',
+                                // 5 空 5 分：分子 V_EE、V_BE；分母 β(R_e1+R_e2) 中的 β、R_e1、R_e2
+                                fullExpr: [[tk('I', 'BQ'), tk('≈'), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])]],
+                                blanks: [
+                                    { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ibqs-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-re1', 'comp-re2'], grp: 'ibqs-den',
+                                      labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            },
+                            {
+                                // ★第72轮：已求得 I_BQ，本步框架/表达式改为 I_CQ=（不再写 ≈I_EQ；
+                                //   先算 I_CQ≈I_EQ 的 emitter 路线保持不变）；qpts 3→6（第72轮分值调整）
+                                type: 'fw', name: 'I<tspan class="sub">CQ</tspan> 框架', qpts: 6, pen: 2,
+                                qid: 'q-icq',
+                                fwQ: '集电极电流 I<tspan class="sub">CQ</tspan> 的表达式框架：',
+                                // I_CQ = β·I_BQ；干扰项②写成相除；③写成相加
+                                frameworks: [
+                                    { tokens: [tk('I', 'CQ'), tk('='), { box: 1 }, tk('·'), { box: 1 }], correct: true },
+                                    { tokens: [tk('I', 'CQ'), tk('='), fr([{ box: 1 }], [{ box: 1 }])] },
+                                    { tokens: [tk('I', 'CQ'), tk('='), { box: 1 }, tk('+'), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'I<tspan class="sub">CQ</tspan> 表达式',
+                                // 2 空 2 分：β 点 q-beta / 晶体管；I_BQ 点电路标注 q-ibq。
+                                //   相乘两因子同一运算优先级 → 填写顺序不固定（第72轮）：
+                                //   I_CQ=β·I_BQ 与 I_CQ=I_BQ·β 均判对（并集 ansIds + 同 grp 查重）
+                                fullExpr: [[tk('I', 'CQ'), tk('='), { box: 1 }, tk('·'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['q-beta', 'comp-t', 'q-ibq'], grp: 'icq-mul',
+                                      labels: { 'q-beta': [tk('β')], 'comp-t': [tk('β')], 'q-ibq': [tk('I', 'BQ')] },
+                                      label: [tk('β')], pts: 1 },
+                                    { ansIds: ['q-beta', 'comp-t', 'q-ibq'], grp: 'icq-mul',
+                                      labels: { 'q-beta': [tk('β')], 'comp-t': [tk('β')], 'q-ibq': [tk('I', 'BQ')] },
+                                      label: [tk('I', 'BQ')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'V<tspan class="sub">CEQ</tspan> 框架', qpts: 6, pen: 2, blk: 'vceq',
+                                qid: 'q-vceq',
+                                fwQ: '管压降 V<tspan class="sub">CEQ</tspan> 的表达式框架：',
+                                // V_CEQ ≈ V_CC + V_EE − I_CQ(R_C+R_e1+R_e2)（I_EQ 用 I_CQ 代替，故取 ≈）
+                                frameworks: [
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')], correct: true },
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')] },
+                                    { tokens: [tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('−'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'V<tspan class="sub">CEQ</tspan> 表达式', blk: 'vceq',
+                                // 6 空 6 分（与 eq / cq 方案同式）
+                                fullExpr: [[tk('V', 'CEQ'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }, tk('−'), { box: 1 }, tk('('), { box: 1 }, tk('+'), { box: 1 }, tk('+'), { box: 1 }, tk(')')]],
+                                blanks: [
+                                    { ansIds: ['comp-vcc', 'comp-vee'], grp: 'vceq-sup',
+                                      labels: { 'comp-vcc': [tk('V', 'CC')], 'comp-vee': [tk('V', 'EE')] },
+                                      label: [tk('V', 'CC')], pts: 1 },
+                                    { ansIds: ['comp-vcc', 'comp-vee'], grp: 'vceq-sup',
+                                      labels: { 'comp-vcc': [tk('V', 'CC')], 'comp-vee': [tk('V', 'EE')] },
+                                      label: [tk('V', 'EE')], pts: 1 },
+                                    { ansIds: ['q-icq'], label: [tk('I', 'CQ')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'C')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E1')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-re1', 'comp-re2'], grp: 'vceq-res',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
+                                      label: [tk('R', 'E2')], pts: 1 }
+                                ]
+                            }
+                        ],
+                        announce: '进入第三关，逐个计算静态工作点。每个电量先选择表达式框架，再填写对应的表达式，答对获得43分。',
+                        extra: '框架答对才进入该量的表达式填空；表达式先点虚线框，再点电路中对应的元件或电量符号。',
+                        doneSay: '静态工作点的框架与表达式全部完成。'
+                    }
+                ]
+            },
+            {
+                name: '动态分析',
+                steps: [
+                    {
+                        kind: 'draw', mode: 'transform', title: '第 4 关 · 绘制交流微变等效电路', pts: 18, short: '绘制等效电路',
+                        q: '依次完成三步：先绘制交流通路，再整理电路，最后等效晶体管',
+                        subLine: '分三步处理：鼠标移到元件上，在菜单里选择处理方式',
+                        gateMsg: '请先处理信号源与 2 个电源，再处理电容。',
+                        gateTodo: '当前：先处理信号源与 2 个电源',
+                        gateDoneMsg: '信号源与电源已处理，现在处理三只电容',
+                        targets: [
+                            { id: 'comp-c1', name: '输入耦合电容CB', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-c2', name: '输出耦合电容CC', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-ce', name: '旁路电容CE', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-src', name: '信号源Vs', menu: [
+                                { label: '置零', sub: [
+                                    { label: '短路', act: 'vs-short', ok: false },
+                                    { label: '断路', act: 'vs-open', ok: false }] },
+                                { label: '保留', act: 'vs-keep', ok: true }] },
+                            { id: 'comp-vcc', name: '直流电源+Vcc', menu: [
+                                { label: '置零', sub: [
+                                    { label: '接地', act: 'vcc-gnd', ok: true },
+                                    { label: '断路', act: 'vcc-open', ok: false }] },
+                                { label: '保留', act: 'vcc-keep', ok: false }] },
+                            { id: 'comp-vee', name: '直流电源−Vee', menu: [
+                                { label: '置零', sub: [
+                                    { label: '接地', act: 'vee-gnd', ok: true },
+                                    { label: '断路', act: 'vee-open', ok: false }] },
+                                { label: '保留', act: 'vee-keep', ok: false }] },
+                            // ★ 本案例的关键判断题：C_E 只旁路 R_e2（交流被短路），R_e1 仍留在交流通路中
+                            { id: 'comp-re2', name: '下段发射极电阻RE2', menu: [
+                                { label: '保留', act: 're2-keep', ok: false },
+                                { label: '移除', act: 're2-remove', ok: true }] },
+                            { id: 'comp-re1', name: '上段发射极电阻RE1', menu: [
+                                { label: '保留', act: 're1-keep', ok: true },
+                                { label: '移除', act: 're1-remove', ok: false }] },
+                            { id: 'comp-t', name: '晶体管', menu: [
+                                { label: '等效', act: 't-equiv', ok: true }] }
+                        ],
+                        // 三步：交流通路 → 整理电路（R_e2 被 C_E 旁路而短路、R_C 翻转下挂到地） → 等效晶体管
+                        subSteps: [
+                            { name: '绘制交流通路', ids: ['comp-c1', 'comp-c2', 'comp-ce', 'comp-src', 'comp-vcc', 'comp-vee'] },
+                            { name: '整理电路', ids: ['comp-re2', 'comp-re1'], moveIds: ['comp-rc'] },
+                            { name: '等效晶体管', ids: ['comp-t'] }
+                        ],
+                        gate: ['comp-src', 'comp-vcc', 'comp-vee'],
+                        announce: '进入第四关，绘制交流微变等效电路，分三步完成：先处理信号源与两个电源，再处理电容绘制交流通路，然后整理电路，最后对晶体管进行等效、逐问作答。答对获得18分。',
+                        extra: '把鼠标移到元件上，在浮出的菜单里选择处理方式。',
+                        doneSay: '交流微变等效电路画好了。',
+                        why: '交流微变等效：三只电容短路、两个电源置零接地；C_E 只旁路 R_e2，故 R_e2 被短路移除而 R_e1 保留；R_C 翻转下挂到地与 R_L 并联；晶体管换成 r_be 与受控源。'
+                    },
+                    {
+                        // 框架 + 表达式交错关（动态）：按 Av → Ri → Ro 逐项，每项先选框架、再填表达式
+                        // 分值：3 个框架题各 4 分（12）+ 8 个空共 9 分 = 21（第69轮：为第 3 关腾出 3 分，全站仍 100）
+                        kind: 'mix', title: '第 5 关 · 动态指标计算', pts: 21, short: '动态指标计算', stageUnits: 1,
+                        subLine: '每个指标先选计算框架，再点虚线框填表达式',
+                        subs: [
+                            {
+                                type: 'fw', name: 'A<tspan class="sub">v</tspan> 框架', qpts: 4, pen: 2,
+                                fwQ: '电压放大倍数 A<tspan class="sub">v</tspan> 的表达式框架：',
+                                // ★ 分母含 (1+β)R_e1 —— 因 C_E 只旁路 R_e2，R_e1 仍引入交流负反馈
+                                // 干扰项②把分子的并联误写成相加；③漏掉负号（变成同相放大）
+                                frameworks: [
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), { dbox: 1 }, tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }])], correct: true },
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), { dbox: 1 }, tk('·'), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }])] },
+                                    { tokens: [tk('A', 'v'), tk('='), { dbox: 1 }, tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'A<tspan class="sub">v</tspan> 表达式',
+                                fullExpr: [[tk('A', 'v'), tk('='), tk('−'), { dbox: 1 }, tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }])]],
+                                blanks: [
+                                    // 并联因子 R_C∥R_L 与相加因子 r_be+R_e1 均可交换顺序（并集 ansIds + 同 grp）
+                                    { ansIds: ['comp-rc', 'comp-rl'], grp: 'av-par',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-rl': [tk('R', 'L')] },
+                                      label: [tk('R', 'C')], pts: 1 },
+                                    { ansIds: ['comp-rc', 'comp-rl'], grp: 'av-par',
+                                      labels: { 'comp-rc': [tk('R', 'C')], 'comp-rl': [tk('R', 'L')] },
+                                      label: [tk('R', 'L')], pts: 1 },
+                                    // r_be + R_E1 同级相加 → 填写顺序不固定（第72轮）
+                                    { ansIds: ['comp-t', 'comp-re1'], grp: 'av-den',
+                                      labels: { 'comp-t': [tk('r', 'be')], 'comp-re1': [tk('R', 'E1')] },
+                                      label: [tk('r', 'be')], pts: 1 },
+                                    { ansIds: ['comp-t', 'comp-re1'], grp: 'av-den',
+                                      labels: { 'comp-t': [tk('r', 'be')], 'comp-re1': [tk('R', 'E1')] },
+                                      label: [tk('R', 'E1')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'R<tspan class="sub">i</tspan> 框架', qpts: 4, pen: 2,
+                                fwQ: '输入电阻 R<tspan class="sub">i</tspan> 的表达式框架：',
+                                // R_i = R_B ∥ [r_be + (1+β)R_e1]；干扰项②把并联误写成相加；③漏掉发射极支路（只剩 R_B∥r_be）
+                                frameworks: [
+                                    { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), tk('('), { box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }, tk(')')], correct: true },
+                                    { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('+'), tk('('), { box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }, tk(')')] },
+                                    { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'R<tspan class="sub">i</tspan> 表达式',
+                                // R_B 在交流等效中已下挂到地，与 [r_be+(1+β)R_e1] 并联；点击等效态的 eq-rb 同样按 comp-rb 计
+                                fullExpr: [[tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), tk('('), { box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { dbox: 1 }, tk(')'), { box: 1 }, tk(')')]],
+                                blanks: [
+                                    { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 2 },
+                                    // r_be + R_E1 同级相加 → 填写顺序不固定（第72轮）
+                                    { ansIds: ['comp-t', 'comp-re1'], grp: 'ri-den',
+                                      labels: { 'comp-t': [tk('r', 'be')], 'comp-re1': [tk('R', 'E1')] },
+                                      label: [tk('r', 'be')], pts: 1 },
+                                    { ansIds: ['comp-t', 'comp-re1'], grp: 'ri-den',
+                                      labels: { 'comp-t': [tk('r', 'be')], 'comp-re1': [tk('R', 'E1')] },
+                                      label: [tk('R', 'E1')], pts: 1 }
+                                ]
+                            },
+                            {
+                                type: 'fw', name: 'R<tspan class="sub">o</tspan> 框架', qpts: 4, pen: 2,
+                                fwQ: '输出电阻 R<tspan class="sub">o</tspan> 的表达式框架：',
+                                // 干扰项写作「□+□」「□∥□」，与正确项结构明显不同
+                                frameworks: [
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }], correct: true },
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }, tk('+'), { box: 1 }] },
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }, tk('∥'), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'R<tspan class="sub">o</tspan> 表达式',
+                                fullExpr: [[tk('R', 'o'), tk('≈'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['comp-rc'], label: [tk('R', 'C')], pts: 1 }
+                                ]
+                            }
+                        ],
+                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共21分。',
+                        extra: '框架答对后进入该指标的表达式填空；表达式先点虚线框，再点电路中对应的元件。',
+                        doneSay: '动态指标电压放大倍数、输入电阻、输出电阻的框架与表达式全部完成，全部关卡结束。'
+                    }
+                ]
+            }
+        ]
+    };
+    /* ▲▲▲ 替换区 C 结束 ▲▲▲ */
+
+    /* ▼▼▼ 替换区 D：电路分级 STAGE_UNITS（每组=某关对应电路单元 data-id 列表，与区 B 一一对应）▼▼▼ */
+    // ---- 各阶段对应的电路级交互单元（进入该关时整级变紫并闪烁提示） ----
+    // 第1组=静态（含直流通路全部单元：电容开路后不参与）、第2组=动态（微变等效：全部元件参与）
+    const STAGE_UNITS = [
+        ['comp-vcc', 'wire-vcc-rail', 'wire-rc-top', 'comp-rc', 'wire-rc-a', 'wire-c-stub', 'node-collector', 'wire-collector', 'comp-c2',
+         'wire-c2-out', 'wire-rl-a', 'comp-rl', 'wire-rl-b', 'comp-gnd-rl', 'comp-vo',
+         'comp-t', 'wire-base', 'node-base', 'wire-base-in', 'wire-rb-a', 'comp-rb', 'wire-rb-b', 'comp-gnd-rb', 'comp-c1',
+         'wire-emitter', 'comp-re1', 'wire-re1-b', 'node-re', 'wire-ce-a', 'comp-ce', 'wire-ce-b', 'comp-gnd-ce',
+         'wire-re2-a', 'comp-re2', 'wire-ree-b', 'comp-vee'],
+        ['comp-src', 'wire-vi-top', 'wire-rs-top', 'comp-rs', 'wire-rs-bot', 'wire-vi-gnd', 'comp-gnd-src', 'comp-vi',
+         'comp-vcc', 'wire-vcc-rail', 'wire-rc-top', 'comp-rc', 'wire-rc-a', 'wire-c-stub', 'node-collector', 'wire-collector', 'comp-c2',
+         'wire-c2-out', 'wire-rl-a', 'comp-rl', 'wire-rl-b', 'comp-gnd-rl', 'comp-vo',
+         'comp-t', 'wire-base', 'node-base', 'wire-base-in', 'wire-rb-a', 'comp-rb', 'wire-rb-b', 'comp-gnd-rb', 'comp-c1',
+         'wire-emitter', 'comp-re1', 'wire-re1-b', 'node-re', 'wire-ce-a', 'comp-ce', 'wire-ce-b', 'comp-gnd-ce',
+         'wire-re2-a', 'comp-re2', 'wire-ree-b', 'comp-vee']
+    ];
+    /* ▲▲▲ 替换区 D 结束 ▲▲▲ */
