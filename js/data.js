@@ -826,15 +826,15 @@ const CIRCUIT_BRANCHES = {
     ],
     ce_amp: [
         { id: 'ce-b1', name: '固定式偏压共射放大电路', thumb: 'generic', desc: '仅由基极偏置电阻设定静态工作点', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g2.html?v=24', ready: true, thumbImg: 'assets/thumb-cj-g2.png' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g2.html?v=25', ready: true, thumbImg: 'assets/thumb-cj-g2.png' }
                 ], calculation: [], design: [] } },
         { id: 'ce-b2', name: '分压式偏置共射放大电路', thumb: 'generic', desc: '稳定静态工作点的偏置方式', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g1.html?v=72', ready: true, thumbImg: 'assets/thumb-cj-g1.png' },
-                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极双电阻 R_E1+R_E2，C_E 只旁路 R_E2：A_v 分母计入 (1+β)R_E1', lab: 'interactive/cj-g4.html?v=42', ready: true, thumbImg: 'assets/thumb-cj-g4.png' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g1.html?v=73', ready: true, thumbImg: 'assets/thumb-cj-g1.png' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极双电阻 R_E1+R_E2，C_E 只旁路 R_E2：A_v 分母计入 (1+β)R_E1', lab: 'interactive/cj-g4.html?v=43', ready: true, thumbImg: 'assets/thumb-cj-g4.png' }
                 ], calculation: [], design: [] } },
         { id: 'ce-b3', name: '双电源共射放大电路', thumb: 'multi', desc: '正负双电源供电的共射放大电路', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '分段发射极电阻 R_e1+R_e2、C_E 部分旁路，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g3.html?v=40', ready: true, thumbImg: 'assets/thumb-cj-g3.png' },
-                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极恒流源 I_o 偏置、R_L 直接耦合，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g5.html?v=38', ready: true, thumbImg: 'assets/thumb-cj-g5.png' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '分段发射极电阻 R_e1+R_e2、C_E 部分旁路，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g3.html?v=41', ready: true, thumbImg: 'assets/thumb-cj-g3.png' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极恒流源 I_o 偏置、R_L 直接耦合，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g5.html?v=39', ready: true, thumbImg: 'assets/thumb-cj-g5.png' }
                 ], calculation: [], design: [] } }
     ],
     cs_amp: [
