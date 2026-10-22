@@ -493,3 +493,14 @@ R3: VBQ,ICQ,VCEQ,IBQ       (4 步，省略 I_EQ)
   - 回归验收：svg-layout-check EXIT=0；verify_hover.js 6 断言全 PASS；deliver_hover.js HTTP 通道
     PASS（83 电路组）；e2e_hover.js 导航链路 PASS（案例2 `cj-g4.html?v=43`，iframe 内题面实测为新文案）。
   - 折行影响同 g1：题面由 2 行增至 3 行（10+11+9 字），末行基线 460，与引导行净距约 29px，最右 1296 ≤ 1530。
+
+### 第83轮（2026-10-22 下午）缩略图联动重截：thumb-gen.js 工具化 + 本页缩略图更新
+- 起因（用户）：本轮之前改了 L1 题面文案却没重截缩略图，专题页案例卡仍显示旧文案（本页旧图拍摄时间早于页面改动），
+  要求建立「改了进页可见画面就自动重截缩略图」的机制。
+- 工具化：新增 `网站/interactive/tools/thumb-gen.js`——从 data.js 解析 thumbImg 清单；默认按 mtime 只截过期项
+  （`--all` 强制全截 / `--dry` 干跑 / 传 id 指定）；规格 1280×720、DSF=1、隐藏滚动条；
+  TTS stub 钩 `speechSynthesis.speak` 即时回放；真实等待 2800ms 等校徽粒子动画收敛（`--virtual-time-budget` 不推进合成器动画故不可用）；
+  file:// + `?cb=` 绕磁盘缓存；截后 PNG 校验 + 自动击破 data.js thumbImg `?v=` 与 index `data.js?v=`（读-改-写前复核）。
+  制作规范已改写「定稿收尾」第 4 条并追加第83轮规约。
+- 本页：重截 `assets/thumb-cj-g4.png`（184KB→188KB）；data.js thumbImg 追加 `?v=1`；index `data.js?v= 11.07→11.08`。
+- 验收：新图 L1 题面含「再将鼠标悬停到电容上，」；校徽粒子动画已收敛、面板无溢出；与旧图像素对比变化 1.04%（仅题面文字区 x[808..1098] y[322..410]）；0 pageerror。

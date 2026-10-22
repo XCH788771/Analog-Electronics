@@ -1324,3 +1324,14 @@ Playwright 实测「门控→C2 断路」中间态：C2 支路本体（wire-coll
   题面含新短语 / 不越右面板 1296 / 与引导行不重叠 / 与状态行不重叠）；deliver_hover.js HTTP 通道
   PASS（79 电路组）；e2e_hover.js 导航三级链路 PASS（首页→共射放大→分压分支→案例1 `cj-g1.html?v=73`）。
 - 版本：data.js lab cj-g1 `?v=72→73`；index `data.js?v=11.06→11.07`（递增前 grep 现值）。
+
+### 第83轮（2026-10-22 下午）缩略图联动重截：thumb-gen.js 工具化 + 本页缩略图更新
+- 起因（用户）：本轮之前改了 L1 题面文案却没重截缩略图，专题页案例卡仍显示旧文案（本页旧图拍摄时间早于页面改动），
+  要求建立「改了进页可见画面就自动重截缩略图」的机制。
+- 工具化：新增 `网站/interactive/tools/thumb-gen.js`——从 data.js 解析 thumbImg 清单；默认按 mtime 只截过期项
+  （`--all` 强制全截 / `--dry` 干跑 / 传 id 指定）；规格 1280×720、DSF=1、隐藏滚动条；
+  TTS stub 钩 `speechSynthesis.speak` 即时回放；真实等待 2800ms 等校徽粒子动画收敛（`--virtual-time-budget` 不推进合成器动画故不可用）；
+  file:// + `?cb=` 绕磁盘缓存；截后 PNG 校验 + 自动击破 data.js thumbImg `?v=` 与 index `data.js?v=`（读-改-写前复核）。
+  制作规范已改写「定稿收尾」第 4 条并追加第83轮规约。
+- 本页：重截 `assets/thumb-cj-g1.png`（177KB→183KB）；data.js thumbImg 追加 `?v=1`；index `data.js?v= 11.07→11.08`。
+- 验收：新图 L1 题面含「再将鼠标悬停到电容上，」；校徽粒子动画已收敛、面板无溢出；与旧图像素对比变化 1.43%（题面文字区 + logo 粒子终态，x[72..1232] y[24..634]）；0 pageerror。
