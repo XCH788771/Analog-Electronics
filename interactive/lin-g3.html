@@ -11,11 +11,11 @@
                （Vₒ₁ 标注常显在 A₁ 输出端；Vₒ₂ 标注在 A₂ 输出导线下方；原第3关专用 calc-vo1 已移除）
      入口：lin-b5 多级运算放大 → cases.game 案例3（总分 100 分）
      三关：①判两级电路类型 16 分（每级8，错不得分）
-           ②选表达式框架 24 分（每级12，n个选项每错一次扣 12/n，答对才进下一关）
-           ③填表达式 48 分（每级24按空均分：A1电路1空24，A2电路3空每空8）
-     第4关：写出输出电压 Vₒ 的表达式（12 分，不分級单题）
+           ②逐级求表达式 72 分（A?选框架答对12分后【立即填写该级表达式】（24分按空均分：
+             A1电路1空24，A2电路3空每空8），再选另一级框架→填写，全部完成才进第3关）
+           ③求输出电压 Vₒ：先选表达式框架 3 分，再填表达式 9 分（R₂、R₁、Vᵢ 3 空各 3 分，所有量均为方框）
      通用引擎：换新案例只改 GAME_CONFIG 与电路 SVG；计分微调改 pts；
-               L3 表达式字号可用 stages[].exprSize 调（默认42），第4关题面可用 av.q/levelTitle/tab/doneLabel/announce 覆盖
+               表达式字号可用 stages[].exprSize 调（默认60），第3关框架可用 av.fwQ/levelTitle/tab/doneLabel/announce 覆盖
      ============================================================ -->
 <style>
 /* ===== 内嵌 Times 子集字体（基础拉丁+数字），无需系统安装，任何环境生效 ===== */
@@ -621,25 +621,31 @@
                 ]
             }
         ],
-        // 第 4 关（不分級）：选择输出电压 Vₒ 的完整表达式
+        // 第 3 关（不分級）：先选 Vₒ 表达式框架，答对后立即填写表达式（所有量均为方框，点电路元件作答）
         av: {
-            q: '输出电压 V<tspan class="sub">o</tspan>（上端 ＋、下端 −）= ？',
-            levelTitle: '第 4 关 · 写出输出电压表达式',
-            tab: '④ 求Vₒ',
-            doneLabel: '第4关 求Vₒ表达式',
-            announce: '进入第四关，选择输出电压威欧的表达式，答对获得12分。',
-            options: [
-                [tk('V','o'), tk('='), tk('('), tk('1'), tk('+'), fr([tk('R','2')], [tk('R','1')]), tk(')'), tk('×'), tk('V','i')],
-                [tk('V','o'), tk('='), tk('−'), tk('('), tk('1'), tk('+'), fr([tk('R','2')], [tk('R','1')]), tk(')'), tk('×'), tk('V','i')],
-                [tk('V','o'), tk('='), tk('−'), fr([tk('R','1')], [tk('R','2')]), tk('×'), tk('V','i')],
-                [tk('V','o'), tk('='), tk('−'), fr([tk('R','2')], [tk('R','1')]), tk('×'), tk('V','i')]
+            name: '输出电压Vₒ',
+            exprTitle: '输出电压 Vₒ 的表达式：',
+            fwQ: '输出电压 V<tspan class="sub">o</tspan> 表达式框架：',
+            levelTitle: '第 3 关 · 求Vₒ',
+            tab: '③ 求Vₒ',
+            doneLabel: '第3关 求Vₒ（框架＋填空）',
+            announce: '进入第三关，先选择输出电压威欧的表达式框架。',
+            frameworks: [   // Vₒ = (1 + R₂/R₁)·Vᵢ（三选项结构可区分）
+                { tokens: [tk('V','o'), tk('='), tk('('), tk('1'), tk('+'), fr([{box:1}], [{box:1}]), tk(')'), tk('·'), {box:1}], correct: true },
+                { tokens: [tk('V','o'), tk('='), tk('−'), tk('('), tk('1'), tk('+'), fr([{box:1}], [{box:1}]), tk(')'), tk('·'), {box:1}] },
+                { tokens: [tk('V','o'), tk('='), tk('−'), fr([{box:1}], [{box:1}]), tk('·'), {box:1}] }
             ],
-            answer: 1,   // Vₒ = Vₒ₁ − Vₒ₂ = (1 + R₂/R₁)Vᵢ = 11Vᵢ（上端 ＋、下端 −；写原配置顺序下标，洗牌后自动重映射）
+            blanks: [   // 按正确框架虚线框出现顺序：R₂、R₁、Vᵢ
+                { ansIds: ['comp-r2'], label: [tk('R','2')] },
+                { ansIds: ['comp-r1'], label: [tk('R','1')] },
+                { ansIds: ['comp-vi'], label: [tk('V','i')] }
+            ],
             why: '上端 Vₒ₁ = Vᵢ（＋）、下端 Vₒ₂ = −(R₂/R₁)Vᵢ = −10Vᵢ（−）；Vₒ = Vₒ₁ − Vₒ₂ = (1 + R₂/R₁)Vᵢ = 11Vᵢ',
-            say: '第一级跟随，输出就是微埃。第二级反向放大，输出是负10乘微埃。输出电压威欧，上端为正，下端为负，等于上端减下端，也就是微埃减去负10微埃，等于正11微埃。'
+            // av.say（Vₒ 完整推导语音）已停用：填完后语音只保留「填写正确，获得n分」
         },
-        pts: { type: 8, fw: 12, fill: 24, av: 12 }   // ★ 计分微调处（fw 按 1/n 扣分；fill 按级、空均分）
-        // 总分 = (8+12+24) × 2 级 + 12 = 100；第3关每级 24 分：A1电路 1 空 24，A2电路 3 空每空 8（R₂、R₁、Vₒ₁）。
+        pts: { type: 8, fw: 12, fill: 24, avfw: 3, avfill: 9 }   // ★ 计分微调处（fw 按 1/n 扣分；fill 按空均分）
+        // 总分 = (8+12+24) × 2 级 + (3+9) = 100；第2关逐级交替：每级框架 12 分 + 填空 24 分
+        //（A1电路 1 空 24，A2电路 3 空每空 8）；第3关：框架 3 分 + 填空 9 分（R₂、R₁、Vᵢ 各 3 分）。
     };
 
     // ---- 各关卡对应的电路级交互单元（进入该关时整级变紫并闪烁提示） ----
@@ -665,12 +671,13 @@
     }
     function initState() {
         S = {
-            score: 0, level: 1, stage: 0, msg: null, lastKey: null, lastLevel: null,
+            score: 0, level: 1, stage: 0, phase: 'type', msg: null, lastKey: null, lastLevel: null,
             levelStart: 0,
-            typeOpts: [], typeAns: [], fwList: [], avOpts: [], avAns: null, avPick: null,
+            typeOpts: [], typeAns: [], fwList: [], avFwList: [], avFw: null,
             typePicked: GAME_CONFIG.stages.map(() => null),
             fw: GAME_CONFIG.stages.map(() => ({ rem: GAME_CONFIG.pts.fw, solved: false, chosen: [] })),
             fill: GAME_CONFIG.stages.map(st => st.blanks.map(() => ({ rem: GAME_CONFIG.pts.fill / st.blanks.length, done: false }))),
+            fillAv: GAME_CONFIG.av.blanks.map(() => ({ rem: GAME_CONFIG.pts.avfill / GAME_CONFIG.av.blanks.length, done: false })),
             selBox: null, finished: false
         };
         // 每次挑战：选项与框架顺序随机；正确性由索引重映射 / correct 标志保证
@@ -679,11 +686,15 @@
             S.typeAns[i] = S.typeOpts[i].indexOf(st.typeOptions[st.typeAnswer]);
             S.fwList[i] = shuffle(st.frameworks);   // correct 随对象一起移动，无需重映射
         });
-        S.avOpts = shuffle(GAME_CONFIG.av.options);   // 元素为 token 数组，indexOf 按引用比对
-        S.avAns = S.avOpts.indexOf(GAME_CONFIG.av.options[GAME_CONFIG.av.answer]);
+        S.avFwList = shuffle(GAME_CONFIG.av.frameworks);   // correct 随对象一起移动，无需重映射
+        S.avFw = { rem: GAME_CONFIG.pts.avfw, solved: false, chosen: [] };
     }
-    // ---- 关卡切换（统一入口：重置分级 + 记录本关起始分） ----
-    function gotoLevel(lv) { S.level = lv; S.stage = 0; S.levelStart = S.score; }
+    // ---- 关卡切换（统一入口：重置分级 + 记录本关起始分；keepStage 供第 2 关级间流转保持当前级；
+    //      phase 一并归位：lv≥2 进框架环节，其余为 type 占位） ----
+    function gotoLevel(lv, keepStage) {
+        S.level = lv; S.stage = keepStage || 0; S.levelStart = S.score;
+        S.phase = lv >= 2 ? 'fw' : 'type';
+    }
 
     // ---- 当前关卡对应电路级：整级变紫 + 闪烁（3 次 × 0.22s） ----
     function clearStageHighlight() {
@@ -704,7 +715,7 @@
             addT(() => { g.classList.remove('color-blink'); g.classList.remove('stage-purple'); }, 720);
         });
     }
-    // 第 4 关（不分級）：两级电路整体高亮
+    // 第 3 关（不分級）：两级电路整体高亮
     function highlightAll() {
         clearStageHighlight();
         STAGE_UNITS.reduce((a, b) => a.concat(b), []).forEach(id => {
@@ -732,29 +743,36 @@
         speakSeq([{ text: t, onStart: onStart }], onDone);
     }
     // 关卡标题 / 固定小字（各关固定，与案例无关）
+    // 第 2 关为逐级求解：A? 选框架 → A? 填表达式 → 另一级，面板标题随环节切换
     function levelTitleText() {
         if (S.level === 1) return '第 1 关 · 判断电路类型';
-        if (S.level === 2) return '第 2 关 · 选择表达式框架';
-        if (S.level === 3) return '第 3 关 · 填写表达式';
-        return GAME_CONFIG.av.levelTitle || '第 4 关 · 求总电压放大倍数';
+        if (S.level === 2) {
+            const nm = GAME_CONFIG.stages[S.stage].name;
+            return '第 2 关 · ' + nm + (S.phase === 'fw' ? ' 选择框架' : ' 填写表达式');
+        }
+        return (GAME_CONFIG.av.levelTitle || '第 3 关 · 求Vₒ') + (S.phase === 'fw' ? ' 选择框架' : ' 填写表达式');
     }
     function levelSubText() {
         if (S.level === 1) return '逐级判断电路的组态类型，点击下面选项作答';
-        if (S.level === 2) return '选出正确的表达式框架，答对才能进入下一关';
-        if (S.level === 3) return '先点表达式中的虚线框，再点电路中对应的元件';
-        return '选出两级电路总电压放大倍数的表达式';
+        if (S.level === 2) return S.phase === 'fw'
+            ? '选出正确的表达式框架，答对后立即填写该级表达式'
+            : '先点表达式中的虚线框，再点电路中对应的元件';
+        return S.phase === 'fw'
+            ? '选出 Vₒ 表达式框架，答对后立即填写表达式'
+            : '先点表达式中的虚线框，再点电路中对应的元件';
     }
     // 关卡语音报关：报关主句播完即闪烁电路、准备答题；操作说明作为第二句随后播放
+    // （第 2 关只在进入本关时报关一次，级间切换用短语音，见 levelAdvance / blankStageDone）
     function announceLevel(hl) {
         const first = {
             1: '进入第一关，判断两级电路的类型。',
-            2: '进入第二关，选择表达式框架。',
-            3: '进入第三关，填写表达式。',
-            4: GAME_CONFIG.av.announce || ('进入第四关，选择总电压放大倍数的表达式，答对获得' + GAME_CONFIG.pts.av + '分。')
+            2: '进入第二关，逐级求解表达式。先选择' + GAME_CONFIG.stages[0].name + '的表达式框架。',
+            3: GAME_CONFIG.av.announce || '进入第三关，先选择输出电压威欧的表达式框架。'
         }[S.level] || '';
         const extra = {
-            2: '回答正确才能进入下一关。',
-            3: '先点虚线框，再点对应的元件。'
+            1: '逐级判断，点击选项作答。',
+            2: '回答正确才能填写表达式。',
+            3: '回答正确才能填写表达式。'
         }[S.level];
         const parts = [{ text: speechify(first), onEnd: hl }];
         if (extra) parts.push({ text: speechify(extra) });
@@ -763,24 +781,35 @@
         speakSeq(parts);
     }
     function setMsg(text, color) { S.msg = text ? { text: text, color: color || '#ffffff' } : null; }
-    // 本关总分 / 已处理项数（状态行用）
+    // 本关总分 / 已处理项数（状态行用；第 2 关为逐级求解，框架与填空合并统计）
     function levelMax() {
         const n = GAME_CONFIG.stages.length;
         if (S.level === 1) return GAME_CONFIG.pts.type * n;
-        if (S.level === 2) return GAME_CONFIG.pts.fw * n;
-        if (S.level === 3) return GAME_CONFIG.pts.fill * n;
-        return GAME_CONFIG.pts.av;
+        if (S.level === 2) return (GAME_CONFIG.pts.fw + GAME_CONFIG.pts.fill) * n;
+        return GAME_CONFIG.pts.avfw + GAME_CONFIG.pts.avfill;
     }
     function levelDone() {
         if (S.level === 1) return S.typePicked.filter(x => x !== null).length;
-        if (S.level === 2) return S.fw.filter(f => f.solved).length;
-        if (S.level === 3) return S.fill.reduce((a, arr) => a + arr.filter(b => b.done).length, 0);
-        return S.avPick !== null ? 1 : 0;
+        if (S.level === 2) {
+            return S.fw.filter(f => f.solved).length +
+                   S.fill.reduce((a, arr) => a + arr.filter(b => b.done).length, 0);
+        }
+        return (S.avFw.solved ? 1 : 0) + S.fillAv.filter(b => b.done).length;
     }
     function levelTotal() {
-        if (S.level === 1 || S.level === 2) return GAME_CONFIG.stages.length;
-        if (S.level === 3) return S.fill.reduce((a, arr) => a + arr.length, 0);
-        return 1;
+        if (S.level === 1) return GAME_CONFIG.stages.length;
+        if (S.level === 2) {
+            return GAME_CONFIG.stages.length +
+                   S.fill.reduce((a, arr) => a + arr.length, 0);
+        }
+        return 1 + GAME_CONFIG.av.blanks.length;
+    }
+    // 填空环节的级配置 / 状态 / 每空初始分（st 0/1 = 第 2 关各级；2 = 第 3 关 Vₒ，blank-stage 记为 2）
+    function fillUnit(st) { return st < 2 ? GAME_CONFIG.stages[st] : GAME_CONFIG.av; }
+    function fillState(st) { return st < 2 ? S.fill[st] : S.fillAv; }
+    function blankInit(st) {
+        return st < 2 ? GAME_CONFIG.pts.fill / GAME_CONFIG.stages[st].blanks.length
+                      : GAME_CONFIG.pts.avfill / GAME_CONFIG.av.blanks.length;
     }
     function applyHooks() {
         const h = GAME_CONFIG.hooks;
@@ -834,8 +863,12 @@
         const dw = gD.getBBox().width;
         const w = Math.max(nw, dw) + fs * 0.42;
         const barY = -size * 0.30;   // 分数线与同行文字（=、+ 等）的光学中线对齐，勿改回 -0.04（分式会下沉）
-        gN.setAttribute('transform', 'translate(' + ((w - nw) / 2) + ',' + (barY - fs * 0.26) + ')');
-        gD.setAttribute('transform', 'translate(' + ((w - dw) / 2) + ',' + (barY + fs * 0.96) + ')');
+        // 第101轮：按实际包围盒定位分子/分母，使与分数线的净距上下对称（虚线方框比文字高，
+        // 原按 fs 固定系数定位时放大后分子框底边几乎贴线）
+        const nb = gN.getBBox(), db = gD.getBBox();
+        const gap = Math.max(5, size * 0.19);
+        gN.setAttribute('transform', 'translate(' + ((w - nw) / 2) + ',' + (barY - gap - nb.y - nb.height) + ')');
+        gD.setAttribute('transform', 'translate(' + ((w - dw) / 2) + ',' + (barY + gap - db.y) + ')');
         gf.appendChild(mkLine(0, barY, w, barY, fill || '#ffffff', Math.max(2, Math.round(size * 0.055))));
         gf.__w = w;
         return gf;
@@ -855,7 +888,7 @@
                 r.setAttribute('rx', 6);
                 r.setAttribute('fill', 'rgba(255,217,61,0.10)');
                 r.setAttribute('stroke', '#ffd93d');
-                r.setAttribute('stroke-width', 2.5);
+                r.setAttribute('stroke-width', Math.max(2, +(size * 0.045).toFixed(2)));
                 r.setAttribute('stroke-dasharray', '8 6');
                 if (blank !== undefined && blank !== null) {
                     r.setAttribute('class', 'blank-box');
@@ -867,9 +900,10 @@
                 g.appendChild(r);
                 cx += w + size * 0.22;
             } else if (tok.frac) {
+                cx += size * 0.06;   // 分式前留白：分数线左端贴近前一个符号时过挤
                 const gf = buildFrac(g, tok.frac[0], tok.frac[1], size, fill, blank, ctx);
                 gf.setAttribute('transform', 'translate(' + cx + ',0)');
-                cx += gf.__w + size * 0.26;
+                cx += gf.__w + size * 0.24;
             } else {
                 const t = mkText(cx, 0, size, markupOf(tok), { fill: fill, anchor: 'start' });
                 g.appendChild(t);
@@ -942,9 +976,9 @@
         gameUI.appendChild(mkText(RX, 202, 42, S.score + '<tspan font-size="23" fill="rgba(255,255,255,0.6)"> / 100</tspan>', { fill: '#ffd93d', anchor: 'end' }));
         gameUI.appendChild(mkLine(LX, DIV_Y, RX, DIV_Y, 'rgba(167,139,250,0.4)', 2));
     }
-    // 关卡序号（①判类型 ②选框架 ③填表达式 ④求总Aᵥ）
+    // 关卡序号（①判类型 ②逐级求表达式 ③求Vₒ；第 2 关内 A? 框架/填空交替进行）
     function renderTabs() {
-        const names = ['① 判类型', '② 选框架', '③ 填表达式', GAME_CONFIG.av.tab || '④ 求总Aᵥ'];
+        const names = ['① 判类型', '② 求表达式', GAME_CONFIG.av.tab || '③ 求Vₒ'];
         const n = names.length, gp = 8;
         const w = Math.floor((LW - (n - 1) * gp) / n);
         names.forEach((nm, i) => {
@@ -1020,8 +1054,8 @@
         S.typePicked[st] = i;
         if (i === S.typeAns[st]) {
             S.score += pts;
-            setMsg('答对了，得 ' + pts + ' 分。', '#34d399');
-            say('答对了！A' + (st + 1) + '构成' + S.typeOpts[st][i] + '，获得' + pts + '分。', levelAdvance);
+            setMsg('回答正确，得 ' + pts + ' 分。', '#34d399');
+            say('回答正确！A' + (st + 1) + '构成' + S.typeOpts[st][i] + '，获得' + pts + '分。', levelAdvance);
         } else {
             setMsg('不对，本题不得分。', '#fb7185');
             say('不对哦。' + cfg.typeWhy + '，A' + (st + 1) + '构成' + S.typeOpts[st][S.typeAns[st]] + '，本题不能得分。', levelAdvance);
@@ -1030,18 +1064,30 @@
     }
 
     // ---- 关卡推进 ----
+    // L1：两级判完 → L2。L2 逐级交替：A? 选框架答对 → 立即转 A? 填表达式 →
+    //     填完转另一级选框架 → 全部完成 → L3（求Vₒ：选框架 → 立即填表达式）。
     function levelAdvance() {
         if (S.finished) return;
         if (S.level === 1) {
             if (S.stage < GAME_CONFIG.stages.length - 1) { S.stage++; setMsg(null); render(); return; }
             gotoLevel(2);
+            S.phase = 'fw';
             announceLevel(() => highlightStage(0));
             render(); return;
         }
-        if (S.level === 2) {
-            if (S.stage < GAME_CONFIG.stages.length - 1) { S.stage++; setMsg(null); render(); return; }
-            gotoLevel(3);
-            announceLevel(() => highlightStage(0));
+        if (S.level === 2 && S.phase === 'fw') {
+            // 当前级框架答对：留在本级，立即进入填表达式环节
+            const st = S.stage, nm = GAME_CONFIG.stages[st].name;
+            S.phase = 'fill';
+            setMsg(null);
+            say('接下来填写' + nm + '的表达式。先点虚线框，再点电路中对应的元件。');
+            render(); return;   // 级内换环节的电路闪烁由 render 的 lastKey 变化触发
+        }
+        if (S.level === 3 && S.phase === 'fw') {
+            // 第 3 关框架答对：立即进入填表达式环节
+            S.phase = 'fill';
+            setMsg(null);
+            say('接下来填写输出电压的表达式。先点虚线框，再点电路中对应的元件。');
             render(); return;
         }
     }
@@ -1076,8 +1122,8 @@
         if (S.fwList[st][i].correct) {
             fw.solved = true;
             S.score += Math.round(fw.rem);
-            setMsg('框架选对了，得 ' + Math.round(fw.rem) + ' 分。', '#34d399');
-            say('框架选对了！A' + (st + 1) + '获得' + Math.round(fw.rem) + '分。');
+            setMsg('选择正确，得 ' + Math.round(fw.rem) + ' 分。', '#34d399');
+            say('选择正确！A' + (st + 1) + '获得' + Math.round(fw.rem) + '分。');
             render();
             addT(levelAdvance, 2400);
         } else {
@@ -1089,33 +1135,22 @@
         }
     }
 
-    // ---- 第 3 关：填表达式（分式，先点虚线框再点元件） ----
+    // ---- 填写表达式（第 2 关各级与第 3 关 Vₒ 共用；第101轮起一律单行排版、字号尽量大） ----
     function renderL3() {
-        const st = S.stage, cfg = GAME_CONFIG.stages[st];
-        const ftoks = S.fwList[st].filter(f => f.correct)[0].tokens;
-        // 在最后一个 "=" 处折行（分式为整体，不再拆开）
-        let cut = 0;
-        ftoks.forEach((t, i) => { if (!t.box && !t.frac && t.main === '=') cut = i; });
-        const lines = cut > 0 ? [ftoks.slice(0, cut), ftoks.slice(cut)] : [ftoks];
-        gameUI.appendChild(mkText(LX, BODY_TOP + 26, 26, cfg.name + '表达式：', { fill: '#ffd93d' }));
-        // 统一字号：先按基准字号测宽，超出可用宽度则整体缩放（两行同字号）
-        const es = cfg.exprSize || 42;
-        let maxW = 1;
-        lines.forEach(toks => {
-            const g = buildExpr(gameUI, toks, es, '#ffffff', null, { n: 0 });
-            maxW = Math.max(maxW, g.getBBox().width);
-            g.remove();
-        });
-        const fs = Math.max(20, Math.min(es, es * 470 / maxW));
-        const areaTop = BODY_TOP + 64, areaBot = BODY_BOT - 14;
-        const ctr = (areaTop + areaBot) / 2;
-        const step = Math.min(112, (areaBot - areaTop) / Math.max(1, lines.length));
-        const ctx = { n: 0 };
-        lines.forEach((toks, li) => {
-            placeExpr(gameUI, toks, fs, LCX, ctr + (li - (lines.length - 1) / 2) * step, '#ffffff', st, ctx);
-        });
+        const st = S.level === 3 ? 2 : S.stage;   // 第 3 关填空的 blank-stage 固定记为 2
+        const cfg = fillUnit(st), fillArr = fillState(st);
+        const ftoks = (st < 2 ? S.fwList[st] : S.avFwList).filter(f => f.correct)[0].tokens;
+        gameUI.appendChild(mkText(LX, BODY_TOP + 26, 26, cfg.exprTitle || (cfg.name + '表达式：'), { fill: '#ffd93d' }));
+        // 单行排版（不在 "=" 处折行）：先按基准字号测宽，超出可用宽度再整体缩放
+        const es = cfg.exprSize || 60;
+        const gm = buildExpr(gameUI, ftoks, es, '#ffffff', null, { n: 0 });
+        const w0 = Math.max(1, gm.getBBox().width);
+        gm.remove();
+        const fs = Math.max(20, Math.min(es, es * 500 / w0));
+        const ctr = (BODY_TOP + 64 + BODY_BOT - 14) / 2;
+        placeExpr(gameUI, ftoks, fs, LCX, ctr, '#ffffff', st, { n: 0 });
         // 已填好的空：绿色实线 + 内容回填
-        S.fill[st].forEach((b, bi) => {
+        fillArr.forEach((b, bi) => {
             if (!b.done) return;
             const r = gameUI.querySelector('.blank-box[data-blank-stage="' + st + '"][data-blank-idx="' + bi + '"]');
             if (!r) return;
@@ -1137,7 +1172,7 @@
     // 虚线框点选（面板内事件委托）
     gameUI.addEventListener('click', e => {
         const r = e.target.closest ? e.target.closest('.blank-box') : null;
-        if (!r || r.classList.contains('done') || S.finished || S.level !== 3) return;
+        if (!r || r.classList.contains('done') || S.finished || (S.level !== 2 && S.level !== 3) || S.phase !== 'fill') return;
         S.selBox = {
             stage: parseInt(r.getAttribute('data-blank-stage'), 10),
             idx: parseInt(r.getAttribute('data-blank-idx'), 10)
@@ -1146,26 +1181,30 @@
     });
     // 电路元件作答：点击电路中的交互单元，与选中空的 ansIds 比对
     document.querySelector('.stage').addEventListener('click', e => {
-        if (S.finished || S.level !== 3 || !S.selBox) return;
+        if (S.finished || (S.level !== 2 && S.level !== 3) || S.phase !== 'fill' || !S.selBox) return;
         const gEl = e.target.closest ? e.target.closest('g.interactive') : null;
         if (!gEl || !gEl.dataset.id) return;
         answerBlank(gEl.dataset.id);
     });
     function answerBlank(id) {
         const st = S.selBox.stage, bi = S.selBox.idx;
-        const cfg = GAME_CONFIG.stages[st], b = S.fill[st][bi];
+        const cfg = fillUnit(st), b = fillState(st)[bi];
         if (b.done) return;
         if (cfg.blanks[bi].ansIds.indexOf(id) >= 0) {
             b.done = true;
             S.score += Math.round(b.rem);
             blinkGroup(id, '#34d399');
             setMsg('填对了！得 ' + Math.round(b.rem) + ' 分。', '#34d399');
-            say('填对了，获得' + Math.round(b.rem) + '分。');
             S.selBox = null;
-            if (S.fill[st].every(x => x.done)) addT(blankStageDone, 2000);
+            if (fillState(st).every(x => x.done)) {
+                // 等本条得分语音播完再进入收尾，避免被后续语音切断
+                say('填写正确，获得' + Math.round(b.rem) + '分。', () => addT(blankStageDone, 200));
+            } else {
+                say('填写正确，获得' + Math.round(b.rem) + '分。');
+            }
             render();
         } else {
-            const half = Math.round((GAME_CONFIG.pts.fill / cfg.blanks.length) / 2);
+            const half = Math.max(1, Math.round(blankInit(st) / 2));
             b.rem = Math.max(0, b.rem - half);
             blinkGroup(id, '#fb7185');
             setMsg('不对，本空扣 ' + half + ' 分。', '#fb7185');
@@ -1175,57 +1214,71 @@
     }
     function blankStageDone() {
         if (S.finished) return;
-        const st = S.stage;
+        if (S.level === 3) {
+            // 第 3 关填完：语音只保留得分提示（不再播放 Vₒ 推导说明），稍候进入结算
+            setMsg('输出电压表达式填写完成。', '#ffd93d');
+            addT(finish, 400);
+            render();
+            return;
+        }
+        const st = S.stage, nm = GAME_CONFIG.stages[st].name;
         if (st < GAME_CONFIG.stages.length - 1) {
-            setMsg(GAME_CONFIG.stages[st].name + '完成，继续。', '#ffd93d');
-            say(GAME_CONFIG.stages[st].name + '表达式填写完成，继续。');
-            S.stage++;
+            // 本级填完 → 下一级选框架（保持在第 2 关内交替推进）
+            const nm2 = GAME_CONFIG.stages[st + 1].name;
+            setMsg(nm + '表达式填写完成。', '#ffd93d');
+            say(nm + '表达式填写完成！接下来选择' + nm2 + '的表达式框架。');
+            gotoLevel(2, st + 1);
+            S.phase = 'fw';
             render();
         } else {
-            gotoLevel(4);
+            setMsg(nm + '表达式填写完成。', '#ffd93d');
+            gotoLevel(3);
             announceLevel(() => highlightAll());
             render();
         }
     }
 
-    // ---- 第 4 关：求总电压放大倍数 Aᵥ（不分級，单题；选项为分式表达式） ----
+    // ---- 第 3 关：求输出电压 Vₒ（第101轮起：先选框架 → 立即填写表达式，流程与第 2 关各级一致） ----
     function renderL4() {
-        const qLines = [GAME_CONFIG.av.q || '两级电路的总电压放大倍数 A<tspan class="sub">v</tspan> = ？'];
-        const n = S.avOpts.length;
-        const L = layoutBody(qLines, 38, n, { hMax: 76, hMin: 42, gapRatio: 0.14 });
+        if (S.phase === 'fill') { renderL3(); return; }
+        const list = S.avFwList, fw = S.avFw, cfg = GAME_CONFIG.av;
+        const qLines = [cfg.fwQ];
+        const L = layoutBody(qLines, 38, list.length, { hMax: 108, hMin: 58, gapRatio: 0.14 });
         qLines.forEach((ln, i) => gameUI.appendChild(mkText(LX, L.top + 26 + i * L.qLH, 26, ln)));
-        const answered = S.avPick !== null;
-        const base = Math.max(18, Math.min(32, Math.round(L.h * 0.38)));
-        S.avOpts.forEach((toks, i) => {
+        const base = Math.max(22, Math.min(36, Math.round(L.h * 0.40)));
+        list.forEach((f, i) => {
             const y = L.optTop + i * (L.h + L.gap);
             const g = mkBtn(LX, y, LW, L.h);
-            let col = '#ffffff';
-            if (answered) {
-                if (i === S.avAns) { g.classList.add('ok'); col = '#34d399'; }
-                else if (i === S.avPick) { g.classList.add('bad'); col = '#fb7185'; }
-                else g.classList.add('dim');
-            }
+            if (fw.solved) { if (f.correct) g.classList.add('ok'); else g.classList.add('dim'); }
+            else if (fw.chosen.indexOf(i) >= 0) { g.classList.add('bad'); g.classList.add('dim'); }
             gameUI.appendChild(g);
             g.appendChild(mkText(LX + 22, y + L.h / 2 + 9, 24, String.fromCharCode(65 + i), { fill: 'rgba(255,255,255,0.55)' }));
-            fitExpr(g, toks, base, LCX + 12, y + L.h / 2, col, null, null, LW - 96);
-            g.addEventListener('click', () => pickAv(i));
+            const col = (f.correct && fw.solved) ? '#34d399' : '#ffffff';
+            fitExpr(g, f.tokens, base, LCX + 12, y + L.h / 2, col, null, null, LW - 96);
+            g.addEventListener('click', () => pickAvFw(i));
         });
         renderStatus();
         renderFeedback();
     }
-    function pickAv(i) {
-        if (S.finished || S.level !== 4 || S.avPick !== null) return;
-        S.avPick = i;
-        if (i === S.avAns) {
-            S.score += GAME_CONFIG.pts.av;
-            setMsg('答对了，得 ' + GAME_CONFIG.pts.av + ' 分。', '#34d399');
-            say('答对了！' + GAME_CONFIG.av.say + '获得' + GAME_CONFIG.pts.av + '分。');
+    function pickAvFw(i) {
+        if (S.finished || S.level !== 3) return;
+        const fw = S.avFw;
+        if (fw.solved || fw.chosen.indexOf(i) >= 0) return;
+        fw.chosen.push(i);
+        if (S.avFwList[i].correct) {
+            fw.solved = true;
+            S.score += Math.round(fw.rem);
+            setMsg('选择正确，得 ' + Math.round(fw.rem) + ' 分。', '#34d399');
+            say('选择正确！获得' + Math.round(fw.rem) + '分。');
+            render();
+            addT(levelAdvance, 2400);
         } else {
-            setMsg('不对，本题不得分。', '#fb7185');
-            say('不对哦。' + GAME_CONFIG.av.say + '本题不能得分。');
+            const pen = Math.max(1, Math.round(GAME_CONFIG.pts.avfw / S.avFwList.length));
+            fw.rem = Math.max(0, fw.rem - pen);
+            setMsg('不对，扣 ' + pen + ' 分。', '#fb7185');
+            say('不对，扣' + pen + '分。上端接跟随器输出为正端，再想一想。');
+            render();
         }
-        render();
-        addT(finish, 2800);
     }
 
     // ---- 完成结算 ----
@@ -1233,8 +1286,9 @@
         const p1 = GAME_CONFIG.stages.reduce((s2, st, i) => s2 + (S.typePicked[i] === S.typeAns[i] ? GAME_CONFIG.pts.type : 0), 0);
         const p2 = S.fw.reduce((s2, f) => s2 + f.rem, 0);
         const p3 = S.fill.reduce((s2, arr) => s2 + arr.reduce((a, b) => a + b.rem, 0), 0);
-        const p4 = S.avPick !== null && S.avPick === S.avAns ? GAME_CONFIG.pts.av : 0;
-        return [p1, Math.round(p2), Math.round(p3), p4];
+        const p4 = (S.avFw.solved ? Math.round(S.avFw.rem) : 0) +
+                   S.fillAv.reduce((a, b) => a + Math.round(b.rem), 0);
+        return [p1, Math.round(p2 + p3), p4];
     }
     function finish() {
         S.finished = true; S.selBox = null;
@@ -1246,9 +1300,8 @@
         gameUI.appendChild(mkText(LCX, 342, 42, '🎉 闯关完成！', { anchor: 'middle', fill: '#ffd93d' }));
         gameUI.appendChild(mkText(LCX, 428, 48, '最终得分：' + S.score + ' / 100', { anchor: 'middle', fill: '#ffd93d' }));
         gameUI.appendChild(mkText(LCX, 492, 25, '第1关 判类型：' + b[0] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
-        gameUI.appendChild(mkText(LCX, 528, 25, '第2关 选框架：' + b[1] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
-        gameUI.appendChild(mkText(LCX, 564, 25, '第3关 填表达式：' + b[2] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
-        gameUI.appendChild(mkText(LCX, 600, 25, (GAME_CONFIG.av.doneLabel || '第4关 求总Aᵥ') + '：' + b[3] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
+        gameUI.appendChild(mkText(LCX, 528, 25, '第2关 逐级求表达式（框架＋填空）：' + b[1] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
+        gameUI.appendChild(mkText(LCX, 564, 25, (GAME_CONFIG.av.doneLabel || '第3关 求Vₒ') + '：' + b[2] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
         const ev = S.score >= 90 ? '优秀！两级电路的分析已经掌握得很扎实。'
                  : S.score >= 75 ? '良好！再巩固一下表达式框架就更棒了。'
                  : S.score >= 60 ? '及格。建议回到"计算训练"再听一遍分级讲解。'
@@ -1274,19 +1327,21 @@
         applyHooks();
         renderHeader();
         renderTabs();
-        renderSubLine();
-        // 同一关内换级：即时闪烁该级电路；换关的闪烁由关卡语音播完触发（见 announceLevel）
-        const key = S.finished ? 'done' : (S.level + '-' + S.stage);
+        if (!S.finished) renderSubLine();   // 结算页不显示操作说明行（否则与「闯关完成」标题重叠）
+        // 同一关内换级/换环节：即时闪烁该级电路；换关的闪烁由关卡语音播完触发（见 announceLevel）
+        const key = S.finished ? 'done' : (S.level + '-' + (S.phase || '') + '-' + S.stage);
         if (S.lastKey !== key) {
             const newLevel = S.finished || S.level !== S.lastLevel;
             S.lastKey = key;
             S.lastLevel = S.finished ? null : S.level;
-            if (!newLevel) addT(() => { if (!S.finished) highlightStage(S.stage); }, 320);
+            if (!newLevel) addT(() => {
+                if (S.finished) return;
+                if (S.level === 3) highlightAll(); else highlightStage(S.stage);
+            }, 320);
         }
         if (S.finished) { renderDone(); return; }
         if (S.level === 1) renderL1();
-        else if (S.level === 2) renderL2();
-        else if (S.level === 3) renderL3();
+        else if (S.level === 2) { if (S.phase === 'fill') renderL3(); else renderL2(); }
         else renderL4();
     }
     initState();
@@ -1295,18 +1350,28 @@
     addT(() => announceLevel(() => highlightStage(0)), 400);
     // 测试钩子：自动化自检读取内部状态（只读）
     function getState() { return S; }
-    // 调试预览（自查/截图用）：?lvl=2 / ?lvl=3 / ?lvl=4 / ?lvl=done
+    // 调试预览（自查/截图用）：?lvl=1 / 2 / 3 / done
+    // 第 2 关可加 &ph=fill|fw 与 &st=0|1 直达任意环节（如 ?lvl=2&ph=fill&st=1）
     (function () {
         const m = location.search.match(/[?&]lvl=(\w+)/);
         if (!m) return;
         const v = m[1];
-        if (v === '2') gotoLevel(2);
-        else if (v === '3') gotoLevel(3);
-        else if (v === '4') gotoLevel(4);
+        if (v === '1') gotoLevel(1);
+        else if (v === '2') {
+            gotoLevel(2);
+            S.phase = location.search.match(/[?&]ph=(\w+)/) ? RegExp.$1 : 'fw';
+            const sm = location.search.match(/[?&]st=(\d)/);
+            if (sm) S.stage = parseInt(sm[1], 10) % GAME_CONFIG.stages.length;
+            if (S.phase !== 'fw' && S.phase !== 'fill') S.phase = 'fw';
+        }
+        else if (v === '3' || v === '4') {   // 4 为旧版兼容（原第4关现移为第3关）
+            gotoLevel(3);
+            if (location.search.match(/[?&]ph=fill/)) { S.phase = 'fill'; S.avFw.solved = true; }
+        }
         else if (v === 'done') { S.finished = true; }
         else return;
         render();
-        if (v !== 'done') addT(() => { if (v === '4') highlightAll(); else highlightStage(S.stage); }, 320);
+        if (v !== 'done') addT(() => { if (S.level === 3) highlightAll(); else highlightStage(S.stage); }, 320);
     })();
 
     // ===== 事件绑定（框架通用，勿改） =====

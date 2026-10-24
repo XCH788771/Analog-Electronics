@@ -810,10 +810,10 @@ const CIRCUIT_BRANCHES = {
             desc: '多级级联，总增益为各级之积',
             cases: {
                 game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '判类型 → 选框架 → 填表达式', lab: 'interactive/lin-g1.html?v=7', ready: true, thumbImg: 'assets/thumb-lin-g1.png?v=1' },
-                    { name: '案例2 · 电路闯关挑战（100分）', desc: '反相求和＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g2.html?v=7', ready: true, thumbImg: 'assets/thumb-lin-g2.png?v=1' },
-                    { name: '案例3 · 电路闯关挑战（100分）', desc: '跟随器＋反相比例（R₁=1k，R₂=10k），写出 Vₒ 表达式', lab: 'interactive/lin-g3.html?v=7', ready: true, thumbImg: 'assets/thumb-lin-g3.png?v=1' },
-                    { name: '案例4 · 电路闯关挑战（100分）', desc: '同相（带分压）＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g4.html?v=7', ready: true, thumbImg: 'assets/thumb-lin-g4.png?v=1' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '判类型 → 选框架 → 填表达式', lab: 'interactive/lin-g1.html?v=16', ready: true, thumbImg: 'assets/thumb-lin-g1.png?v=6' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '反相求和＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g2.html?v=13', ready: true, thumbImg: 'assets/thumb-lin-g2.png?v=5' },
+                    { name: '案例3 · 电路闯关挑战（100分）', desc: '跟随器＋反相比例（R₁=1k，R₂=10k），写出 Vₒ 表达式', lab: 'interactive/lin-g3.html?v=12', ready: true, thumbImg: 'assets/thumb-lin-g3.png?v=4' },
+                    { name: '案例4 · 电路闯关挑战（100分）', desc: '同相（带分压）＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g4.html?v=9', ready: true, thumbImg: 'assets/thumb-lin-g4.png?v=5' }
                 ],
                 calculation: [
                     { name: '案例1 · 两级级联放大电路', desc: '同相＋反相级联计算 Au', lab: 'interactive/lin-t4.html', ready: true, thumbImg: 'assets/thumb-lin-t4.png?v=1' }
