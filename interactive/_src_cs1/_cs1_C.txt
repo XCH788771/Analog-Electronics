@@ -1,0 +1,142 @@
+    /* ▼▼▼ 替换区 C：本案例关卡配置 GAME_CONFIG（两阶段四关，换新案例整块替换）▼▼▼
+       ★ 表达式一律分式写法：tk('I','CQ') 下标、{box:1} 虚线框、fr([分子],[分母]) 分式
+       ★ pts 合计=100 且各 fill/mix 空数整除；①关 gate 门控 + subSteps 二级菜单（保留/置零/短路/等效）
+       ★ 计分口径：绘制关 4 个目标 per=round(26/4)=7（vi/vdd/cb1 各 7 分），
+         comp-t「等效」不计分——分值全部由等效问答池结算（池=26−3×7=5，见 startTQuiz 补丁） */
+    // ---- 案例配置（★ 换案例改这里；tk(主,下标) 为文本片段） ----
+    // 案例：分压式偏置共源放大电路（N 沟道增强型 MOS；gm 与全部电阻已知，符号表达式作答）
+    //   电路等效：绘制交流小信号等效电路（vi 保留 / VDD 置零接地 / Cb1 短路 / 场效应管等效四问）
+    //   动态指标：Av → Ri → Ro 逐项（先框架、再表达式）
+    function tk(main, sub) { return { main: main, sub: sub }; }
+    function fr(num, den) { return { frac: [num, den] }; }   // 分式（上下式）
+    const GAME_CONFIG = {
+        phases: [
+            {
+                name: '电路等效',
+                steps: [
+                    {
+                        kind: 'draw', mode: 'transform', title: '第 1 关 · 绘制交流小信号等效电路', pts: 26, short: '绘制交流等效电路',
+                        q: '先处理信号源和电源，再将鼠标悬停到电容上，选择正确的处理方式',
+                        subLine: '分两步：先绘制交流通路，再等效场效应管',
+                        targets: [
+                            { id: 'comp-vi', name: '输入信号源Vi', menu: [
+                                { label: '保留', act: 'vi-keep', ok: true },
+                                { label: '断开', act: 'vi-open', ok: false }] },
+                            { id: 'comp-vdd', name: '直流电源VDD', menu: [
+                                { label: '置零', sub: [
+                                    { label: '接地', act: 'vdd-gnd', ok: true },
+                                    { label: '断路', act: 'vdd-open', ok: false }] },
+                                { label: '保留', act: 'vdd-keep', ok: false }] },
+                            { id: 'comp-cb1', name: '耦合电容Cb1', menu: [
+                                { label: '短路', act: 'cap-short', ok: true },
+                                { label: '断路', act: 'cap-open', ok: false }] },
+                            { id: 'comp-t', name: '场效应管', menu: [
+                                { label: '等效', act: 't-equiv', ok: true }] }
+                        ],
+                        // 门控：信号源与电源必须先处理完，电容与场效应管才解锁（保证「先电源、再电容、后等效」的顺序）
+                        gateMsg: '请先处理信号源和电源，再处理电容与场效应管。',
+                        gateTodo: '当前：先处理信号源和电源',
+                        gateDoneMsg: '信号源与电源已处理，请将耦合电容短路',
+                        gate: ['comp-vi', 'comp-vdd'],
+                        // 两步：交流通路（vi 保留 / vdd 置零 / cb1 短路）→ 等效场效应管（四问）
+                        subSteps: [
+                            { name: '绘制交流通路', ids: ['comp-vi', 'comp-vdd', 'comp-cb1'] },
+                            { name: '等效场效应管', ids: ['comp-t'] }
+                        ],
+                        announce: '进入第一关，绘制交流小信号等效电路，分两步完成：先绘制交流通路，再等效场效应管。先处理信号源和电源，再将鼠标悬停到电容上，在弹出的菜单里选择正确的处理方式，答对获得26分。',
+                        extra: '把鼠标移到元件上，在浮出的菜单里选择处理方式。',
+                        doneSay: '交流小信号等效电路画好了。',
+                        why: '交流通路：耦合电容短路、直流电源置零接地、输入信号保留；场效应管等效为 G–S 开路、D–S 之间的压控电流源（漏极电流 id 向下）。'
+                    }
+                ]
+            },
+            {
+                name: '动态指标',
+                steps: [
+                    {
+                        // 框架 + 表达式交错关：Av 先选框架、再填表达式（−gm·Rd，gm 点电路标注作答）
+                        // 分值：框架 6 + 2 个空各 10 = 26
+                        kind: 'mix', title: '第 2 关 · 电压放大倍数', pts: 26, short: '电压放大倍数', stageUnits: 0,
+                        subLine: '先选表达式框架，再点虚线框填表达式',
+                        subs: [
+                            {
+                                type: 'fw', name: 'A<tspan class="sub">v</tspan> 框架', qpts: 6, pen: 2,
+                                fwQ: '电压放大倍数 A<tspan class="sub">v</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), { box: 1 }, tk('·'), { box: 1 }], correct: true },
+                                    { tokens: [tk('A', 'v'), tk('='), { box: 1 }, tk('·'), { box: 1 }] },
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), fr([{ box: 1 }], [{ box: 1 }])] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'A<tspan class="sub">v</tspan> 表达式',
+                                fullExpr: [[tk('A', 'v'), tk('='), tk('−'), { box: 1 }, tk('·'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['q-gm'], label: [tk('g', 'm')], pts: 10 },
+                                    { ansIds: ['comp-rd'], label: [tk('R', 'd')], pts: 10 }
+                                ]
+                            }
+                        ],
+                        announce: '进入第二关，计算电压放大倍数。先选择表达式框架，再填写表达式，答对获得26分。',
+                        extra: '表达式先点虚线框，再点电路中对应的元件或电量符号。',
+                        doneSay: '电压放大倍数的框架与表达式完成。'
+                    },
+                    {
+                        // Ri = Rg1∥Rg2：两空同级并联不区分先后——并集 ansIds + 同 grp 查重（禁同量填两格）
+                        // 分值：框架 4 + 2 个空各 10 = 24
+                        kind: 'mix', title: '第 3 关 · 输入电阻', pts: 24, short: '输入电阻', stageUnits: 0,
+                        subLine: '先选表达式框架，再点虚线框填表达式',
+                        subs: [
+                            {
+                                type: 'fw', name: 'R<tspan class="sub">i</tspan> 框架', qpts: 4, pen: 2,
+                                fwQ: '输入电阻 R<tspan class="sub">i</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }], correct: true },
+                                    { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('+'), { box: 1 }] },
+                                    { tokens: [tk('R', 'i'), tk('='), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'R<tspan class="sub">i</tspan> 表达式',
+                                fullExpr: [[tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['comp-rg1', 'comp-rg2'], grp: 'ri-par', labels: { 'comp-rg1': [tk('R', 'g1')], 'comp-rg2': [tk('R', 'g2')] }, label: [tk('R', 'g1')], pts: 10 },
+                                    { ansIds: ['comp-rg1', 'comp-rg2'], grp: 'ri-par', labels: { 'comp-rg1': [tk('R', 'g1')], 'comp-rg2': [tk('R', 'g2')] }, label: [tk('R', 'g2')], pts: 10 }
+                                ]
+                            }
+                        ],
+                        announce: '进入第三关，计算输入电阻。先选择表达式框架，再填写表达式，答对获得24分。',
+                        extra: '表达式先点虚线框，再点电路中对应的元件。',
+                        doneSay: '输入电阻的框架与表达式完成。'
+                    },
+                    {
+                        // Ro ≈ Rd（rds 很大忽略不计）：框架 4 + 单空 20 = 24
+                        kind: 'mix', title: '第 4 关 · 输出电阻', pts: 24, short: '输出电阻', stageUnits: 0,
+                        subLine: '先选表达式框架，再点虚线框填表达式',
+                        subs: [
+                            {
+                                type: 'fw', name: 'R<tspan class="sub">o</tspan> 框架', qpts: 4, pen: 2,
+                                fwQ: '输出电阻 R<tspan class="sub">o</tspan> 的表达式框架：',
+                                frameworks: [
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }], correct: true },
+                                    { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }, tk('∥'), { box: 1 }] },
+                                    { tokens: [tk('R', 'o'), tk('='), { box: 1 }, tk('+'), { box: 1 }] }
+                                ]
+                            },
+                            {
+                                type: 'fill', name: 'R<tspan class="sub">o</tspan> 表达式',
+                                fullExpr: [[tk('R', 'o'), tk('≈'), { box: 1 }]],
+                                blanks: [
+                                    { ansIds: ['comp-rd'], label: [tk('R', 'd')], pts: 20 }
+                                ]
+                            }
+                        ],
+                        announce: '进入第四关，计算输出电阻。先选择表达式框架，再填写表达式，答对获得24分。',
+                        extra: '表达式先点虚线框，再点电路中对应的元件。',
+                        doneSay: '输出电阻的框架与表达式完成，全部关卡结束。'
+                    }
+                ]
+            }
+        ]
+    };
+    /* ▲▲▲ 替换区 C 结束 ▲▲▲ */

@@ -403,3 +403,79 @@
   制作规范已改写「定稿收尾」第 4 条并追加第83轮规约。
 - 本页：重截 `assets/thumb-cj-g5.png`（245KB→188KB）；data.js thumbImg 追加 `?v=1`；index `data.js?v= 11.07→11.08`。
 - 验收：新图 L1 题面含「再将鼠标悬停到电容上，」；校徽粒子动画已收敛、面板无溢出；与旧图像素对比变化 5.20%（题面文字区 + logo 粒子终态；旧图为 1600×900，本轮统一为规约的 1280×720）；0 pageerror。
+
+### 第103轮（2026-10-27 深夜）全站电阻统一 27×53
+
+- 需求（用户）：所有案例中的电阻统一为 27×53。
+- 本页改动 **5 个电阻**（含 comp-t-model 内的 r_be）：竖放一律 `27×53`、横放一律 `53×27`， **几何中心不变**；同步所有端点恰为旧体缘且轴向贯穿中心的 path/line（含 `fx-*` 短接线）；标签坐标不动。
+- 工具：`.workbuddy/patch_resistors.py`（字符级绝对定位 + 冲突检测 + 保持行尾 + 干跑）； 分析器 `.workbuddy/analyze_resistors.py` 输出改动前后几何与受影响引线清单。
+- 验收：svg-layout-check EXIT=0；默认态截图目检通过（电阻规格一致、两端引线连通、标签不压线）。
+- 版本：data.js lab `39→40`；index `data.js?v=11.59`（thumb-gen --all 自动击破）； 缩略图已重截（电阻属首屏可见内容，按第83轮规约必须联动）。
+- 归档：`.workbuddy/archive/bak-res-20261027/`（18 页 html + data.js + index.html + 16 张旧缩略图）。
+
+## 第108轮（2026-11-01）：电极字母移除 + V_BE 极性 + 动态 β 移到受控源右侧
+- 删 B/C/E 3 条；q-vbe 加 ＋(370,289)/－(466,353)。本页为 CRLF 行尾。
+- dyn β：(603.5,362.5)（顶点 576+27.5、中心 y=350）；热区 (585,325) 37×50（本页 dyn 显式设 w/h、静态分支复位 32×44）。
+- 验收：布局 EXIT=0；特写目检 OK；β 命中 OK；缩略图重截。版本 ?v=41。
+
+## ★ 第112轮（2026-11-08）：新增「第 5 关 · r_be 计算」（numPad 多位数 + 确认），原动态关顺延第 6 关
+- 五关→六关，总分保持 100。新关两子步：①选 r_be 表达式框架（fw，干扰项含 1−β 与无 r_bb' 直乘）；
+  ②填表达式 `r_be = 300 + (1+β)·26mV/I_EQ`（本页按 Q 点口径取 I_EQ/I_CQ），常数 300/1/26 全部方框化 `pts:0`，
+  β 点 `q-beta`（动态阶段已提前显示于受控源右侧）、电流点 `comp-t`。
+- numPad：表达式上方一行 0~9 圆角数字键 + 「确认」；`S.numStr` 缓冲 ≤4 位、黄字回显框内；确认→`submitNum` 校验，
+  错值只提示清空重填不扣分。动态阶段 qlabels dyn 分支显示 β（cj-g2 本轮补齐该分支）。
+- 分值配平（本页终值）：见 data.js 各关 pts；回归 flow_cj109.js 全流程通关 score=100、0 pageerror；
+  ui_num_cj109.js 真实点击 12 断言 PASS；svg-layout-check EXIT=0；deliver_check 双通道 PASS。
+- 修复：`showTQuizMenu` 加 `if (!q) return;` 竞态护栏（900ms 延时回调在答完后触发时 TQUIZ[step] 越界）。
+- 版本：lab ?v= 递增（data.js 同步）、thumbImg 重截 ?v= 递增；index `data.js?v=12.23`。
+- 脚本：.workbuddy/patch_cj109.py（105 ops）、flow_cj109.js、ui_num_cj109.js、patch_tquiz_guard.py（5 页护栏）。
+
+## ★ 第113轮（2026-11-08）：r_be 关键盘重排 + 电量按钮 + 即时回显 + 常数 200
+- 常数 300→200（num/注释/announce 三处同步）；r_be = 200 + (1+β)·26mV/I_EQ。
+- 数字键 92×50 改两行（5 列×2 行、字 30px）；第三行 β / I_EQ 电量按钮（.pick-key，点击＝选中该空按 ansIds 作答，
+  已填 dim 变暗）+ 确认；表达式区下移至按钮区下垂直居中（仅 numPad 关，其他 mix 关布局不变）。
+- 修复回显：回显 text 原先按 rect 局部坐标挂 gameUI 根层（落到视口外 y≈−3，用户看到「点了没反应」），
+  改挂 rect 父组（与绿字回填同机制），点每一位即时显示 2→20→200。
+- 踩坑：首版漏定义 qGap → 键盘渲染中断（pageerror: qGap is not defined），补 const 后恢复。
+- 回归：ui_num_cj109 5 页 90 断言 PASS；flow_cj109 5 页通关 PASS；svg-layout ×5 EXIT=0；deliver_check 双通道 PASS。
+- 版本：lab ?v= 82/29/46/47/43；index data.js?v=12.31；缩略图不动（首屏无变化）。
+
+## ★ 第114轮（2026-11-08）：r_be 关键盘改 6 列×2 行 + 表达式上移
+- 键盘 6 列×2 行：第 1 行 0~4 + 静态电流按钮（第 6 列，点击一键作答），第 2 行 5~9 + 确认；**去掉 β 按钮**（β 走电路标注）。
+- 数字键 79×50（列距 6）；表达式 eTop=BODY_TOP+196，位于按钮区与面板底部之间垂直居中。
+- announce 同步新操作指引。回归：ui_num_cj109 105 断言 PASS；flow_cj109 5 页通关 PASS；svg-layout ×5 0；deliver_check PASS。
+- 版本：lab ?v= 递增（data.js 同步）；index data.js?v=12.32；缩略图不动。
+
+## ★ 第116轮（2026-11-09）：结算页得分项改左对齐
+- renderDone 得分项由居中改为左对齐：新增 doneLeftX(arr)（量最长行宽→整块在面板内居中→各行 anchor:start 左缘统一），
+  行距与行序不变。回归 align_done_test 断言 PASS（各行左缘一致、右缘不溢出、0 pageerror）；deliver_check 双通道 ok。
+- 版本：lab ?v= 递增（data.js 同步）、index data.js?v=12.39；缩略图不动（结算页非首屏）。
+
+## ★ 第117轮（2026-11-09）：整理/等效态电阻统一 27×53
+- 本页遗留旧尺寸电阻（36×90/36×80/27×60/28×55）统一为 27×53：保持几何中心不变改 rect，上下引线端点同步；
+  标签与体中心对齐故不动。svg-layout EXIT=0；等效/整理态截图目检引线无空隙；首屏不变缩略图不动。
+- 版本：lab ?v= 递增（data.js 同步）；index data.js?v=12.40。
+
+### r23 修订轮（2026-11-09，V_o 端口补画 + Q 点标注三项位移）
+**1. R_L 右侧补画输出端口 V_o（默认态 comp-vo + 等效态 eq-layer，此前全页无 V_o）**
+- 先 canvas 实测口径：37px bold 全角 ＋ 墨迹 ascent=28/descent=2、－ 墨迹 top=baseline−28/bottom=baseline−12；R_L 标签 bbox 右缘 877.3；V_o（V+subO，37 bold italic）实测字形盒宽 40.6（初估 51.7 偏大，首轮 x=918 净距 20.4px → 二次修正 x=913）。
+- **默认态** 新增 `<g data-id="comp-vo">`（纯展示不加 interactive）：列 x=913（V_o 左缘 892.7，距 R_L 标签右缘 15px）；＋ y=193（墨迹顶 165 = 集电极导线直角位 y150 + 15）；V_o y=361（中心 350.3 与 R_L 体中心 350 同轴）；－ y=540（墨迹底 528 = 接地符号第一条横线 y543 − 15）。
+- **等效态** eq-layer 末尾补同列三件：集电极导线上移 y=176 → ＋ y=219（176+15+28）；V_o/－ 不变（R_L 与接地符号未动）。comp-vo 在 showEquiv 收起清单（与 comp-vi 同款），resetCircuit 通用 g 循环自动复原。
+- 注册：INFO 表补 'comp-vo' 条目；STAGE_UNITS 两组 R_L 后各加 'comp-vo'。
+**2. Q 点标注三项位移**：q-vbe 文字 x 386→396（右移10，口袋位不压基极条）；q-vcq 整组移到集电极水平导线上方（text y 186→133，28px 墨迹底=baseline+7 → 距导线 y150 恰 10px；热区 y 156→100）；q-vceq 三件与热区整体左移 30px（x 578→548 / rect 544→514）。
+**3. I_BQ 箭头改向上**：polygon 尖 329→281、基点 315→295，杆 281-315 → 295-329（总跨度不变，热区不动）。
+**⚠ 并行会话重大变更（本轮回归暴露）**：cj-g5 已被并行会话改成**六关制**——新增第5关「r_be 计算」（fw 3 + numPad 填空 5：常数 200/1/26 点数字键盘、β 点电路标注 2 分、I_EQ 点第一行右侧按钮 3 分），原动态指标关顺延为第 6 关且分值重排为 22（总分配平 12/9/33/16/8/22=100）。`regress_g5.js` L5 段已从「L5 动态 mix 硬编码」改写为 **L5-L6 通用 mix 循环**：常数空走 `.num-key[data-digit]` 逐位 + `data-digit="ok"` 确认；电量空优先 `.pick-key[data-ans]` 按钮（等效态下电路单元已收起）、β 无按钮走电路标注；blank-box 选择器按 `data-blank-level="${s.lvl-1}"` 动态生成。
+**验收**：布局自检 EXIT=0（标签冲突 0/压元件 0/穿行 0/交叉 0）；`diag_r23.js` 15 项断言全 PASS（V_o 三件坐标/双 15px 净距/同轴 350、eq-layer V_o 与 ＋219、comp-vo 等效收起+复位、V_CQ 墨迹距导线 10px、热区真实命中 q-vcq、V_BE 396、V_CEQ 548、I_BQ 箭头向上尖281<杆顶295）；回归 **ROUTE=icq 与 icq2 各 ①满分 100/100（12/9/33/16/8/22）②含错 97**、0 pageerror；默认态/等效态截图目检通过；deliver_check 双通道 PASS；缩略图重拍（默认态已变，thumbImg ?v=5→6）。版本 `cj-g5.html?v=46→47`（并行会话已推 46；index `data.js?v=12.41→12.42`）。
+
+## ★ 第119轮（2026-11-10）：BJT「等效」选项贴 C/E 极 30px ＋ 差分放大专项页换 4 分支
+- 本页 `showMenu()`：锚点 `data-id="comp-t"` 时，菜单左缘改由 **C/E 极斜线右端 x=486 + 30×(sr.width/1600)** 定位，
+  不再用第64轮为消除点击不灵敏而扩大的热区 rect 右缘（547 → 旧菜单左缘 559，离电极 73px，用户实测「太远」）；
+  取 `querySelector('path.hot')`（C 极斜线 `M 420 258 L 486 216`）的 `getBoundingClientRect().right` 作几何基准，
+  y 仍按热区盒中线；缩放换算保证 H5 / 微信内置浏览器下净距恒为 30 viewBox px。
+- 同步 `js/data.js`：`CIRCUIT_BRANCHES.diff_amp` 由 3 条改 4 条（df-b1..b4：双入双出 / 双入单出 / 单入双出 / 单入单出差分放大），
+  旧名「长尾式差分放大电路 / 镜像电流源电路 / 恒流源差分电路」删除；「N 种电路」自动由长度算出（3→4）。
+- 验收：`verify_r119.js`（本页菜单几何 + 真实鼠标点「等效」启动问答 + 首页 4 分支）ALL_PASS；
+  `flow_cj109.js` 通关 100/100、0 pageerror；`svg-layout-check.py` EXIT=0；`deliver_check_116.js` 双通道 DELIVER_OK；
+  截图 `.workbuddy/shots-r119/cj-g1_eq_menu_30px.png`、`diff_topic_4branches.png` 目检无重叠/压线/溢出。
+- 版本：`cj-g5.html?v=47→48`；index `data.js?v=12.43→12.44`；菜单属交互态、专项页属二级页，**首屏未变 → thumbImg 不动**。
+- 备份：`.workbuddy/archive/bak-r119/cj-g5.html`；工具：`.workbuddy/patch_r119.py`、`.workbuddy/verify_r119.js`。

@@ -604,3 +604,98 @@
   制作规范已改写「定稿收尾」第 4 条并追加第83轮规约。
 - 本页：重截 `assets/thumb-cj-g3.png`（203KB→185KB）；data.js thumbImg 追加 `?v=1`；index `data.js?v= 11.07→11.08`。
 - 验收：新图 L1 题面含「再将鼠标悬停到电容上，」；校徽粒子动画已收敛、面板无溢出；与旧图像素对比变化 5.19%（题面文字区 + logo 粒子终态，x[34..1232] y[0..656]）；0 pageerror。
+
+### 第97轮（2026-10-27）电阻宽度改为高度的一半（36→28）
+
+**用户需求**：将电阻的宽度变成高度的一半。
+**改动**（_g3_B.txt，11 个电阻 rect 全部 width 36→28、x+4 保持中心不变）：
+默认态 R_C/R_S/R_B/R_E1/R_E2/R_L、整理态 rarr-rc、等效态 eq-R_S/eq-rb/eq-re1、微变模型 fx-t-rbe。
+高度 55 的一半 = 27.5，取整 28（宽:高 ≈ 1:1.96，视觉即一半）。
+标签间距复核（体缘移动 ±4px 后）：R_B/R_E1/R_E2/R_S/eq-rb 左侧标签 18px、R_L 16px、R_C 18px、rarr-rc 16px、eq-re1/fx-t-rbe 18px —— 全部 ≥14px 安全，标签无需移动。
+上下引线 x 为中心线，不受宽度变化影响。
+**验收**：布局 EXIT=0（最近邻最小 48.0）；默认态/等效态截图确认窄电阻形态、标签对位、引线连续；回归 eq 100/100（逐关 12/6/36/18/28）。
+- 备份：_g3_B.txt.pre-r97。
+- 版本：cj-g3 ?v=42 / index data.js?v=11.58（并行会话同期推进至 41/11.57，本轮在其上递增）。
+
+### 第103轮（2026-10-27 深夜）全站电阻统一 27×53
+
+- 需求（用户）：所有案例中的电阻统一为 27×53。
+- 本页改动 **8 个电阻**（含 comp-t-model 内的 r_be）：竖放一律 `27×53`、横放一律 `53×27`， **几何中心不变**；同步所有端点恰为旧体缘且轴向贯穿中心的 path/line（含 `fx-*` 短接线）；标签坐标不动。
+- 工具：`.workbuddy/patch_resistors.py`（字符级绝对定位 + 冲突检测 + 保持行尾 + 干跑）； 分析器 `.workbuddy/analyze_resistors.py` 输出改动前后几何与受影响引线清单。
+- 验收：svg-layout-check EXIT=0；默认态截图目检通过（电阻规格一致、两端引线连通、标签不压线）。
+- 版本：data.js lab `42→43`；index `data.js?v=11.59`（thumb-gen --all 自动击破）； 缩略图已重截（电阻属首屏可见内容，按第83轮规约必须联动）。
+- 归档：`.workbuddy/archive/bak-res-20261027/`（18 页 html + data.js + index.html + 16 张旧缩略图）。
+
+## 第108轮（2026-11-01）：电极字母移除 + V_BE 极性 + 动态 β 移到受控源右侧
+- 删 B/C/E 3 条；q-vbe 加 ＋(370,289)/－(466,353)（基极导线 y=260、箭头尖 319）。
+- dyn β：(571.5,330.5)。**注意 fx-tmodel 带 translate(0,25)**——菱形坐标中心 293 的有效渲染中心=318，
+  β 按 318 对齐（首版按 293 对齐屏幕偏高 20px，已修正）；x=顶点 544+27.5=571.5（首版 +12.5 贴死顶点，已右移 15）。热区 (545.5,287)。
+- 验收：布局 EXIT=0；_flow_r93 菜单流程 0 pageerror；特写目检 OK；β 命中 OK；缩略图重截。版本 ?v=44。
+
+## ★ 第112轮（2026-11-08）：新增「第 5 关 · r_be 计算」（numPad 多位数 + 确认），原动态关顺延第 6 关
+- 五关→六关，总分保持 100。新关两子步：①选 r_be 表达式框架（fw，干扰项含 1−β 与无 r_bb' 直乘）；
+  ②填表达式 `r_be = 300 + (1+β)·26mV/I_EQ`（本页按 Q 点口径取 I_EQ/I_CQ），常数 300/1/26 全部方框化 `pts:0`，
+  β 点 `q-beta`（动态阶段已提前显示于受控源右侧）、电流点 `comp-t`。
+- numPad：表达式上方一行 0~9 圆角数字键 + 「确认」；`S.numStr` 缓冲 ≤4 位、黄字回显框内；确认→`submitNum` 校验，
+  错值只提示清空重填不扣分。动态阶段 qlabels dyn 分支显示 β（cj-g2 本轮补齐该分支）。
+- 分值配平（本页终值）：见 data.js 各关 pts；回归 flow_cj109.js 全流程通关 score=100、0 pageerror；
+  ui_num_cj109.js 真实点击 12 断言 PASS；svg-layout-check EXIT=0；deliver_check 双通道 PASS。
+- 修复：`showTQuizMenu` 加 `if (!q) return;` 竞态护栏（900ms 延时回调在答完后触发时 TQUIZ[step] 越界）。
+- 版本：lab ?v= 递增（data.js 同步）、thumbImg 重截 ?v= 递增；index `data.js?v=12.23`。
+- 脚本：.workbuddy/patch_cj109.py（105 ops）、flow_cj109.js、ui_num_cj109.js、patch_tquiz_guard.py（5 页护栏）。
+
+## ★ 第113轮（2026-11-08）：r_be 关键盘重排 + 电量按钮 + 即时回显 + 常数 200
+- 常数 300→200（num/注释/announce 三处同步）；r_be = 200 + (1+β)·26mV/I_EQ。
+- 数字键 92×50 改两行（5 列×2 行、字 30px）；第三行 β / I_EQ 电量按钮（.pick-key，点击＝选中该空按 ansIds 作答，
+  已填 dim 变暗）+ 确认；表达式区下移至按钮区下垂直居中（仅 numPad 关，其他 mix 关布局不变）。
+- 修复回显：回显 text 原先按 rect 局部坐标挂 gameUI 根层（落到视口外 y≈−3，用户看到「点了没反应」），
+  改挂 rect 父组（与绿字回填同机制），点每一位即时显示 2→20→200。
+- 踩坑：首版漏定义 qGap → 键盘渲染中断（pageerror: qGap is not defined），补 const 后恢复。
+- 回归：ui_num_cj109 5 页 90 断言 PASS；flow_cj109 5 页通关 PASS；svg-layout ×5 EXIT=0；deliver_check 双通道 PASS。
+- 版本：lab ?v= 82/29/46/47/43；index data.js?v=12.31；缩略图不动（首屏无变化）。
+
+## ★ 第114轮（2026-11-08）：r_be 关键盘改 6 列×2 行 + 表达式上移
+- 键盘 6 列×2 行：第 1 行 0~4 + 静态电流按钮（第 6 列，点击一键作答），第 2 行 5~9 + 确认；**去掉 β 按钮**（β 走电路标注）。
+- 数字键 79×50（列距 6）；表达式 eTop=BODY_TOP+196，位于按钮区与面板底部之间垂直居中。
+- announce 同步新操作指引。回归：ui_num_cj109 105 断言 PASS；flow_cj109 5 页通关 PASS；svg-layout ×5 0；deliver_check PASS。
+- 版本：lab ?v= 递增（data.js 同步）；index data.js?v=12.32；缩略图不动。
+
+## ★ 第116轮（2026-11-09）：结算页得分项改左对齐
+- renderDone 得分项由居中改为左对齐：新增 doneLeftX(arr)（量最长行宽→整块在面板内居中→各行 anchor:start 左缘统一），
+  行距与行序不变。回归 align_done_test 断言 PASS（各行左缘一致、右缘不溢出、0 pageerror）；deliver_check 双通道 ok。
+- 版本：lab ?v= 递增（data.js 同步）、index data.js?v=12.39；缩略图不动（结算页非首屏）。
+
+## ★ 第117轮（2026-11-09）：整理/等效态电阻统一 27×53
+- 本页遗留旧尺寸电阻（36×90/36×80/27×60/28×55）统一为 27×53：保持几何中心不变改 rect，上下引线端点同步；
+  标签与体中心对齐故不动。svg-layout EXIT=0；等效/整理态截图目检引线无空隙；首屏不变缩略图不动。
+- 版本：lab ?v= 递增（data.js 同步）；index data.js?v=12.40。
+
+### 第99轮（2026-11-09）V_o/V_CEQ 极距重构 / I_EQ 同轴 / 常数数字键盘回归 / 整理态 Vi − 下移
+
+**用户需求**：① V_o ＋ 距直角 10px、－ 距地端最上横线 15px、V_o 与 R_L 水平同轴；② V_CEQ 与极性整体左移 10px、文字与 β 同轴、＋ 上移 30px、－ 下移 5px；③ 计算 I_BQ/I_EQ 时常数变方框，仿 r_be 表达式上方显示 0-9 数字按钮（2 行）点选填写；④ 第4关整理时 V_i － 号下移距地线圆圈 15px。
+
+**①** V_o：＋ 基线 332→218（墨迹顶 186，距输出导线/上端引线直角 (800,176) 10px）；V_o 文字 378→368（墨迹中心 350.5 = R_L 体中心，水平同轴）；－ 449→540（墨迹底 528，距 R_L 接地符号最上横线 543 为 15px）；热区扩为 (836,204,44×348) 覆盖三段。
+**②** V_CEQ：热区/文字/极性整体 x −10（560→550、517→507）；文字基线 290→275 与 β（基线 275）同轴；＋ 248→218；－ 332→337；热区 (507,208,84×140)。
+**③ 常数数字键盘**（3 个子步：subs/subsC 的 I_CQ≈I_EQ 主式 + subsBase 的 I_BQ 主式）：(1+β) 的 `tk('1')` → `{ box: 1 }`，blanks 对应位插入 `{ num: '1', pts: 0 }`，子步加 `numPad: true`。**注意：并行会话的新模板已移除 numPad 引擎**——本轮以补丁层从 Temp/cj-g4.before-r118.html（第112-114轮设计）完整回归 9 项：CSS（num-key/pick-key）、S.numStr 状态、blanks map 的 num 字段、按钮渲染（0-9 两行+电量按钮+确认）、输入缓冲黄字回显、num-key/pick-key 点击委托、blank-box 点选清缓冲、submitNum 校验函数、answerBlank 常数空防误触。回归脚本同步支持 num 空（点框→逐位点数字→确认）。
+**④** comp-vi 的 － 基线 543→577：整理态（位移 −15）后基线 562、墨迹底 550，距母线圆 (150,573，顶 565) 15px。
+**顺手修正**：L5 announce"共21分"→"共28分"（与 pts 同步）。
+
+**验收**：布局 EXIT=0；截图确认 V_o 三段新位、V_CEQ 与 β 同轴、numPad 两行按钮+常数方框、整理态 Vi − 与圆圈间距；六路线回归（eq/eqs/cq/cqs/base/bvci）全 100/100 0 pageerror（含常数空点选填写验证）。
+- 并行会话冲突处理：其新模板合入了第114轮 hit-off 补丁致 _patch_g3.py #1 锚点失配——已将 #1 old 适配模板现状并保留其新增段。
+- 备份：_g3_B/C.txt.pre-r99；脚本 _patch_g3.py（+9 项 numPad 回归）。
+- 版本：cj-g3 ?v=50 / index data.js?v=12.43。
+
+## ★ 第119轮（2026-11-10）：BJT「等效」选项贴 C/E 极 30px ＋ 差分放大专项页换 4 分支
+- 本页 `showMenu()`：锚点 `data-id="comp-t"` 时，菜单左缘改由 **C/E 极斜线右端 x=486 + 30×(sr.width/1600)** 定位，
+  不再用第64轮为消除点击不灵敏而扩大的热区 rect 右缘（547 → 旧菜单左缘 559，离电极 73px，用户实测「太远」）；
+  取 `querySelector('path.hot')`（C 极斜线 `M 420 258 L 486 216`）的 `getBoundingClientRect().right` 作几何基准，
+  y 仍按热区盒中线；缩放换算保证 H5 / 微信内置浏览器下净距恒为 30 viewBox px。
+- 同步 `js/data.js`：`CIRCUIT_BRANCHES.diff_amp` 由 3 条改 4 条（df-b1..b4：双入双出 / 双入单出 / 单入双出 / 单入单出差分放大），
+  旧名「长尾式差分放大电路 / 镜像电流源电路 / 恒流源差分电路」删除；「N 种电路」自动由长度算出（3→4）。
+- 验收：`verify_r119.js`（本页菜单几何 + 真实鼠标点「等效」启动问答 + 首页 4 分支）ALL_PASS；
+  `flow_cj109.js` 通关 100/100、0 pageerror；`svg-layout-check.py` EXIT=0；`deliver_check_116.js` 双通道 DELIVER_OK；
+  截图 `.workbuddy/shots-r119/cj-g1_eq_menu_30px.png`、`diff_topic_4branches.png` 目检无重叠/压线/溢出。
+- 版本：`cj-g3.html?v=50→51`；index `data.js?v=12.43→12.44`；菜单属交互态、专项页属二级页，**首屏未变 → thumbImg 不动**。
+- **顺手补存量缺陷**：`showTQuizMenu(d)` 补 `if (!q) return;` 竞态护栏（其余 4 页第112轮已加，本页被并行会话回退时丢失），
+  消除全部答完后 900ms 延时回调读 `TQUIZ[-1].dots` 抛出的 pageerror；**关卡结构一律不动**（本页仍 5 关 `[12,6,36,18,28]`，与其余 4 页 6 关不同，属并行会话现状）。
+- 备份：`.workbuddy/archive/bak-r119/cj-g3.html`；工具：`.workbuddy/patch_r119.py`、`.workbuddy/verify_r119.js`。

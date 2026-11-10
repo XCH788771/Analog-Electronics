@@ -231,6 +231,15 @@
     #qlabel-layer .interactive:hover .hot { stroke: #ff5252; filter: drop-shadow(0 0 6px rgba(255, 82, 82, 0.9)); }
     #qlabel-layer .interactive:hover .hot-label { fill: #ff5252; }
     #qlabel-layer .interactive:hover .hot-fill { fill: #ff5252; }
+    /* ink-halo（复用 cj-g1 r111 方案）：qlabel 红字与白色导线相交时，用电路区底色（#0a3d20）
+       描边在笔画外扩 2.5px「挖空」导线，保证可读且不改任何坐标。 */
+    #qlabel-layer text.ink-halo {
+        paint-order: stroke fill;
+        stroke: #0a3d20;
+        stroke-width: 5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+    }
     /* 作答反馈：只做透明度闪烁，颜色不变（3 次 × 0.22s） */
     @keyframes redBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
     g.red-blink { animation: redBlink 0.22s ease 3; }
@@ -295,6 +304,19 @@
     /* 已作答反馈（绿/红）优先于阶段高亮：点选元件的绿色不被阶段紫色盖住 */
     #circuit-wrap .stage-purple .color-blink .hot { stroke: var(--blink-color); }
     #circuit-wrap .stage-purple .color-blink text { fill: var(--blink-color); }
+    /* 第112轮：常数数字键盘（r_be 关，含「确认」按钮） */
+    .num-key { cursor: pointer; }
+    .num-key rect { fill: rgba(139,92,246,0.20); stroke: #a78bfa; stroke-width: 2; transition: all 0.18s ease; }
+    .num-key text { fill: #ffffff; }
+    .num-key:hover rect { fill: rgba(167,139,250,0.42); stroke: #ffd93d; }
+    /* 第113轮：电量按钮（β / I_x 直接点按钮作答） */
+    .pick-key { cursor: pointer; }
+    .pick-key rect { fill: rgba(52,211,153,0.16); stroke: #34d399; stroke-width: 2; transition: all 0.18s ease; }
+    .pick-key text { fill: #ffffff; }
+    .pick-key:hover rect { fill: rgba(52,211,153,0.34); stroke: #ffd93d; }
+    .pick-key.dim { opacity: 0.45; pointer-events: none; }
+    /* 第112轮：隐藏层断命中（qlabel-layer 关态防隐形热区压住模型点击） */
+    .hit-off, .hit-off * { pointer-events: none !important; }
 </style>
 </head>
 <body>
@@ -378,14 +400,14 @@
 
         <!-- 基极偏置电阻 R_B（电源轨→基极节点，上下引线各 80/80） -->
         <g class="interactive" data-id="wire-rb-a" data-name="基极偏置接线（电源轨→R_B）">
-            <path class="hot" d="M 320 5 V 95" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 320 5 V 113.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rb" data-name="基极偏置电阻 R_B（固定偏压：唯一决定静态基极电流）">
-            <rect class="hot" x="302" y="95" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="306.5" y="113.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="290" y="147" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rb-b" data-name="R_B 下端接线（→基极节点）">
-            <path class="hot" d="M 320 185 V 265" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 320 166.5 V 265" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 基极节点导线：C1 段（220–320，随 C1 移除淡出）+ 主干段（320–420，R_B 在 320 处分接） -->
         <g class="interactive" data-id="wire-base-in" data-name="基极节点导线·C1 段（C1 右板→偏置节点）">
@@ -426,9 +448,6 @@
             <path class="hot" d="M 420 258 L 486 216" fill="none" stroke="#ffffff" stroke-width="7"/>
             <path class="hot" d="M 420 282 L 486 324" fill="none" stroke="#ffffff" stroke-width="7"/>
             <polygon class="hot-fill" points="486,324 457,317 468,301" fill="#ffffff" stroke="none"/>
-            <text class="hot-label" x="402" y="314" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">B</text>
-            <text class="hot-label" x="511" y="242" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">C</text>
-            <text class="hot-label" x="511" y="324" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">E</text>
         </g>
 
         <!-- 发射极支路（固定偏压：发射极直接接公共地线，无 R_E、无 C_E） -->
@@ -451,7 +470,7 @@
             <path class="hot" d="M 486 178 H 670" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-rc-a" data-name="R_C 下端接线（R_C→集电极导线）">
-            <path class="hot" d="M 486 140 V 178" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 486 126.5 V 178" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 集电极短接线（第48轮拆出）：T 集电极→集电极导线。R_C 下移（与 R_L 并联）时 wire-rc-a 整段收起，
              但晶体管仍在电路中，此段必须保留，否则集电极与 R_C/R_L 支路断开；晶体管等效移除时随 showEquiv 收起 -->
@@ -462,36 +481,38 @@
             <circle cx="486" cy="178" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <g class="interactive" data-id="comp-rc" data-name="集电极电阻 R_C">
-            <rect class="hot" x="468" y="60" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="472.5" y="73.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="456" y="108" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">C</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rc-top" data-name="R_C 上端接线（→电源轨）">
-            <path class="hot" d="M 486 60 V 5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 486 73.5 V 5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
-        <!-- 输入回路：信号源 V_s（+R_S 内阻）→ 输入端口 V_i → C_1 耦合 → 基极 -->
+        <!-- 输入回路：信号源 V_s（+R_S 内阻）→ 输入端口 V_i → C_1 耦合 → 基极
+             第53轮微调：R_S 体与标签整体上移 10（体 315.5–368.5、标签基线 350）；V_s 圆与波形上移 5（圆心 457，圆顶/圆底 435/479）；
+             V_s 文字与 ＋/－ 下移 10（432/470/508）；三根接线与 fx-vs 短接桥两端随之重接（保证端点严格重合） -->
         <g class="interactive" data-id="wire-vi-top" data-name="输入导线（信号源—端口—C_1）">
             <path class="hot" d="M 90 265 H 206" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-rs-top" data-name="R_S 上端接线（→输入导线）">
-            <path class="hot" d="M 90 265 V 312" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 90 265 V 315.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rs" data-name="信号源内阻 R_S">
-            <rect class="hot" x="72" y="312" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="58" y="360" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
+            <rect class="hot" x="76.5" y="315.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="58" y="350" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rs-bot" data-name="R_S 下端接线（→信号源）">
-            <path class="hot" d="M 90 392 V 440" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 90 368.5 V 435" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-src" data-name="信号源 V_s（与 R_S 构成实际信号源）">
-            <circle class="hot" cx="90" cy="462" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
-            <path class="hot" d="M 76 462 Q 83 452 90 462 T 104 462" fill="none" stroke="#ffffff" stroke-width="2.5"/>
-            <text class="hot-label" x="40" y="422" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
-            <text class="hot-label" x="40" y="460" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
-            <text class="hot-label" x="40" y="498" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <circle class="hot" cx="90" cy="457" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 76 457 Q 83 447 90 457 T 104 457" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+            <text class="hot-label" x="40" y="432" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="40" y="470" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
+            <text class="hot-label" x="40" y="508" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
         </g>
         <g class="interactive" data-id="wire-vi-gnd" data-name="信号源接地接线（负端→公共地线）">
-            <path class="hot" d="M 90 484 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 90 479 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 输入端口 V_i（两枚端子 + 极性标注；直流通路关中点击后＋、－短接） -->
         <g class="interactive" data-id="comp-vi" data-name="输入端口 V_i（放大电路输入电压）">
@@ -510,7 +531,9 @@
             <text class="hot-label" x="213" y="227" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">C<tspan class="sub">1</tspan></text>
         </g>
 
-        <!-- 输出回路：C_2 耦合 → R_L（接地）∥ 输出电压 V_o -->
+        <!-- 输出回路：C_2 耦合 → R_L（接地）∥ 输出电压 V_o
+             第54轮：R_L 标签移到体右侧（体右缘 813.5 → 墨迹左缘 823.5 净距 10）；V_O 整体右移至墨迹左缘 878.2
+             （与 R_L 标签墨迹右缘 868.2 净距 10）；＋墨迹顶 188＝顶直角导线 178 下方 10、－墨迹底 515＝地线 525 上方 10 -->
         <g class="interactive" data-id="comp-c2" data-name="输出耦合电容 C_2（隔直通交）">
             <line class="hot" x1="670" y1="156" x2="670" y2="200" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="684" y1="156" x2="684" y2="200" stroke="#ffffff" stroke-width="3.5"/>
@@ -520,20 +543,22 @@
             <path class="hot" d="M 684 178 H 800" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-rl-a" data-name="R_L 上端接线（输出节点→R_L）">
-            <path class="hot" d="M 800 178 V 315" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 800 178 V 325" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rl" data-name="负载电阻 R_L">
-            <rect class="hot" x="782" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="770" y="368" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">L</tspan></text>
+            <!-- 第57轮：本体上移至支路垂直导线中点——体 325–378（中心 351.5 = (178+525)/2），上下引线对称 147/147；
+                 标签移基线 362.2 使墨迹盒中心与体中心同轴；x=823.5 保持体右缘 813.5 + 10px -->
+            <rect class="hot" x="786.5" y="325" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="823.5" y="362.2" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">L</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rl-b" data-name="R_L 下端接线（→公共地线）">
-            <path class="hot" d="M 800 405 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 800 378 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-vo" data-name="输出电压 V_o（取自 R_L 两端，与输入反相）">
-            <rect class="hot" x="836" y="325" width="44" height="70" fill="none" stroke="none"/>
-            <text class="hot-label" x="858" y="299" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
-            <text class="hot-label" x="858" y="370" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
-            <text class="hot-label" x="858" y="441" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <rect class="hot" x="876" y="186" width="50" height="331" fill="none" stroke="none"/>
+            <text class="hot-label" x="893.7" y="216" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="893.7" y="370" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <text class="hot-label" x="893.7" y="527" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
         </g>
 
         <!-- ====== 关卡特效层（绘制关的变换动画；默认隐藏，引擎控制显隐） ====== -->
@@ -559,40 +584,47 @@
             </g>
             <!-- 信号源置零短接桥（Vs 替换成短路线） -->
             <g id="fx-vs" opacity="0">
-                <line x1="90" y1="440" x2="90" y2="484" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+                <line x1="90" y1="435" x2="90" y2="479" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
             </g>
             <!-- ====== Q点电量标注层（第 2 关显示、第 3 关保留：I_BQ / I_CQ / V_CEQ，点击作答） ====== -->
             <g id="qlabel-layer" opacity="0" pointer-events="none">
-                <!-- I_BQ：基极电流（基极导线上方，红色箭头指向 B） -->
+                <!-- I_BQ：基极电流（基极导线上方，红色箭头指向 B）
+                     第56轮：箭头上移 5 → 墨迹 234–250，墨迹底 250 = 基极导线 265 上方 15px；
+                     文字上移 10 → 基线 211（墨迹底 219），与箭头顶 234 净距 15px -->
                 <g class="interactive" data-id="q-ibq" data-name="基极电流 I_BQ">
-                    <rect class="hot" x="322" y="200" width="72" height="60" fill="none" stroke="none"/>
-                    <line class="hot" x1="330" y1="246" x2="372" y2="246" stroke="#ff5252" stroke-width="5"/>
-                    <polygon class="hot-fill" points="386,246 370,238 370,254" fill="#ff5252" stroke="none"/>
-                    <text class="hot-label" x="360" y="228" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">I<tspan class="sub">BQ</tspan></text>
+                    <rect class="hot" x="322" y="185" width="72" height="72" fill="none" stroke="none"/>
+                    <line class="hot" x1="330" y1="242" x2="372" y2="242" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="386,242 370,234 370,250" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label" x="360" y="211" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">I<tspan class="sub">BQ</tspan></text>
                 </g>
-                <!-- I_CQ：集电极电流（红色箭头沿集电极支路向下；固定偏压无 R_E，标注直接写 I_CQ） -->
+                <!-- I_CQ：集电极电流（红色箭头沿集电极支路向下；第55轮整体下移 20px；第56轮左移 10 → 箭头左缘 501 = C 极导线 486 + 15px（竖线 x=510），文字同步左移（x=519）；固定偏压无 R_E，标注直接写 I_CQ）
+                     第54轮：整体下移，箭头居 R_C 底(126.5)—集电节点(178) 段中点 152.5——完整竖线 126.5–216 的中点 171
+                     会横穿集电极支路（y=178 水平线），故取上段居中：墨迹 131–174，上下净距 2.75/2.25 -->
                 <g class="interactive" data-id="q-icq" data-name="集电极电流 I_CQ">
-                    <rect class="hot" x="508" y="110" width="150" height="74" fill="none" stroke="none"/>
-                    <line class="hot" x1="520" y1="114" x2="520" y2="150" stroke="#ff5252" stroke-width="5"/>
-                    <polygon class="hot-fill" points="520,162 511,149 529,149" fill="#ff5252" stroke="none"/>
-                    <text class="hot-label" x="529" y="148" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">I<tspan class="sub">CQ</tspan></text>
+                    <rect class="hot" x="498" y="145" width="150" height="53" fill="none" stroke="none"/>
+                    <line class="hot" x1="510" y1="151" x2="510" y2="181" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="510,194 501,181 519,181" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label ink-halo" x="519" y="180" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">I<tspan class="sub">CQ</tspan></text>
                 </g>
-                <!-- V_CEQ：管压降（C—E 之间，仅 ＋/− 极性标注；位于集电极斜线右侧空白区） -->
+                <!-- V_CEQ：管压降（C—E 之间，仅 ＋/− 极性标注；第55轮：＋ 226 / － 344，V_CEQ 文字 282 不动） -->
                 <g class="interactive" data-id="q-vceq" data-name="管压降 V_CEQ">
-                    <rect class="hot" x="501" y="222" width="68" height="96" fill="none" stroke="none"/>
-                    <text class="hot-label" x="535" y="246" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
+                    <rect class="hot" x="501" y="202" width="68" height="143" fill="none" stroke="none"/>
+                    <text class="hot-label" x="535" y="226" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
                     <text class="hot-label" x="535" y="282" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">CEQ</tspan></text>
-                    <text class="hot-label" x="535" y="314" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
+                    <text class="hot-label" x="535" y="344" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
                 </g>
                 <!-- V_BE：发射结电压（晶体管 B—E 之间、基极导线下方口袋位；第 3 关填空点它作答，与 B 端点标签净隙 15） -->
                 <g class="interactive" data-id="q-vbe" data-name="发射结电压 V_BE">
-                    <rect class="hot" x="348" y="331" width="76" height="30" fill="none" stroke="none"/>
+                    <rect class="hot" x="348" y="331" width="76" height="48" fill="none" stroke="none"/>
                     <text class="hot-label" x="386" y="356" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">BE</tspan></text>
+                    <text class="hot-label" x="370" y="294" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
+                    <text class="hot-label" x="466" y="373" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
                 </g>
-                <!-- β：晶体管电流放大系数（基极竖杆右侧、集电极线与发射极线之间的空白三角区；第 3 关填空点它作答） -->
+                <!-- β：晶体管电流放大系数（第 3 关填空点它作答）第54轮：与 R_C 垂直同轴 x=486（C/E 端子轴），
+                     热区收窄为 36 宽避开 V_CEQ 热区（501 起） -->
                 <g class="interactive" data-id="q-beta" data-name="晶体管电流放大系数 β">
-                    <rect class="hot" x="436" y="244" width="52" height="62" fill="none" stroke="none"/>
-                    <text class="hot-label" x="462" y="278" fill="#ff5252" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">β</text>
+                    <rect class="hot" x="464" y="247" width="36" height="62" fill="none" stroke="none"/>
+                    <text class="hot-label" x="486" y="278" fill="#ff5252" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">β</text>
                 </g>
             </g>
             <!-- 晶体管微变等效模型（r_be + 受控电流源（CCCS，菱形）+ 电流 i_b / βi_b 及箭头）；逐问显示，完成后可点击（r_be 填空作答）。
@@ -602,9 +634,9 @@
                  i_b 箭头在 B 端支路、βi_b 箭头（即受控源电流 i_c）在受控源支路，均由「方向选择」问（↑/↓ 二选一）逐问添加 -->
             <g id="fx-tmodel" class="interactive" data-id="comp-t-model" opacity="0" pointer-events="none">
                 <g id="fx-t-rbe" opacity="0">
-                    <line class="hot keepw" x1="420" y1="178" x2="420" y2="315" stroke="#ffffff" stroke-width="3.5"/>
-                    <rect class="hot" x="402" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                    <line class="hot keepw" x1="420" y1="405" x2="420" y2="525" stroke="#ffffff" stroke-width="3.5"/>
+                    <line class="hot keepw" x1="420" y1="178" x2="420" y2="333.5" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="406.5" y="333.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <line class="hot keepw" x1="420" y1="386.5" x2="420" y2="525" stroke="#ffffff" stroke-width="3.5"/>
                     <!-- r_be 支路与地轨的 T 形交汇点 (420,525) → r7 节点圆（红点问询时被 fx-dot-e 盖住，属正常） -->
                     <circle cx="420" cy="525" r="7" fill="#ffffff"/>
                     <!-- 标签放电阻体右侧（x=446 = 体右缘 438+8）；r 字号放大为原 2 倍（28→56），
@@ -651,12 +683,13 @@
             <!-- R_B：从基极节点（y=265）下挂到地轨（x=280——较默认态 x=320 左移 40px：第45轮 25px + 第47轮
                  用户再要求 15px，把「与信号源并联」的位置进一步让开输入回路列）；电阻体 y 350-440。
                  下端 (280,525) 落在公共地线·输入段（90→320）中部 → 属 T 结，须补 r7 节点圆（与 rarr-rc 下端同款）。
+                 第54轮：体统一 27×53（368.5–421.5，中心 395 不变），上下引线对称 103.5/103.5。
                  标签 37px（元件标注两级标准）放**体左侧**（x=248 end）——
                  左侧为 V_i 端口竖列（x=150，标注墨迹止于 ~170）与空白口袋区，实测净隙 ≥30px，不与任何元件/标注冲突 -->
             <g id="rarr-rb" class="interactive" data-id="comp-rb" opacity="0" pointer-events="none">
-                <path class="hot keepw" d="M 280 265 V 350" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <rect class="hot" x="262" y="350" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <path class="hot keepw" d="M 280 440 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path class="hot keepw" d="M 280 265 V 368.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect class="hot" x="266.5" y="368.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path class="hot keepw" d="M 280 421.5 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <circle cx="280" cy="265" r="7" fill="#ffffff"/>   <!-- 上端：与基极导线 T 结 -->
                 <circle cx="280" cy="525" r="7" fill="#ffffff"/>   <!-- 下端（第52轮补）：与地轨（90→320 段中部）T 结 -->
                 <text class="hot-label" x="248" y="403" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
@@ -664,22 +697,22 @@
             <!-- R_C：从集电极导线（y=195）下挂到地轨（x=670 = C_2 短接桥左端 = 输出节点正下方，
                  x=640 起右移 30px，与 R_L 并联关系更直观）；电阻体 y 315-405 与 R_L 对齐。
                  整理态与等效态**共用此件**（等效后位置不变，不作切换）。
-                 标签 37px 放**电阻体左侧、与体水平中线对齐**（x=636 end、基线 368 = R_L 标签同排）：
-                 体左缘 652 → 墨迹右缘 636 净隙 16px；与受控源菱形支路（x=544 起）之间亦留净隙。
+                 标签 37px 放**电阻体右侧**（第54轮：x=693.5 start、基线 368；体右缘 683.5 → 墨迹左缘净距 10px，
+                 墨迹右缘 740 距 R_L 支路 x=800 亦留净隙）。
                  ⚠️ 下端 (670,525) 与地轨交汇 → 补 r7 节点圆；上端 (670,216) 为输出节点（原 r8 节点圆保留） -->
             <g id="rarr-rc" class="interactive" data-id="comp-rc" opacity="0" pointer-events="none">
-                <path class="hot keepw" d="M 670 178 V 315" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <rect class="hot" x="652" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <path class="hot keepw" d="M 670 405 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path class="hot keepw" d="M 670 178 V 333.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect class="hot" x="656.5" y="333.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path class="hot keepw" d="M 670 386.5 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <circle cx="670" cy="178" r="8" fill="#ffffff"/>
                 <circle cx="670" cy="525" r="7" fill="#ffffff"/>
-                <text class="hot-label" x="636" y="368" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">C</tspan></text>
+                <text class="hot-label" x="693.5" y="368" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">C</tspan></text>
             </g>
             </g>
 
             <!-- ===== 交流等效最终态层（第4关第3步「等效晶体管」时启用，与默认/整理态互斥） =====
                  基极输入线上升到 y=178 与集电极导线对齐；V_s / R_s / R_B 随之上移（上下间距匀称：
-                 R_s 引线 69/69/68，R_B 上下引线 120/120 对称）；R_C 保持整理态下挂位（x=640，体右缘 658 与 C_2 桥 670 留 12）、
+                 第54轮电阻统一 27×53：R_s 体 269–322 引线 91/91、R_B 体 325–378 引线 147/147）；R_C 保持整理态下挂位（x=670）、
                  r_be 自 B 节点直挂地线、受控源支路挂集电极导线 x=547 处 -->
             <g id="eq-layer" opacity="0" pointer-events="none">
                 <!-- 基极输入主线（与集电极导线同高）：自信号源列到 B 节点 -->
@@ -695,11 +728,11 @@
                 <text x="150" y="290" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
                 <text x="150" y="360" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
                 <text x="150" y="430" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
-                <!-- R_s + V_s 列（上移后上引线 48、下引线 69） -->
-                <path d="M 90 178 V 264" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <rect x="72" y="264" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <text x="58" y="312" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
-                <path d="M 90 344 V 413" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- R_s + V_s 列（第54轮：体统一 27×53 = 269–322，上/下引线 91/91） -->
+                <path d="M 90 178 V 269" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect x="76.5" y="269" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <text x="58" y="303.5" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
+                <path d="M 90 322 V 413" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <circle cx="90" cy="435" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
                 <path d="M 76 435 Q 83 425 90 435 T 104 435" fill="none" stroke="#ffffff" stroke-width="2.5"/>
                 <text x="40" y="408" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
@@ -710,12 +743,12 @@
                      标签放**体左侧**（x=248 end）——与 r_be 体（402 起）净隙极大，
                      也避免与 R_C 下挂件（652 起）标签挤在同一排 -->
                 <g id="eq-rb" class="interactive" data-id="comp-rb">
-                    <path class="hot keepw" d="M 280 178 V 315" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                    <rect class="hot" x="262" y="315" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                    <path class="hot keepw" d="M 280 405 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <path class="hot keepw" d="M 280 178 V 325" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="266.5" y="325" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <path class="hot keepw" d="M 280 378 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                     <circle cx="280" cy="178" r="7" fill="#ffffff"/>
                     <circle cx="280" cy="525" r="7" fill="#ffffff"/>
-                    <text class="hot-label" x="248" y="368" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
+                    <text class="hot-label" x="248" y="359.5" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
                 </g>
                 <!-- E 端静态节点圆由 fx-t-rbe 内的 (420,525) r7 圆提供；
                  问询红点 fx-dot-e 在 fx-layer 最末整组后绘，闪烁时盖在节点圆之上，互不冲突 -->
@@ -916,6 +949,13 @@
             const br = anchorEl.getBoundingClientRect();
             const mw = ctxmenu.offsetWidth, mh = ctxmenu.offsetHeight;
             let x = br.left - sr.left + br.width + 12;
+            // 第119轮：晶体管「等效」文字选项贴 BJT 的 C/E 极右侧 30px。
+            // comp-t 热区为消除点击不灵敏曾扩到 x374~547，直接贴热区右缘会离符号本体约 90px；
+            // 改以 C 极斜线右端（x=486，与 E 极同竖线）为基准，水平净距 30px（按舞台缩放换算）。
+            if (anchorEl.dataset && anchorEl.dataset.id === 'comp-t') {
+                const ce = anchorEl.querySelector('path.hot');
+                if (ce) x = ce.getBoundingClientRect().right - sr.left + 30 * (sr.width / 1600);
+            }
             let y = br.top - sr.top + br.height / 2 - mh / 2;
             if (x + mw > sr.width - 8) x = br.left - sr.left - mw - 12;
             if (x < 8) x = 8;
@@ -1038,6 +1078,7 @@
         clearStageHighlight();
         setCircuitShift(false);
         document.querySelectorAll('#circuit-wrap g').forEach(g2 => { g2.style.opacity = ''; g2.style.pointerEvents = ''; });
+        document.querySelectorAll('#circuit-wrap .hit-off').forEach(g2 => { g2.classList.remove('hit-off'); });   // 第112轮
         ['fx-c1', 'fx-c2', 'fx-vi', 'fx-vcc', 'fx-vs', 'fx-tmodel', 'rarr-rb', 'rarr-rc',
          'fx-t-rbe', 'fx-t-src', 'fx-t-ib', 'fx-t-ic', 'fx-dot-b', 'fx-dot-c', 'fx-dot-e',
          'eq-layer', 'eq-rb'].forEach(id => {
@@ -1162,13 +1203,13 @@
                         why: '画直流通路：C1、C2 开路；输入信号源 Vs 置零后短路（电压源置零即短路），随 C1 断开的输入回路一并移除；直流电源保留。'
                     },
                     {
-                        kind: 'qorder', title: '第 2 关 · Q点计算步骤', pts: 18, short: 'Q点计算步骤',
+                        kind: 'qorder', title: '第 2 关 · Q点计算步骤', pts: 13, short: 'Q点计算步骤',
                         q: '按计算顺序，依次点击电路中要计算的电量',
                         subLine: '电路中已标出各电量，按计算顺序依次点击作答',
                         // 正确计算顺序：固定偏压无分压 → 先由基极回路求 I_BQ，再求 I_CQ，最后管压降
                         seq: ['q-ibq', 'q-icq', 'q-vceq'],
                         names: { 'q-ibq': 'I<tspan class="sub">BQ</tspan>', 'q-icq': 'I<tspan class="sub">CQ</tspan>', 'q-vceq': 'V<tspan class="sub">CEQ</tspan>' },
-                        announce: '进入第二关，电路中已标出各电量。按计算顺序，先点击第一步要计算的量，再依次完成其余步骤，答对获得18分。',
+                        announce: '进入第二关，电路中已标出各电量。按计算顺序，先点击第一步要计算的量，再依次完成其余步骤，答对获得13分。',
                         extra: '点错了扣6分，可以继续点。'
                     },
                     {
@@ -1294,27 +1335,63 @@
                         doneSay: '交流微变等效电路画好了。',
                         why: '交流微变等效：电容短路、电源置零接地、R_B 与 R_C 翻转下挂到地（R_B 与 r_be 并联、R_C 与 R_L 并联）、晶体管换成 r_be 与受控源。'
                     },
+                        {
+                            // 第112轮新增：r_be 计算关（原动态指标关顺延为第 6 关）
+                            // 表达式：r_be = 200 + (1+β)·26mV/I_EQ；常数 200/1/26 方框化——表达式上方数字按钮逐位输入、「确认」提交
+                            // β 点电路 β 标注（本关起提前显示，updateQlabels dyn 分支移到受控源右侧）；静态电流统一按 I_EQ 表述（本案例固定偏压无 R_E，I_EQ=I_CQ，r_be 公式按教材取 I_EQ），点晶体管模型作答（Q 点标注不提前显示）
+                            kind: 'mix', title: '第 5 关 · r<tspan class="sub">be</tspan> 计算', pts: 10, short: 'rbe计算', stageUnits: 1,
+                            subLine: '先选计算框架，再填表达式；常数点数字按钮输入，填好点「确认」',
+                            subs: [
+                                {
+                                    type: 'fw', name: 'r<tspan class="sub">be</tspan> 框架', qpts: 4, pen: 2,
+                                    fwQ: '晶体管输入电阻 r<tspan class="sub">be</tspan> 的表达式框架：',
+                                    frameworks: [
+                                        { tokens: [tk('r', 'be'), tk('='), { box: 1 }, tk('+'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('·'), fr([{ box: 1 }, tk('mV')], [{ box: 1 }])], correct: true },
+                                        { tokens: [tk('r', 'be'), tk('='), { box: 1 }, tk('+'), tk('('), { box: 1 }, tk('−'), { box: 1 }, tk(')'), tk('·'), fr([{ box: 1 }, tk('mV')], [{ box: 1 }])] },
+                                        { tokens: [tk('r', 'be'), tk('='), { box: 1 }, tk('·'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('·'), fr([{ box: 1 }, tk('mV')], [{ box: 1 }])] }
+                                    ]
+                                },
+                                {
+                                    type: 'fill', name: 'r<tspan class="sub">be</tspan> 表达式',
+                                    numPad: true,
+                                    fullExpr: [[tk('r', 'be'), tk('='), { box: 1 }, tk('+'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('·'), fr([{ box: 1 }, tk('mV')], [{ box: 1 }])]],
+                                    blanks: [
+                                        { num: '200', label: [tk('200')], pts: 0 },
+                                        { num: '1', label: [tk('1')], pts: 0 },
+                                        { ansIds: ['q-beta'], label: [tk('β')], pts: 3 },
+                                        { num: '26', label: [tk('26')], pts: 0 },
+                                        { ansIds: ['comp-t'], label: [tk('I', 'EQ')], pts: 3 }
+                                    ]
+                                }
+                            ],
+                            announce: '进入第五关，计算晶体管的输入电阻。先选择表达式框架，再填写表达式：常数200、1、26请点表达式上方的数字按钮，填好后点第二行最右侧的确认按钮；贝塔点电路中的贝塔标注，发射极静态电流点第一行最右侧的按钮作答，共10分。',
+                            extra: '先点虚线框，常数用上方数字按钮输入、点确认提交；贝塔点电路中的贝塔标注，发射极静态电流点晶体管模型作答。',
+                            doneSay: '输入电阻计算的框架与表达式全部完成。'
+                        },
                     {
                         // 框架 + 表达式交错关（动态）：按 Av → Ri → Ro 逐项，每项先选框架、再填表达式
-                        // 分值：3 个框架题各 5 分（15）+ 6 个空各 2 分（12）= 27
-                        kind: 'mix', title: '第 5 关 · 动态指标计算', pts: 27, short: '动态指标计算', stageUnits: 1,
+                        // 分值：3 框架 4+2+2=8 + 7 空×2=14 = 22（第54轮 Av 的 β 虚框化后 7 空；全页仍 100）
+                        kind: 'mix', title: '第 6 关 · 动态指标计算', pts: 22, short: '动态指标计算', stageUnits: 1,
                         subLine: '每个指标先选计算框架，再点虚线框填表达式',
                         subs: [
                             {
-                                type: 'fw', name: 'A<tspan class="sub">v</tspan> 框架', qpts: 5, pen: 2,
+                                type: 'fw', name: 'A<tspan class="sub">v</tspan> 框架', qpts: 4, pen: 2,
                                 fwQ: '电压放大倍数 A<tspan class="sub">v</tspan> 的表达式框架：',
                                 frameworks: [
-                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])], correct: true },
-                                    { tokens: [tk('A', 'v'), tk('='), tk('β'), tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])] },
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), { box: 1 }, tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])], correct: true },
+                                    { tokens: [tk('A', 'v'), tk('='), { box: 1 }, tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])] },
                                     // 干扰项：分子两框改为「相加」结构（原 −(□∥□)/□·β 与正确项乘法交换律等价，构成两个正确选项）
-                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }])] }
+                                    // 第58轮：β 也虚框化（与正确项一致，不泄题）——本项与正确项的唯一差异是分子「+/∥」结构
+                                    { tokens: [tk('A', 'v'), tk('='), tk('−'), { box: 1 }, tk('·'), fr([{ box: 1 }, tk('+'), { box: 1 }], [{ box: 1 }])] }
                                 ]
                             },
                             {
                                 type: 'fill', name: 'A<tspan class="sub">v</tspan> 表达式',
                                 // 并联因子交换律：R_C∥R_L 与 R_L∥R_C 均正确（同 grp 交换）
-                                fullExpr: [[tk('A', 'v'), tk('='), tk('−'), tk('β'), tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])]],
+                                fullExpr: [[tk('A', 'v'), tk('='), tk('−'), { box: 1 }, tk('·'), fr([{ box: 1 }, tk('∥'), { box: 1 }], [{ box: 1 }])]],
                                 blanks: [
+                                    // β 也虚框化（第54轮）：点电路 β 标注或晶体管模型作答
+                                    { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 2 },
                                     { ansIds: ['comp-rc', 'comp-rl'], grp: 'av-par',
                                       labels: { 'comp-rc': [tk('R', 'C')], 'comp-rl': [tk('R', 'L')] },
                                       label: [tk('R', 'C')], pts: 2 },
@@ -1325,7 +1402,7 @@
                                 ]
                             },
                             {
-                                type: 'fw', name: 'R<tspan class="sub">i</tspan> 框架', qpts: 5, pen: 2,
+                                type: 'fw', name: 'R<tspan class="sub">i</tspan> 框架', qpts: 2, pen: 2,
                                 fwQ: '输入电阻 R<tspan class="sub">i</tspan> 的表达式框架：',
                                 frameworks: [
                                     { tokens: [tk('R', 'i'), tk('='), { box: 1 }, tk('∥'), { box: 1 }], correct: true },
@@ -1348,7 +1425,7 @@
                                 ]
                             },
                             {
-                                type: 'fw', name: 'R<tspan class="sub">o</tspan> 框架', qpts: 5, pen: 2,
+                                type: 'fw', name: 'R<tspan class="sub">o</tspan> 框架', qpts: 2, pen: 2,
                                 fwQ: '输出电阻 R<tspan class="sub">o</tspan> 的表达式框架：',
                                 frameworks: [
                                     { tokens: [tk('R', 'o'), tk('≈'), { box: 1 }], correct: true },
@@ -1365,7 +1442,7 @@
                                 ]
                             }
                         ],
-                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共27分。',
+                        announce: '进入第六关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共22分。',
                         extra: '框架答对后进入该指标的表达式填空；表达式先点虚线框，再点电路中对应的元件。',
                         doneSay: '动态指标电压放大倍数、输入电阻、输出电阻的框架与表达式全部完成，全部关卡结束。'
                     }
@@ -1408,7 +1485,7 @@
     }
     function initState() {
         S = {
-            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0,
+            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0, numStr: null,
             levelScore: LEVELS.map(() => 0),
             draw: {}, order: {}, orderList: {}, qorder: {}, fw: {}, fill: {}, mix: {}, mixQ: {}
         };
@@ -1440,7 +1517,7 @@
                     si: 0,
                     steps: c.subs.map(sb => sb.type === 'fw'
                         ? { type: 'fw', opts: shuffle(sb.frameworks), chosen: [], solved: false, rem: sb.qpts, pen: sb.pen || 2 }
-                        : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, same: b.same, full: b.pts, rem: b.pts, done: false })) })
+                        : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, same: b.same, num: b.num, full: b.pts, rem: b.pts, done: false })) })
                 };
             }
         });
@@ -1904,6 +1981,7 @@
     }
     function showTQuizMenu(d) {
         const q = TQUIZ[d.tquiz.step];
+        if (!q) return;   // 竞态护栏：上一问的 900ms 延时回调可能在全部答完后才触发，此时 step 已越界
         q.dots.forEach(id => showFx(id, true));
         setEPos(q.epos);
         setMsg('晶体管等效 · 第 ' + (d.tquiz.step + 1) + '/' + TQUIZ.length + ' 问：' + (q.qs || q.q), '#ffd93d');
@@ -2218,11 +2296,35 @@
     function updateQlabels() {
         const layer = document.getElementById('qlabel-layer');
         if (!layer) return;
-        const k = cur().kind;
-        // 静态阶段（phase 0：Q点计算 mix）保留标注；动态阶段的 mix（第5关 Av/Ri/Ro）不显示——交流等效中 Q 点电量与箭头不应出现
-        const on = k === 'qorder' || (k === 'mix' && cur().phase === 0);
-        layer.style.opacity = on ? '1' : '0';
-        layer.style.pointerEvents = on ? 'all' : 'none';
+        const L = cur();
+        const k = L.kind;
+        // 静态阶段（phase 0：Q点计算 mix）保留标注；动态阶段的 mix（第5关 rbe / 第6关 Av/Ri/Ro）只保留 β 标注
+        const on = k === 'qorder' || (k === 'mix' && L.phase === 0);
+        const dyn = k === 'mix' && L.phase === 1;
+        layer.style.opacity = (on || dyn) ? '1' : '0';
+        layer.style.pointerEvents = (on || dyn) ? 'all' : 'none';
+        // 第112轮：关态整层 hit-off（防隐形热区压住模型点击）；dyn 只保留 β 可点
+        layer.classList.toggle('hit-off', !(on || dyn));
+        layer.querySelectorAll('g.interactive').forEach(g => {
+            if (!dyn) { g.style.opacity = ''; g.style.pointerEvents = ''; g.classList.remove('hit-off'); return; }
+            const isBeta = g.dataset.id === 'q-beta';
+            g.style.opacity = isBeta ? '1' : '0';
+            g.style.pointerEvents = isBeta ? '' : 'none';
+            g.classList.toggle('hit-off', !isBeta);
+        });
+        // β 双位置：静态关与 R_C 垂直同轴（第54轮：486,278，热区 36 宽）；动态关移到受控源菱形右侧、水平同轴
+        //   （第112轮：菱形中心 (547,360)、右顶点 573 → 中心 x=600.5；第54轮热区 36 宽 → x=582.5 居中）
+        const beta = layer.querySelector('g[data-id="q-beta"]');
+        if (beta) {
+            const tx = beta.querySelector('text'), hr = beta.querySelector('rect.hot');
+            if (dyn) {
+                tx.setAttribute('x', '600.5'); tx.setAttribute('y', '372.5');
+                if (hr) { hr.setAttribute('x', '582.5'); hr.setAttribute('y', '329'); }
+            } else {
+                tx.setAttribute('x', '486'); tx.setAttribute('y', '278');
+                if (hr) { hr.setAttribute('x', '464'); hr.setAttribute('y', '247'); }
+            }
+        }
     }
     function renderQorder() {
         const i = S.level - 1, c = cur().cfg, o = S.qorder[i];
@@ -2384,8 +2486,40 @@
             return;
         }
         gameUI.appendChild(mkText(1010, BODY_TOP + 40, 26, '表达式：', { fill: '#ffd93d' }));
+        // 第112轮：常数数字键盘（含「确认」）：点虚线框 → 点数字逐位输入 → 点「确认」校验（常数空 pts:0，答错只提示不扣分）
+        if (sb.numPad) {
+            gameUI.appendChild(mkText(LX, BODY_TOP + 64, 21, '常数：先点虚线框，再点数字；电流点第一行右侧按钮', { fill: 'rgba(255,255,255,0.72)', bold: false }));
+            // 第114轮：键盘排 6 列×2 行——第 1 行 0~4 + 静态电流按钮（第 6 列），第 2 行 5~9 + 「确认」（第 6 列）；不设 β 按钮
+            const nkW = 79, nkH = 50, nkGap = 6, nkY0 = BODY_TOP + 80;
+            '0123456789'.split('').forEach((d, di) => {
+                const x = LX + 6 + (di % 5) * (nkW + nkGap);
+                const y = nkY0 + Math.floor(di / 5) * (nkH + nkGap);
+                const g = mkBtn(x, y, nkW, nkH, 'num-key');
+                g.setAttribute('data-digit', d);
+                g.appendChild(mkText(x + nkW / 2, y + nkH / 2 + 10, 30, d, { anchor: 'middle' }));
+                gameUI.appendChild(g);
+            });
+            const colX = LX + 6 + 5 * (nkW + nkGap), colW = LW - 12 - 5 * (nkW + nkGap);
+            // 第 6 列上行：静态电流按钮（点击＝选中该空并按 ansIds 作答，已填变暗）；β 走电路标注，不设按钮
+            const qBtns = st.blanks.map((b, bi) => ({ b: b, bi: bi })).filter(x => !x.b.num && (x.b.ansIds || []).indexOf('q-beta') < 0);
+            if (qBtns.length) {
+                const xb = qBtns[0];
+                const gq = mkBtn(colX, nkY0, colW, nkH, xb.b.done ? 'pick-key dim' : 'pick-key');
+                gq.setAttribute('data-blank-idx', xb.bi);
+                gq.setAttribute('data-ans', (xb.b.ansIds || [])[0] || '');
+                const tap = (xb.b.label && xb.b.label[0]) ? xb.b.label[0] : { main: '?' };
+                gq.appendChild(mkText(colX + colW / 2, nkY0 + nkH / 2 + 10, 27, markupOf(tap), { anchor: 'middle' }));
+                gameUI.appendChild(gq);
+            }
+            // 第 6 列下行：「确认」
+            const okY = nkY0 + nkH + nkGap;
+            const okG = mkBtn(colX, okY, colW, nkH, 'num-key');
+            okG.setAttribute('data-digit', 'ok');
+            okG.appendChild(mkText(colX + colW / 2, okY + nkH / 2 + 9, 24, '确认', { anchor: 'middle' }));
+            gameUI.appendChild(okG);
+        }
         const es = 42;   // 文字标准（lin-g 系列）：填空表达式 42，超宽自动缩排
-        const eTop = BODY_TOP + 96, eSpan = BODY_BOT - eTop;
+        const eTop = sb.numPad ? BODY_TOP + 196 : BODY_TOP + 96, eSpan = BODY_BOT - eTop;   // 第114轮：numPad 关表达式上移到按钮区下方的中部
         const eStep = Math.min(120, eSpan / Math.max(1, sb.fullExpr.length));
         const eY0 = eTop + (eSpan - (sb.fullExpr.length - 1) * eStep) / 2;
         let boxOff = 0;
@@ -2407,6 +2541,15 @@
         if (S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
             const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
             if (r) r.classList.add('sel');
+        }
+        // 第112轮：常数输入缓冲实时回显（选中框内黄字）
+        if (S.numStr && S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
+            const r2 = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
+            if (r2) {
+                const bx2 = parseFloat(r2.getAttribute('x')) + parseFloat(r2.getAttribute('width')) / 2;
+                const by2 = parseFloat(r2.getAttribute('y')) + parseFloat(r2.getAttribute('height')) / 2;
+                r2.parentNode.appendChild(mkText(bx2, by2 + 9, 27, S.numStr, { fill: '#ffd93d', anchor: 'middle' }));   // 第113轮：挂 rect 父组（局部坐标），修回显落在视口外
+            }
         }
         renderMsg(1010, 752, 26);
     }
@@ -2483,6 +2626,39 @@
     }
     // 虚线框点选（面板内事件委托；fill 关与 mix 关的填空子步都走这里）
     gameUI.addEventListener('click', e => {
+        // 第112轮：数字键盘——点数字逐位追加到选中的常数框；「确认」提交校验（submitNum）
+        const nk = e.target.closest ? e.target.closest('.num-key') : null;
+        if (nk) {
+            if (S.finished) return;
+            const d = nk.getAttribute('data-digit');
+            const k = cur().kind;
+            if (k !== 'mix' || !S.selBox || S.selBox.mix === undefined) { setMsg('请先点表达式里的虚线框，再点数字。', '#ffd93d'); render(); return; }
+            const st = S.mix[S.selBox.level].steps[S.selBox.mix];
+            const spec = st.blanks[S.selBox.idx];
+            if (spec.done) return;
+            if (!spec.num) { setMsg('该空请点击电路中的对应标注作答。', '#ffd93d'); render(); return; }
+            if (d === 'ok') { submitNum(S.selBox.level); return; }
+            if (S.numStr === null || S.numStr === undefined) S.numStr = '';
+            if (S.numStr.length >= 4) { setMsg('位数已够，请点「确认」提交。', '#ffd93d'); render(); return; }
+            S.numStr += d;
+            render();
+            return;
+        }
+        // 第113轮：电量按钮（β / I_x）——选中对应空并按 ansIds 作答
+        const pk = e.target.closest ? e.target.closest('.pick-key') : null;
+        if (pk) {
+            if (S.finished) return;
+            if (cur().kind !== 'mix') return;
+            const mxp = S.mix[S.level - 1];
+            if (!mxp || mxp.steps[mxp.si].type !== 'fill') return;
+            const bip = parseInt(pk.getAttribute('data-blank-idx'), 10);
+            const bp = mxp.steps[mxp.si].blanks[bip];
+            if (bp.done) { setMsg('该空已填好。', '#ffd93d'); render(); return; }
+            S.selBox = { level: S.level - 1, mix: mxp.si, idx: bip };
+            S.numStr = bp.num ? '' : null;
+            answerBlank(pk.getAttribute('data-ans'));
+            return;
+        }
         const r = e.target.closest ? e.target.closest('.blank-box') : null;
         if (!r || r.classList.contains('done') || S.finished) return;
         const k = cur().kind;
@@ -2493,8 +2669,10 @@
             const mx = S.mix[lv];
             if (mx.steps[mx.si].type !== 'fill') return;
             S.selBox = { level: lv, mix: mx.si, idx: idx };
+            S.numStr = mx.steps[mx.si].blanks[idx].num ? '' : null;   // 第112轮：常数空清空输入缓冲
         } else {
             S.selBox = { level: lv, idx: idx };
+            S.numStr = null;
         }
         render();
     });
@@ -2519,6 +2697,7 @@
         const spec = isMix ? b : c.blanks[bi];
         const full = isMix ? b.full : c.pts / c.blanks.length;
         if (b.done) return;
+        if (isMix && spec.num) { setMsg('该空是常数，请点表达式上方的数字按钮输入。', '#ffd93d'); render(); return; }
         // 同一组（grp）内的空不能填同一个量：相乘/并联因子可交换顺序（如 I_CQ=β·I_BQ 或 I_BQ·β），
         // 但不可把同一个量填进两框；same 数组把同一量的多个触发件（如 β 的标注 q-beta 与晶体管 comp-t）归为一量参与判重
         // 注意：不同组不加限制（R_B2 在分子与分母中各出现一次，属正常）
@@ -2558,6 +2737,27 @@
         }
     }
 
+    // 第112轮：常数空提交（numPad「确认」）：比对该空 num 值；对→计分（常数空 0 分）并推进；错→提示清空重填（不扣分）
+    function submitNum(lv) {
+        const mx = S.mix[lv];
+        const st = mx.steps[S.selBox.mix];
+        const b = st.blanks[S.selBox.idx];
+        if (b.done) return;
+        if (!S.numStr) { setMsg('请先点数字，再点确认。', '#ffd93d'); render(); return; }
+        if (S.numStr === b.num) {
+            b.done = true; b.picked = 'num-' + S.numStr;
+            S.numStr = null; S.selBox = null;
+            const gain = Math.round(b.rem);
+            if (gain > 0) { addScore(gain); setMsg('正确，得 ' + gain + ' 分。', '#34d399'); say('回答正确，获得' + gain + '分。'); }
+            else { setMsg('正确。', '#34d399'); say('回答正确。'); }
+            if (st.blanks.every(x => x.done)) addT(() => mixFillDone(lv), 1400);
+            render();
+        } else {
+            setMsg('常数不对，请重新输入。', '#fb7185'); say('常数不对，请重新输入。');
+            S.numStr = '';
+            render();
+        }
+    }
     // ---- 关卡推进 / 完成结算 ----
     function completeLevel() {
         if (S.finished) return;
@@ -2577,13 +2777,25 @@
         say('恭喜你，完成全部关卡！最终得分' + S.score + '分。');
         render();
     }
+    // 第116轮：结算得分项左对齐基准——量最长行宽，使整块在面板内居中、各行左缘统一
+    function doneLeftX(arr) {
+        let wMax = 0;
+        arr.forEach(t => {
+            const p = mkText(0, -400, 25, t, { bold: false });
+            gameUI.appendChild(p);
+            wMax = Math.max(wMax, p.getBBox().width);
+            gameUI.removeChild(p);
+        });
+        return Math.round(Math.max(LX + 20, LCX - wMax / 2));
+    }
     function renderDone() {
         gameUI.appendChild(mkText(1260, 342, 42, '🎉 闯关完成！', { anchor: 'middle', fill: '#ffd93d' }));
         gameUI.appendChild(mkText(1260, 428, 48, '最终得分：' + S.score + ' / 100', { anchor: 'middle', fill: '#ffd93d' }));
-        LEVELS.forEach((L, i) => {
-            gameUI.appendChild(mkText(1260, 476 + i * 30, 25,
-                (i + 1) + '. ' + L.cfg.short + '（' + L.phaseName + '）：' + Math.round(S.levelScore[i]) + ' 分',
-                { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
+        // 第116轮：得分项左对齐（按最长行宽把整块在面板内居中，各行左缘统一）
+        const lsTxt = LEVELS.map((L, i) => (i + 1) + '. ' + L.cfg.short + '（' + L.phaseName + '）：' + Math.round(S.levelScore[i]) + ' 分');
+        const lsX = doneLeftX(lsTxt);
+        lsTxt.forEach((t, i) => {
+            gameUI.appendChild(mkText(lsX, 476 + i * 30, 25, t, { anchor: 'start', fill: 'rgba(255,255,255,0.85)', bold: false }));
         });
         // ★换案例：结算评语——⚠️ 面板内宽约 520px、26px 中文字宽≈26px/字，单行上限约 19 字，超出会被面板右缘裁切
         const ev = S.score >= 90 ? '优秀！固定偏压共射静动态分析掌握扎实。'

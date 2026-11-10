@@ -203,25 +203,41 @@ const ROUTE = process.env.ROUTE || 'icq';   // icq/ieq=长路线(I_CQ/I_EQ 起�
     await page.waitForTimeout(2300);
     console.log('  第4关后:', JSON.stringify(await st()));
 
-    // ===== 第 5 关：动态指标 mix（Av→Ri→Ro） =====
-    for (let guard = 0; guard < 40; guard++) {
-      const s = await st(); if (s.lvl !== 5) break;
+    // ===== 第 5/6 关：mix（第112轮后六关制：L5 r_be 计算·numPad 数字键盘；L6 动态指标 Av/Ri/Ro） =====
+    for (let guard = 0; guard < 120; guard++) {
+      const s = await st(); if (s.lvl < 5 || s.lvl > 6) break;
       const info = await page.evaluate(() => {
         const mx = S.mix[S.level - 1], stp = mx.steps[mx.si];
         if (stp.type === 'fw') return { type: 'fw', idx: stp.opts.findIndex(o => o.correct) };
         const bi = stp.blanks.findIndex(b => !b.done);
         if (bi < 0) return { type: 'wait' };
         const b = stp.blanks[bi];
+        if (b.num) return { type: 'num', bi, num: b.num };
         const sibs = stp.blanks.filter((x, i) => b.grp && x.grp === b.grp && i !== bi && x.done).map(x => x.picked);
-        return { type: 'fill', boxIdx: bi, ans: b.ansIds.slice(), grp: b.grp || null, sibs };
+        return { type: 'fill', boxIdx: bi, ans: (b.ansIds || []).slice(), grp: b.grp || null, sibs, numpad: !!stp.numPad };
       });
+      const lvlSel = `.blank-box[data-blank-level="${s.lvl - 1}"]`;
       if (info.type === 'fw') { await pickMixOpt(info.idx); continue; }
       if (info.type === 'wait') { await page.waitForTimeout(900); continue; }
-      await page.locator(`.blank-box[data-blank-level="4"][data-blank-idx="${info.boxIdx}"]`).first().click({ force: true });
+      if (info.type === 'num') {   // 常数空：点虚线框 → 逐位点数字 → 点「确认」提交（pts:0，答对推进）
+        await page.locator(`${lvlSel}[data-blank-idx="${info.bi}"]`).first().click({ force: true });
+        await page.waitForTimeout(160);
+        for (const d of String(info.num)) {
+          await page.locator(`.num-key[data-digit="${d}"]`).first().click({ force: true });
+          await page.waitForTimeout(120);
+        }
+        await page.locator('.num-key[data-digit="ok"]').first().click({ force: true });
+        await page.waitForTimeout(320);
+        continue;
+      }
+      await page.locator(`${lvlSel}[data-blank-idx="${info.boxIdx}"]`).first().click({ force: true });
       await page.waitForTimeout(160);
       let pick = info.ans[0];
       if (info.grp && info.sibs.includes(pick)) pick = info.ans.find(a => !info.sibs.includes(a)) || info.ans[0];
-      await clickUnit(pick);
+      // numPad 关的电量空优先走键盘侧按钮（pick-key；等效态下电路单元可能已收起），β 无按钮走电路标注
+      const keyBtn = page.locator(`.pick-key[data-ans="${pick}"]`);
+      if (info.numpad && (await keyBtn.count())) { await keyBtn.first().click({ force: true }); }
+      else { await clickUnit(pick); }
       await page.waitForTimeout(220);
     }
     await page.waitForTimeout(2300);

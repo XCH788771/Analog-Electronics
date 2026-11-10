@@ -610,7 +610,7 @@ const CORE_CIRCUITS = [
         isDifficult: false,
         designFocus: true,
         learning: [
-            { id: 'lin-l1', name: '同相放大电路', desc: '输入从同相端引入，电压增益由反馈网络决定', lab: 'interactive/lin-l1.html' },
+            { id: 'lin-l1', name: '同相放大电路', desc: '输入从同相端引入，电压增益由反馈网络决定', lab: 'interactive/lin-l1.html?v=4' },
             { id: 'lin-l2', name: '电压跟随器', desc: '同相放大电路的特例，增益为 1，用于阻抗变换' },
             { id: 'lin-l3', name: '反相放大电路', desc: '虚地概念与反相比例运算电路的分析' },
             { id: 'lin-l4', name: '求差电路', desc: '对两个输入信号之差进行放大的差分运算电路' },
@@ -622,7 +622,7 @@ const CORE_CIRCUITS = [
             { id: 'lin-t1', name: '同相放大训练', desc: '同相比例电路增益与输入输出关系计算' },
             { id: 'lin-t2', name: '反相放大训练', desc: '反相比例电路的分析与参数设计' },
             { id: 'lin-t3', name: '求和运算放大训练', desc: '多路信号加权求和电路的计算练习' },
-            { id: 'lin-t4', name: '多级运算放大训练', desc: '两级级联（同相＋反相）电压放大倍数分级计算', lab: 'interactive/lin-t4.html' }
+            { id: 'lin-t4', name: '多级运算放大训练', desc: '两级级联（同相＋反相）电压放大倍数分级计算', lab: 'interactive/lin-t4.html?v=4' }
         ]
     },
     {
@@ -751,7 +751,7 @@ const CIRCUIT_BRANCHES = {
                     { name: '关卡2 · 计算电压增益', desc: '拖动电阻值使增益达标' }
                 ],
                 calculation: [
-                    { name: '案例1 · 同相放大电路分析', desc: '虚短虚断推导电压增益 Av', lab: 'interactive/lin-l1.html', ready: true, thumbImg: 'assets/thumb-lin-l1.png' },
+                    { name: '案例1 · 同相放大电路分析', desc: '虚短虚断推导电压增益 Av', lab: 'interactive/lin-l1.html?v=4', ready: true, thumbImg: 'assets/thumb-lin-l1.png?v=4' },
                     { name: '案例2 · 平衡电阻的作用', desc: '分析 R3 = R1∥R2 的取值依据' }
                 ],
                 design: [
@@ -810,13 +810,13 @@ const CIRCUIT_BRANCHES = {
             desc: '多级级联，总增益为各级之积',
             cases: {
                 game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '判类型 → 选框架 → 填表达式', lab: 'interactive/lin-g1.html?v=16', ready: true, thumbImg: 'assets/thumb-lin-g1.png?v=6' },
-                    { name: '案例2 · 电路闯关挑战（100分）', desc: '反相求和＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g2.html?v=13', ready: true, thumbImg: 'assets/thumb-lin-g2.png?v=5' },
-                    { name: '案例3 · 电路闯关挑战（100分）', desc: '跟随器＋反相比例（R₁=1k，R₂=10k），写出 Vₒ 表达式', lab: 'interactive/lin-g3.html?v=12', ready: true, thumbImg: 'assets/thumb-lin-g3.png?v=4' },
-                    { name: '案例4 · 电路闯关挑战（100分）', desc: '同相（带分压）＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g4.html?v=9', ready: true, thumbImg: 'assets/thumb-lin-g4.png?v=5' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '判类型 → 选框架 → 填表达式', lab: 'interactive/lin-g1.html?v=21', ready: true, thumbImg: 'assets/thumb-lin-g1.png?v=10' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '反相求和＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g2.html?v=18', ready: true, thumbImg: 'assets/thumb-lin-g2.png?v=9' },
+                    { name: '案例3 · 电路闯关挑战（100分）', desc: '跟随器＋反相比例（R₁=1k，R₂=10k），写出 Vₒ 表达式', lab: 'interactive/lin-g3.html?v=17', ready: true, thumbImg: 'assets/thumb-lin-g3.png?v=9' },
+                    { name: '案例4 · 电路闯关挑战（100分）', desc: '同相（带分压）＋反相级联，写出 Vₒ 表达式', lab: 'interactive/lin-g4.html?v=14', ready: true, thumbImg: 'assets/thumb-lin-g4.png?v=9' }
                 ],
                 calculation: [
-                    { name: '案例1 · 两级级联放大电路', desc: '同相＋反相级联计算 Au', lab: 'interactive/lin-t4.html', ready: true, thumbImg: 'assets/thumb-lin-t4.png?v=1' }
+                    { name: '案例1 · 两级级联放大电路', desc: '同相＋反相级联计算 Au', lab: 'interactive/lin-t4.html?v=4', ready: true, thumbImg: 'assets/thumb-lin-t4.png?v=5' }
                 ],
                 design: [
                     { name: '设计1 · 多级运算放大设计', desc: '按总增益分配各级增益' }
@@ -826,26 +826,32 @@ const CIRCUIT_BRANCHES = {
     ],
     ce_amp: [
         { id: 'ce-b1', name: '固定式偏压共射放大电路', thumb: 'generic', desc: '仅由基极偏置电阻设定静态工作点', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g2.html?v=25', ready: true, thumbImg: 'assets/thumb-cj-g2.png?v=1' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g2.html?v=38', ready: true, thumbImg: 'assets/thumb-cj-g2.png?v=8' }
                 ], calculation: [], design: [] } },
         { id: 'ce-b2', name: '分压式偏置共射放大电路', thumb: 'generic', desc: '稳定静态工作点的偏置方式', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g1.html?v=73', ready: true, thumbImg: 'assets/thumb-cj-g1.png?v=1' },
-                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极双电阻 R_E1+R_E2，C_E 只旁路 R_E2：A_v 分母计入 (1+β)R_E1', lab: 'interactive/cj-g4.html?v=43', ready: true, thumbImg: 'assets/thumb-cj-g4.png?v=1' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '求 Q 点（IBQ/ICQ/VCEQ）与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g1.html?v=86', ready: true, thumbImg: 'assets/thumb-cj-g1.png?v=7' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极双电阻 R_E1+R_E2，C_E 只旁路 R_E2：A_v 分母计入 (1+β)R_E1', lab: 'interactive/cj-g4.html?v=52', ready: true, thumbImg: 'assets/thumb-cj-g4.png?v=6' }
                 ], calculation: [], design: [] } },
         { id: 'ce-b3', name: '双电源共射放大电路', thumb: 'multi', desc: '正负双电源供电的共射放大电路', cases: { game: [
-                    { name: '案例1 · 电路闯关挑战（100分）', desc: '分段发射极电阻 R_e1+R_e2、C_E 部分旁路，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g3.html?v=41', ready: true, thumbImg: 'assets/thumb-cj-g3.png?v=1' },
-                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极恒流源 I_o 偏置、R_L 直接耦合，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g5.html?v=39', ready: true, thumbImg: 'assets/thumb-cj-g5.png?v=1' }
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '分段发射极电阻 R_e1+R_e2、C_E 部分旁路，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g3.html?v=51', ready: true, thumbImg: 'assets/thumb-cj-g3.png?v=5' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '发射极恒流源 I_o 偏置、R_L 直接耦合，求 Q 点与 Av/Ri/Ro 表达式', lab: 'interactive/cj-g5.html?v=48', ready: true, thumbImg: 'assets/thumb-cj-g5.png?v=6' }
                 ], calculation: [], design: [] } }
     ],
     cs_amp: [
-        { id: 'cs-b1', name: '共源放大电路', thumb: 'generic', desc: 'MOSFET 共源放大电路', cases: { game: [], calculation: [], design: [] } },
+        { id: 'cs-b1', name: '共源放大电路', thumb: 'generic', desc: 'MOSFET 共源放大电路', cases: { game: [
+                    { name: '案例1 · 电路闯关挑战（100分）', desc: '双电源分压偏置共源放大·绘制交流微变等效电路，求 Av/Ri/Ro', lab: 'interactive/cs-g4.html?v=10', ready: true, thumbImg: 'assets/thumb-cs-g4.png?v=11' },
+                    { name: '案例2 · 电路闯关挑战（100分）', desc: '分压式偏置共源放大（含信号源内阻 R_SI）·先绘直流通路、估算静态工作点，再绘交流微变等效电路求 Av/Ri/Ro，共四关 100 分', lab: 'interactive/cs-g2.html?v=33', ready: true, thumbImg: 'assets/thumb-cs-g2.png?v=23' },
+                    { name: '案例3 · 电路闯关挑战（100分）', desc: '分压式偏置共源放大·绘制交流等效电路，求 Av/Ri/Ro', lab: 'interactive/cs-g3.html?v=28', ready: true, thumbImg: 'assets/thumb-cs-g3.png?v=46' },
+                    { name: '恒流源偏置 · 电路闯关挑战（100分）', desc: '双电源恒流源偏置共源放大·绘制直流通路与交流微变等效，求 Av/Ri/Ro', lab: 'interactive/cs-g5.html?v=5', ready: true, thumbImg: 'assets/thumb-cs-g5.png?v=6' },
+                ], calculation: [], design: [] } },
         { id: 'cs-b2', name: '共漏放大电路', thumb: 'generic', desc: '源极跟随器', cases: { game: [], calculation: [], design: [] } },
         { id: 'cs-b3', name: '共栅放大电路', thumb: 'generic', desc: '共栅极组态放大电路', cases: { game: [], calculation: [], design: [] } }
     ],
     diff_amp: [
-        { id: 'df-b1', name: '长尾式差分放大电路', thumb: 'diff', desc: '典型差分放大电路结构', cases: { game: [], calculation: [], design: [] } },
-        { id: 'df-b2', name: '镜像电流源电路', thumb: 'generic', desc: '电流源偏置电路', cases: { game: [], calculation: [], design: [] } },
-        { id: 'df-b3', name: '恒流源差分电路', thumb: 'diff', desc: '恒流源代替长尾电阻', cases: { game: [], calculation: [], design: [] } }
+        { id: 'df-b1', name: '双入双出差分放大', thumb: 'diff', desc: '双端输入、双端输出：输出取两集电极之差，差模增益最大、共模抑制最强', cases: { game: [], calculation: [], design: [] } },
+        { id: 'df-b2', name: '双入单出差分放大', thumb: 'diff', desc: '双端输入、单端输出：输出取一侧集电极对地，差模增益减半', cases: { game: [], calculation: [], design: [] } },
+        { id: 'df-b3', name: '单入双出差分放大', thumb: 'diff', desc: '单端输入、双端输出：一侧接地，仍可双端取差，等效差模与共模激励叠加', cases: { game: [], calculation: [], design: [] } },
+        { id: 'df-b4', name: '单入单出差分放大', thumb: 'diff', desc: '单端输入、单端输出：输出取自一侧集电极对地，常用于直接耦合多级放大的输入级', cases: { game: [], calculation: [], design: [] } }
     ],
     power_amp: [
         { id: 'pa-b1', name: 'OCL功率放大电路', thumb: 'generic', desc: '无输出电容的互补对称电路', cases: { game: [], calculation: [], design: [] } },

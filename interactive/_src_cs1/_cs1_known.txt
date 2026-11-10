@@ -1,0 +1,1 @@
+        <text x="70" y="210" fill="rgba(255,255,255,0.6)" font-size="26">已知：g<tspan class="sub">m</tspan>=2mS、R<tspan class="sub">g1</tspan>=60kΩ、R<tspan class="sub">g2</tspan>=40kΩ、R<tspan class="sub">d</tspan>=3.9kΩ、V<tspan class="sub">DD</tspan>=5V</text>

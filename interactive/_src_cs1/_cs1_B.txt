@@ -1,0 +1,190 @@
+        <!-- ▼▼▼ 替换区 B：本案例电路 SVG（<g id="circuit-wrap"> 整块；含 fx-layer 特效/电量标注/整理/等效层；
+             元件/导线须为 g.interactive[data-id]，id 与区 C/D 一一对应；共源类案例可改造本示例） ▼▼▼ -->
+        <!-- ====== ① 电路区：分压式偏置共源放大电路（N 沟道增强型 MOS；VDD — Rg1/Rg2 分压偏置 —
+             Cb1 耦合输入 — T（源极直接接地）— Rd 漏极负载，vo 取自漏极；无 RL/无 Cs/无 Rs） ====== -->
+        <g id="circuit-wrap" transform="translate(18, 272) scale(1)">
+        <!-- 电源端 +VDD（右上端子，标注在其下方；置零接地时标注隐藏、端子旁画接地符号） -->
+        <g class="interactive" data-id="comp-vdd" data-name="直流电源端 +VDD（交流分析中置零接地）">
+            <circle class="hot" cx="800" cy="5" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label vcc-label" x="800" y="54" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋V<tspan class="sub">DD</tspan></text>
+        </g>
+        <!-- 顶部电源导轨（Rg1 上端 — Rd 上端 — +VDD 端子；VDD 置零后整轨即交流地） -->
+        <g class="interactive" data-id="wire-vdd-rail" data-name="电源导轨（Rg1 上端—Rd 上端—VDD 端子）">
+            <path class="hot" d="M 320 5 H 791" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <circle cx="640" cy="5" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+
+        <!-- 上偏置电阻 Rg1（电源导轨→栅极节点，上下引线 105/90） -->
+        <g class="interactive" data-id="wire-rg1a" data-name="Rg1 上端接线（→电源导轨）">
+            <path class="hot" d="M 320 5 V 110" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rg1" data-name="上偏置电阻 Rg1">
+            <rect class="hot" x="302" y="110" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="290" y="147" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">g1</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rg1b" data-name="Rg1 下端接线（→栅极节点）">
+            <path class="hot" d="M 320 200 V 290" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <!-- 栅极节点导线（Cb1 右板—栅极板；Rg1/Rg2 在此分接，节点圆标出 T 结） -->
+        <g class="interactive" data-id="wire-gate" data-name="栅极节点导线（Cb1 右板—栅极；Rg1/Rg2 在此分接）">
+            <path class="hot" d="M 220 290 H 600" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <circle cx="320" cy="290" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+        <!-- 下偏置电阻 Rg2（栅极节点→公共地线，上下引线 75/70） -->
+        <g class="interactive" data-id="wire-rg2a" data-name="Rg2 上端接线（栅极节点→Rg2）">
+            <path class="hot" d="M 320 290 V 365" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rg2" data-name="下偏置电阻 Rg2">
+            <rect class="hot" x="302" y="365" width="36" height="90" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="290" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">g2</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rg2b" data-name="Rg2 下端接线（→公共地线）">
+            <path class="hot" d="M 320 455 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+
+        <!-- 公共地线（信号源下端—Rg2 下端—源极；唯一电位参考点） -->
+        <g class="interactive" data-id="wire-gnd" data-name="公共地线（信号源下端—源极）">
+            <path class="hot" d="M 90 525 H 640" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <circle cx="320" cy="525" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+        <!-- 接地符号（正对源极下方） -->
+        <g class="interactive" data-id="comp-gnd" data-name="接地符号（电位参考点）">
+            <line class="hot" x1="640" y1="525" x2="640" y2="543" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="612" y1="543" x2="668" y2="543" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="622" y1="551" x2="658" y2="551" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="630" y1="559" x2="650" y2="559" stroke="#ffffff" stroke-width="2.5"/>
+        </g>
+
+        <!-- 场效应管 T（N 沟道增强型 MOS）：栅极板（G）+ 三段断开沟道 + 衬底引线 B→S（箭头指向沟道）；
+             微变等效中 G–S 开路、D–S 换成压控电流源（data-name 含「晶体管」→ 符号线端点豁免悬空检查） -->
+        <g class="interactive" data-id="comp-t" data-name="场效应管 T（N 沟道增强型 MOS 晶体管；微变等效换成压控电流源）">
+            <!-- 热区：覆盖整个符号与 G/D/S/B 标注（用户截图红框口径），悬停即浮出菜单 -->
+            <rect class="hot" x="560" y="190" width="155" height="185" fill="none" stroke="none"/>
+            <!-- 栅极板（G） -->
+            <line class="hot" x1="600" y1="250" x2="600" y2="330" stroke="#ffffff" stroke-width="6"/>
+            <!-- 沟道：三段断开（增强型：零偏压无导电沟道） -->
+            <line class="hot" x1="640" y1="220" x2="640" y2="266" stroke="#ffffff" stroke-width="5"/>
+            <line class="hot" x1="640" y1="284" x2="640" y2="304" stroke="#ffffff" stroke-width="5"/>
+            <line class="hot" x1="640" y1="322" x2="640" y2="360" stroke="#ffffff" stroke-width="5"/>
+            <!-- 衬底引线 B：自沟道中段引出，右—下—左折回源极端（箭头指向沟道，B 与 S 短接） -->
+            <path class="hot" d="M 640 330 H 700 V 360 H 640" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <polygon class="hot-fill" points="640,360 658,351 658,369" fill="#ffffff" stroke="none"/>
+            <!-- 电极标注 -->
+            <text class="hot-label" x="576" y="270" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">G</text>
+            <text class="hot-label" x="612" y="224" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">D</text>
+            <text class="hot-label" x="612" y="378" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">S</text>
+            <text class="hot-label" x="722" y="352" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">B</text>
+        </g>
+
+        <!-- 漏极支路（Rd 下端—漏极节点—沟道上端—输出端子） -->
+        <g class="interactive" data-id="wire-rd-a" data-name="Rd 下端接线（Rd→漏极节点）">
+            <path class="hot" d="M 640 140 V 178" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="wire-d-lead" data-name="漏极接线（漏极节点—沟道上端）">
+            <path class="hot" d="M 640 178 V 220" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <circle cx="640" cy="178" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+        <g class="interactive" data-id="wire-drain" data-name="漏极导线（漏极节点—输出端子）">
+            <path class="hot" d="M 640 178 H 762" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rd" data-name="漏极电阻 Rd">
+            <rect class="hot" x="622" y="60" width="36" height="80" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="610" y="108" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">d</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rd-top" data-name="Rd 上端接线（→电源导轨）">
+            <path class="hot" d="M 640 5 V 60" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <!-- 输出电压 vo（取自漏极，与输入同相... 共源反相由表达式负号体现；装饰件不参与作答） -->
+        <g id="comp-vo" pointer-events="none">
+            <circle cx="770" cy="178" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text x="806" y="146" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text x="806" y="184" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <text x="806" y="222" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+        </g>
+
+        <!-- 源极支路（沟道下端—公共地线；共源组态的直接接地） -->
+        <g class="interactive" data-id="wire-src" data-name="源极接线（源极—公共地线，交流接地）">
+            <path class="hot" d="M 640 360 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+
+        <!-- 输入回路：信号源 Vi（上端子—源符号—下端子）→ Cb1 耦合 → 栅极节点 -->
+        <g class="interactive" data-id="wire-vi-top" data-name="输入接线（信号源上端—Cb1 左板）">
+            <path class="hot" d="M 90 290 H 206" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="wire-vi-mid" data-name="信号源接线（上端子—信号源）">
+            <path class="hot" d="M 90 290 V 398" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="wire-vi-gnd" data-name="信号源接地接线（信号源—下端子/地线）">
+            <path class="hot" d="M 90 442 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <!-- 输入信号源 Vi（端子 + 正弦符号 + 极性标注；交流分析中保留） -->
+        <g class="interactive" data-id="comp-vi" data-name="输入信号源 Vi（交流分析中保留）">
+            <circle class="hot" cx="90" cy="290" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <circle class="hot" cx="90" cy="420" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 76 420 Q 83 410 90 420 T 104 420" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+            <circle class="hot" cx="90" cy="525" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label" x="46" y="290" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="40" y="424" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
+            <text class="hot-label" x="46" y="525" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+        </g>
+        <!-- 输入耦合电容 Cb1（隔直通交；交流等效中短路） -->
+        <g class="interactive" data-id="comp-cb1" data-name="输入耦合电容 Cb1（隔直通交）">
+            <line class="hot" x1="206" y1="268" x2="206" y2="312" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="220" y1="268" x2="220" y2="312" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="213" y="252" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">C<tspan class="sub">b1</tspan></text>
+        </g>
+
+        <!-- ====== 关卡特效层（绘制关的变换动画；默认隐藏，引擎控制显隐） ====== -->
+        <g id="fx-layer" pointer-events="none">
+            <!-- 耦合电容短路桥（交流通路） -->
+            <g id="fx-cb1" opacity="0">
+                <line x1="206" y1="290" x2="220" y2="290" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <!-- VDD 置零接地（端子旁画接地符号；＋VDD 标注由 hideVccLabel 同步隐藏） -->
+            <g id="fx-vdd" opacity="0">
+                <line x1="800" y1="23" x2="800" y2="39" stroke="#34d399" stroke-width="5"/>
+                <line x1="772" y1="39" x2="828" y2="39" stroke="#34d399" stroke-width="5"/>
+                <line x1="786" y1="51" x2="814" y2="51" stroke="#34d399" stroke-width="4.5"/>
+                <line x1="794" y1="63" x2="806" y2="63" stroke="#34d399" stroke-width="4"/>
+            </g>
+            <!-- ====== 场效应管微变等效模型（第 1 关第 2 步选「等效」后逐问显示） ======
+                 栅极板原位接续栅极引线（G 端子）；D—S 之间为压控电流源（菱形），漏极支路引线自漏极节点直下；
+                 菱形下端坐在源极接地上（源极引线 360—525 原位保留）；控制电压 vgs（G 正 S 负）标于菱形左上；
+                 gm 标注在菱形右侧（第 2 关 Av 填空点它作答）；id 箭头由「方向问」追加 -->
+            <g id="fx-tmodel" opacity="0">
+                <line x1="600" y1="250" x2="600" y2="330" stroke="#ffffff" stroke-width="6"/>
+                <g id="fx-t-src" opacity="0">
+                    <line x1="640" y1="178" x2="640" y2="352" stroke="#ffffff" stroke-width="3.5"/>
+                    <path d="M 640 352 L 695 380 L 640 408 L 585 380 Z" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+                    <line x1="585" y1="380" x2="695" y2="380" stroke="#ffffff" stroke-width="3"/>
+                    <text x="556" y="352" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
+                    <text x="556" y="388" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">v<tspan class="sub">gs</tspan></text>
+                    <text x="556" y="424" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
+                    <!-- 跨导标注（第 2 关 Av 表达式点它作答；与 fx-t-src 同显隐） -->
+                    <g class="interactive" data-id="q-gm" data-name="跨导 gm">
+                        <rect class="hot" x="700" y="356" width="86" height="48" fill="none" stroke="none"/>
+                        <text class="hot-label" x="743" y="390" fill="#ffd93d" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">g<tspan class="sub">m</tspan></text>
+                    </g>
+                </g>
+                <!-- i_d：漏极支路电流（自漏极节点向下流经受控源到源极）——箭头方向问作答后画出 -->
+                <g id="fx-t-id" opacity="0">
+                    <line x1="640" y1="200" x2="640" y2="238" stroke="#ff5252" stroke-width="5"/>
+                    <polygon points="640,252 632,236 648,236" fill="#ff5252" stroke="none"/>
+                    <text x="626" y="230" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="end">i<tspan class="sub">d</tspan></text>
+                </g>
+            </g>
+
+            <!-- 等效问答的端点红点（G/D/S，持续闪烁；引擎按问显隐；画在 fx-layer 最末不被遮挡） -->
+            <g id="fx-dot-g" opacity="0">
+                <circle class="qdot" cx="600" cy="290" r="8" fill="#ff5252"/>
+            </g>
+            <g id="fx-dot-d" opacity="0">
+                <circle class="qdot" cx="640" cy="178" r="8" fill="#ff5252"/>
+            </g>
+            <g id="fx-dot-s" opacity="0">
+                <circle class="qdot" cx="640" cy="525" r="8" fill="#ff5252"/>
+            </g>
+        </g>
+
+        </g>
+        <!-- ▲▲▲ 替换区 B 结束 ▲▲▲ -->

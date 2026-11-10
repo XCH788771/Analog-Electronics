@@ -1,0 +1,10 @@
+    /* ▼▼▼ 替换区 D：电路分级 STAGE_UNITS（每组=某关对应电路单元 data-id 列表，与区 B 一一对应）▼▼▼ */
+    // ---- 各阶段对应的电路级交互单元（进入该关时整级变紫并闪烁提示） ----
+    // 本案例无静态阶段：唯一分组 = 交流等效态全部单元（第 2~4 关 mix 的 stageUnits:0 高亮用）
+    const STAGE_UNITS = [
+        ['comp-vdd', 'wire-vdd-rail', 'wire-rg1a', 'comp-rg1', 'wire-rg1b', 'wire-gate',
+         'wire-rg2a', 'comp-rg2', 'wire-rg2b', 'wire-gnd', 'comp-gnd',
+         'comp-t', 'wire-d-lead', 'wire-rd-a', 'wire-drain', 'comp-rd', 'wire-rd-top', 'wire-src',
+         'wire-vi-top', 'wire-vi-mid', 'wire-vi-gnd', 'comp-vi', 'comp-cb1']
+    ];
+    /* ▲▲▲ 替换区 D 结束 ▲▲▲ */

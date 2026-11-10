@@ -1,0 +1,5 @@
+        <!-- ▼▼▼ 替换区 A：左上角大标题 + 案例行（换成自己的案例名与题面） ▼▼▼ -->
+        <!-- ====== 标题（左上）+ 题目 ====== -->
+        <text x="70" y="90" fill="none" font-size="43" font-weight="bold"><tspan fill="#ff00ff">◆闯关挑战◆</tspan><tspan fill="#ffd93d"> 共源放大电路</tspan></text>
+        <text x="70" y="172" fill="rgba(255,255,255,0.85)" font-size="36">案例1：分压式偏置共源放大 · 绘制交流等效电路，求动态指标</text>
+        <!-- ▲▲▲ 替换区 A 结束 ▲▲▲ -->

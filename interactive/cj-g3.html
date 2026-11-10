@@ -232,6 +232,16 @@
     /* 悬停不换色，仅加红色光晕反馈 */
     #qlabel-layer .interactive:hover .hot { stroke: #ff5252; filter: drop-shadow(0 0 6px rgba(255, 82, 82, 0.9)); }
     #qlabel-layer .interactive:hover .hot-label { fill: #ff5252; }
+    /* 第 111 轮：V_BQ 与 B 极节点同轴、I_CQ/I_EQ 上移后贴支路横线、V_BE ＋ 贴基极横线，
+       红字笔画会被 3.5px 白色导线横穿。用电路区底色描边（paint-order: stroke fill）在笔画外
+       扩 2.5px「挖空」导线，保证可读且不改任何坐标；只作用于这四处文字，箭头仍按语义跨线。 */
+    #qlabel-layer text.ink-halo {
+        paint-order: stroke fill;
+        stroke: #0a3d20;
+        stroke-width: 5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+    }
     #qlabel-layer .interactive:hover .hot-fill { fill: #ff5252; }
     /* 作答反馈：只做透明度闪烁，颜色不变（3 次 × 0.22s） */
     @keyframes redBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
@@ -297,6 +307,15 @@
     /* 已作答反馈（绿/红）优先于阶段高亮：点选元件的绿色不被阶段紫色盖住 */
     #circuit-wrap .stage-purple .color-blink .hot { stroke: var(--blink-color); }
     #circuit-wrap .stage-purple .color-blink text { fill: var(--blink-color); }
+    /* 第99轮回归：常数数字键盘（含「确认」按钮）与电量按钮样式 */
+    .num-key { cursor: pointer; }
+    .num-key rect { fill: rgba(139,92,246,0.20); stroke: #a78bfa; stroke-width: 2; transition: all 0.18s ease; }
+    .num-key text { fill: #ffffff; }
+    .num-key:hover rect { fill: rgba(167,139,250,0.42); stroke: #ffd93d; }
+    .pick-key { cursor: pointer; }
+    .pick-key rect { fill: rgba(52,211,153,0.16); stroke: #34d399; stroke-width: 2; transition: all 0.18s ease; }
+    .pick-key text { fill: #ffffff; }
+    .pick-key:hover rect { fill: rgba(52,211,153,0.34); stroke: #ffd93d; }
 </style>
 </head>
 <body>
@@ -379,7 +398,7 @@
             <path class="hot" d="M 486 33 V 77" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rc" data-name="集电极电阻 R_C（把集电极电流的变化转换成电压变化输出）">
-            <rect class="hot" x="468" y="77" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="472" y="77" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="454" y="113" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">C</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rc-a" data-name="R_C 下端接线（R_C→集电极导线）">
@@ -412,7 +431,7 @@
             <path class="hot" d="M 800 176 V 323" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rl" data-name="负载电阻 R_L">
-            <rect class="hot" x="782" y="323" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="786" y="323" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="770" y="359" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">L</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rl-b" data-name="R_L 下端接线（→ 接地符号）">
@@ -425,10 +444,10 @@
             <line class="hot" x1="790" y1="559" x2="810" y2="559" stroke="#ffffff" stroke-width="2.5"/>
         </g>
         <g class="interactive" data-id="comp-vo" data-name="输出电压 V_o（取自 R_L 两端，与输入反相）">
-            <rect class="hot" x="836" y="334" width="44" height="70" fill="none" stroke="none"/>
-            <text class="hot-label" x="858" y="332" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
-            <text class="hot-label" x="858" y="378" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
-            <text class="hot-label" x="858" y="449" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <rect class="hot" x="836" y="204" width="44" height="348" fill="none" stroke="none"/>
+            <text class="hot-label" x="858" y="218" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="858" y="368" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <text class="hot-label" x="858" y="540" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
         </g>
 
         <!-- 晶体管 T（NPN）：基极条 + 集电极斜线 + 发射极斜线（带箭头），B/C/E 电极标注 -->
@@ -459,7 +478,7 @@
             <path class="hot" d="M 320 260 V 362" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rb" data-name="基极偏置电阻 R_B（把基极钳在 0V 附近，故 V_BQ≈0 —— 双电源电路稳 Q 的关键）">
-            <rect class="hot" x="302" y="362" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="306" y="362" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="288" y="398" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rb-b" data-name="R_B 下端接线（→ 接地符号）">
@@ -480,7 +499,7 @@
             <path class="hot" d="M 90 260 V 316" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-rs" data-name="信号源内阻 R_S">
-            <rect class="hot" x="72" y="316" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="76" y="316" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="58" y="351" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
         </g>
         <g class="interactive" data-id="wire-rs-bot" data-name="R_S 下端接线（→ 信号源）">
@@ -507,7 +526,7 @@
             <!-- 下端子圆已删：信号源接地导线现直接下到接地符号，不再右折接 V_i 下端子（第65轮） -->
             <text class="hot-label" x="150" y="320" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
             <text class="hot-label" x="150" y="432" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
-            <text class="hot-label" x="150" y="543" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <text class="hot-label" x="150" y="577" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
         </g>
         <g class="interactive" data-id="comp-c1" data-name="输入耦合电容 C_B（隔直通交）">
             <line class="hot" x1="206" y1="238" x2="206" y2="282" stroke="#ffffff" stroke-width="3.5"/>
@@ -520,7 +539,7 @@
             <path class="hot" d="M 486 319 V 367" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-re1" data-name="发射极电阻 RE1（未被 C_E 旁路，交流时仍计入 A_v 分母）">
-            <rect class="hot" x="468" y="367" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="472" y="367" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="454" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">E1</tspan></text>
         </g>
         <g class="interactive" data-id="wire-re1-b" data-name="RE1 下端接线（→ 发射极节点）">
@@ -550,7 +569,7 @@
             <path class="hot" d="M 486 470 V 506" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-re2" data-name="发射极电阻 RE2（被 C_E 完全旁路，交流时被短路）">
-            <rect class="hot" x="468" y="506" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="472" y="506" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="454" y="541" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">E2</tspan></text>
         </g>
         <g class="interactive" data-id="wire-ree-b" data-name="RE2 下端接线（→ −V_EE 端子）">
@@ -678,10 +697,10 @@
                 </g>
                 <!-- V_CEQ：管压降（C—E 之间的空白处，＋/− 极性标注） -->
                 <g class="interactive" data-id="q-vceq" data-name="管压降 V_CEQ">
-                    <rect class="hot" x="517" y="228" width="84" height="116" fill="none" stroke="none"/>
-                    <text class="hot-label" x="560" y="248" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
-                    <text class="hot-label" x="560" y="290" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">CEQ</tspan></text>
-                    <text class="hot-label" x="560" y="332" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
+                    <rect class="hot" x="507" y="208" width="84" height="140" fill="none" stroke="none"/>
+                    <text class="hot-label" x="550" y="218" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
+                    <text class="hot-label" x="550" y="275" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">CEQ</tspan></text>
+                    <text class="hot-label" x="550" y="337" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
                 </g>
                 <!-- V_BE：发射结电压（基极条下方口袋位；第 3 关填空点它作答，点晶体管同样认可） -->
                 <g class="interactive" data-id="q-vbe" data-name="发射结电压 V_BE">
@@ -702,7 +721,7 @@
             <g id="rearr-layer">
             <g id="rarr-rc" class="interactive" data-id="comp-rc" opacity="0" pointer-events="none">
                 <path class="hot keepw" d="M 640 176 V 323" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <rect class="hot" x="622" y="323" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect class="hot" x="626" y="323" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <path class="hot keepw" d="M 640 378 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <circle cx="640" cy="176" r="8" fill="#ffffff"/>
                 <!-- 标签放体右侧、与电阻垂直居中（第71轮用户指定）：基线 = 体中线 329.5 + 8 ≈ 338，
@@ -751,7 +770,7 @@
                 <text x="150" y="495" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
                 <!-- R_s + V_s 列（上移：引线 70/68 上下匀称） -->
                 <path d="M 90 176 V 272" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                <rect x="72" y="272" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect x="76" y="272" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <text x="58" y="307" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
                 <path d="M 90 327 V 388" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                 <circle cx="90" cy="410" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
@@ -763,7 +782,7 @@
                 <!-- R_B（上移：体 280-360，引线 90/165；标签放体左侧避开 r_be） -->
                 <g id="eq-rb" class="interactive hit-off" data-id="comp-rb">
                     <path class="hot keepw" d="M 280 176 V 292" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                    <rect class="hot" x="262" y="292" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="266" y="292" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                     <path class="hot keepw" d="M 280 347 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                     <circle cx="280" cy="176" r="7" fill="#ffffff"/>
                     <text class="hot-label" x="248" y="328" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
@@ -772,7 +791,7 @@
                      第66轮自 r_be 正下方(420)移到横线 420→560 的中点，与 r_be / 受控源两列拉开） -->
                 <g id="eq-re1" class="interactive hit-off" data-id="comp-re1">
                     <path class="hot keepw" d="M 450 370 V 420" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-                    <rect class="hot" x="432" y="420" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="436" y="420" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                     <path class="hot keepw" d="M 450 475 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                     <!-- 上端 T 结（横线中点）节点圆 -->
                     <circle cx="450" cy="370" r="7" fill="#ffffff"/>
@@ -797,7 +816,7 @@
             <g id="fx-tmodel" class="interactive" data-id="comp-t-model" opacity="0" pointer-events="none" transform="translate(0,25)">
                 <g id="fx-t-rbe" opacity="0">
                     <line class="hot keepw" x1="380" y1="176" x2="380" y2="265" stroke="#ffffff" stroke-width="3.5"/>
-                    <rect class="hot" x="362" y="265" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="366" y="265" width="28" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
                     <line class="hot keepw" x1="380" y1="320" x2="380" y2="370" stroke="#ffffff" stroke-width="3.5"/>
                     <!-- r_be 下端 (420,400) 为 L 拐角（发射极横线自 420 起向右），非 T 结 —— 第 56 轮补的
                          节点圆已于第 71 轮移除（第 66 轮 R_e1 移到 x=490 后此处只剩两条线）；问询红点 fx-dot-e 另绘 -->
@@ -1033,6 +1052,13 @@
             const br = anchorEl.getBoundingClientRect();
             const mw = ctxmenu.offsetWidth, mh = ctxmenu.offsetHeight;
             let x = br.left - sr.left + br.width + 12;
+            // 第119轮：晶体管「等效」文字选项贴 BJT 的 C/E 极右侧 30px。
+            // comp-t 热区为消除点击不灵敏曾扩到 x374~547，直接贴热区右缘会离符号本体约 90px；
+            // 改以 C 极斜线右端（x=486，与 E 极同竖线）为基准，水平净距 30px（按舞台缩放换算）。
+            if (anchorEl.dataset && anchorEl.dataset.id === 'comp-t') {
+                const ce = anchorEl.querySelector('path.hot');
+                if (ce) x = ce.getBoundingClientRect().right - sr.left + 30 * (sr.width / 1600);
+            }
             let y = br.top - sr.top + br.height / 2 - mh / 2;
             if (x + mw > sr.width - 8) x = br.left - sr.left - mw - 12;
             if (x < 8) x = 8;
@@ -1177,6 +1203,9 @@
             const f = document.getElementById(id);
             if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; }
         });
+        // 第114轮（并行会话合入模板，此处保留）：复位后等效模型回到隐藏态，恢复命中隔离
+        const tm = document.getElementById('fx-tmodel');
+        if (tm) tm.classList.add('hit-off');
         document.querySelectorAll('.rb2-label').forEach(t => { t.setAttribute('x', '290'); t.setAttribute('y', '402'); t.setAttribute('text-anchor', 'end'); });
         hideMenu();
     }
@@ -1363,12 +1392,14 @@
                             {
                                 type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 表达式',
                                 // 7 空 7 分：首位 I_EQ（先算 I_EQ → 点发射极标注 q-ieq）；V_EE 由 2 分降为 1 分配平
-                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
+                                numPad: true,   // 第99轮：常数 1 改为数字方框（0-9 按钮两行点选填写）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
                                 blanks: [
                                     { ansIds: ['q-ieq'], label: [tk('I', 'EQ')], pts: 1 },
                                     { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
                                     { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
                                     { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { num: '1', label: [tk('1')], pts: 0 },   // 第99轮：(1+β) 的常数 1
                                     { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
                                     { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
                                       labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
@@ -1482,12 +1513,14 @@
                                 type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 表达式',
                                 // 7 空 7 分：首位 I_EQ（点发射极标注 q-ieq）；分子 V_EE（点 comp-vee，1 分——偏置电源为主项）、V_BE（点 q-vbe / 晶体管）；
                                 //   分母 R_B/(1+β)（R_B 点 comp-rb、β 点 q-beta / 晶体管）+ R_e1 + R_e2（可交换）
-                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
+                                numPad: true,   // 第99轮：常数 1 改为数字方框（0-9 按钮两行点选填写）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
                                 blanks: [
                                     { ansIds: ['q-ieq'], label: [tk('I', 'EQ')], pts: 1 },
                                     { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
                                     { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
                                     { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { num: '1', label: [tk('1')], pts: 0 },   // 第99轮：(1+β) 的常数 1
                                     { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
                                     { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
                                       labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
@@ -1600,11 +1633,13 @@
                             {
                                 type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 表达式', blk: 'ibq',
                                 // 6 空 6 分：分子 V_EE、V_BE；分母 R_B + (1+β)(R_e1+R_e2)
-                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])]],
+                                numPad: true,   // 第99轮：常数 1 改为数字方框（0-9 按钮两行点选填写）
+                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])]],
                                 blanks: [
                                     { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
                                     { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
                                     { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { num: '1', label: [tk('1')], pts: 0 },   // 第99轮：(1+β) 的常数 1
                                     { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
                                     { ansIds: ['comp-re1', 'comp-re2'], grp: 'ibq-den',
                                       labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
@@ -1857,7 +1892,7 @@
                                 ]
                             }
                         ],
-                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共21分。',
+                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共28分。',
                         extra: '框架答对后进入该指标的表达式填空；表达式先点虚线框，再点电路中对应的元件。',
                         doneSay: '动态指标电压放大倍数、输入电阻、输出电阻的框架与表达式全部完成，全部关卡结束。'
                     }
@@ -1922,7 +1957,7 @@
     function mkMixStep(sb) {
         return sb.type === 'fw'
             ? { type: 'fw', opts: shuffle(sb.frameworks), chosen: [], solved: false, rem: sb.qpts, pen: sb.pen || 2 }
-            : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, full: b.pts, rem: b.pts, done: false })) };
+            : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, num: b.num, full: b.pts, rem: b.pts, done: false })) };
     }
     function mkMixState(subs) {
         const steps = subs.map(mkMixStep);
@@ -1930,7 +1965,7 @@
     }
     function initState() {
         S = {
-            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0, route: null, qPicked: [],
+            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0, route: null, qPicked: [], numStr: null,
             levelScore: LEVELS.map(() => 0),
             draw: {}, order: {}, orderList: {}, qorder: {}, fw: {}, fill: {}, mix: {}, mixQ: {}
         };
@@ -2349,7 +2384,11 @@
     }
     function showFx(id, on) {
         const f = document.getElementById(id);
-        if (f) f.style.opacity = on ? '1' : '0';
+        if (!f) return;
+        f.style.opacity = on ? '1' : '0';
+        // 第114轮：等效模型组隐藏态里的 rect.hot 被 .interactive rect[fill="none"]{PE:all} 重新赋权，
+        // opacity=0 仍参与命中（第64轮同源问题），会压住 V_BE 文字右侧；显示时移除 hit-off 恢复可点
+        if (id === 'fx-tmodel') f.classList.toggle('hit-off', !on);
     }
     // 第71轮：只隐藏指定电源端子的标注（'vcc' / 'vee'）。第4关两个电源都要置零接地，但 −V_EE 的
     // 标注必须保留显示（用户要求）：fx-vee 接地符号画在端子左下方(458~514)，与右侧标注(530 起)不重叠。
@@ -2563,6 +2602,7 @@
     }
     function showTQuizMenu(d) {
         const q = TQUIZ[d.tquiz.step];
+        if (!q) return;   // 竞态护栏：上一问的 900ms 延时回调可能在全部答完后才触发，此时 step 已越界
         q.dots.forEach(id => showFx(id, true));
         setEPos(q.epos);
         setMsg('晶体管等效 · 第 ' + (d.tquiz.step + 1) + '/' + TQUIZ.length + ' 问：' + q.q, '#ffd93d');
@@ -3089,8 +3129,40 @@
             return;
         }
         gameUI.appendChild(mkText(1010, BODY_TOP + 40, 26, '表达式：', { fill: '#ffd93d' }));
+        // 第99轮回归：常数数字键盘（含「确认」）——点虚线框 → 点数字逐位输入 → 点「确认」校验（常数空 pts:0）
+        if (sb.numPad) {
+            gameUI.appendChild(mkText(LX, BODY_TOP + 64, 21, '常数：先点虚线框，再点数字；其他空点电路中对应元件', { fill: 'rgba(255,255,255,0.72)', bold: false }));
+            // 键盘 6 列×2 行——第 1 行 0~4 + 电量按钮（第 6 列），第 2 行 5~9 + 「确认」（第 6 列）
+            const nkW = 79, nkH = 50, nkGap = 6, nkY0 = BODY_TOP + 80;
+            '0123456789'.split('').forEach((d, di) => {
+                const x = LX + 6 + (di % 5) * (nkW + nkGap);
+                const y = nkY0 + Math.floor(di / 5) * (nkH + nkGap);
+                const g = mkBtn(x, y, nkW, nkH, 'num-key');
+                g.setAttribute('data-digit', d);
+                g.appendChild(mkText(x + nkW / 2, y + nkH / 2 + 10, 30, d, { anchor: 'middle' }));
+                gameUI.appendChild(g);
+            });
+            const colX = LX + 6 + 5 * (nkW + nkGap), colW = LW - 12 - 5 * (nkW + nkGap);
+            // 第 6 列上行：电量按钮（点击＝选中该空并按 ansIds 作答，已填变暗）
+            const qBtns = st.blanks.map((b, bi) => ({ b: b, bi: bi })).filter(x => !x.b.num && (x.b.ansIds || []).indexOf('q-beta') < 0);
+            if (qBtns.length) {
+                const xb = qBtns[0];
+                const gq = mkBtn(colX, nkY0, colW, nkH, xb.b.done ? 'pick-key dim' : 'pick-key');
+                gq.setAttribute('data-blank-idx', xb.bi);
+                gq.setAttribute('data-ans', (xb.b.ansIds || [])[0] || '');
+                const tap = (xb.b.label && xb.b.label[0]) ? xb.b.label[0] : { main: '?' };
+                gq.appendChild(mkText(colX + colW / 2, nkY0 + nkH / 2 + 10, 27, markupOf(tap), { anchor: 'middle' }));
+                gameUI.appendChild(gq);
+            }
+            // 第 6 列下行：「确认」
+            const okY = nkY0 + nkH + nkGap;
+            const okG = mkBtn(colX, okY, colW, nkH, 'num-key');
+            okG.setAttribute('data-digit', 'ok');
+            okG.appendChild(mkText(colX + colW / 2, okY + nkH / 2 + 9, 24, '确认', { anchor: 'middle' }));
+            gameUI.appendChild(okG);
+        }
         const es = 42;   // 文字标准（lin-g 系列）：填空表达式 42，超宽自动缩排
-        const eTop = BODY_TOP + 96, eSpan = BODY_BOT - eTop;
+        const eTop = sb.numPad ? BODY_TOP + 196 : BODY_TOP + 96, eSpan = BODY_BOT - eTop;   // numPad 关表达式下移到按钮区下方
         const eStep = Math.min(120, eSpan / Math.max(1, sb.fullExpr.length));
         const eY0 = eTop + (eSpan - (sb.fullExpr.length - 1) * eStep) / 2;
         let boxOff = 0;
@@ -3112,6 +3184,15 @@
         if (S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
             const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
             if (r) r.classList.add('sel');
+        }
+        // 第99轮回归：常数输入缓冲实时回显（选中框内黄字，挂 rect 父组局部坐标）
+        if (S.numStr && S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
+            const r2 = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
+            if (r2) {
+                const bx2 = parseFloat(r2.getAttribute('x')) + parseFloat(r2.getAttribute('width')) / 2;
+                const by2 = parseFloat(r2.getAttribute('y')) + parseFloat(r2.getAttribute('height')) / 2;
+                r2.parentNode.appendChild(mkText(bx2, by2 + 9, 27, S.numStr, { fill: '#ffd93d', anchor: 'middle' }));
+            }
         }
         renderMsg(1010, 752, 26);
     }
@@ -3194,6 +3275,39 @@
     }
     // 虚线框点选（面板内事件委托；fill 关与 mix 关的填空子步都走这里）
     gameUI.addEventListener('click', e => {
+        // 第99轮回归：数字键盘——点数字逐位追加到选中的常数框；「确认」提交校验（submitNum）
+        const nk = e.target.closest ? e.target.closest('.num-key') : null;
+        if (nk) {
+            if (S.finished) return;
+            const d = nk.getAttribute('data-digit');
+            const k = cur().kind;
+            if (k !== 'mix' || !S.selBox || S.selBox.mix === undefined) { setMsg('请先点表达式里的虚线框，再点数字。', '#ffd93d'); render(); return; }
+            const st = S.mix[S.selBox.level].steps[S.selBox.mix];
+            const spec = st.blanks[S.selBox.idx];
+            if (spec.done) return;
+            if (!spec.num) { setMsg('该空请点击电路中的对应元件作答。', '#ffd93d'); render(); return; }
+            if (d === 'ok') { submitNum(S.selBox.level); return; }
+            if (S.numStr === null || S.numStr === undefined) S.numStr = '';
+            if (S.numStr.length >= 4) { setMsg('位数已够，请点「确认」提交。', '#ffd93d'); render(); return; }
+            S.numStr += d;
+            render();
+            return;
+        }
+        // 第99轮回归：电量按钮——选中对应空并按 ansIds 作答
+        const pk = e.target.closest ? e.target.closest('.pick-key') : null;
+        if (pk) {
+            if (S.finished) return;
+            if (cur().kind !== 'mix') return;
+            const mxp = S.mix[S.level - 1];
+            if (!mxp || mxp.steps[mxp.si].type !== 'fill') return;
+            const bip = parseInt(pk.getAttribute('data-blank-idx'), 10);
+            const bp = mxp.steps[mxp.si].blanks[bip];
+            if (bp.done) { setMsg('该空已填好。', '#ffd93d'); render(); return; }
+            S.selBox = { level: S.level - 1, mix: mxp.si, idx: bip };
+            S.numStr = bp.num ? '' : null;
+            answerBlank(pk.getAttribute('data-ans'));
+            return;
+        }
         const r = e.target.closest ? e.target.closest('.blank-box') : null;
         if (!r || r.classList.contains('done') || S.finished) return;
         const k = cur().kind;
@@ -3204,6 +3318,7 @@
             const mx = S.mix[lv];
             if (mx.steps[mx.si].type !== 'fill') return;
             S.selBox = { level: lv, mix: mx.si, idx: idx };
+            S.numStr = mx.steps[mx.si].blanks[idx].num ? '' : null;   // 第99轮回归：常数空清空输入缓冲
         } else {
             S.selBox = { level: lv, idx: idx };
         }
@@ -3221,6 +3336,27 @@
         else if (k === 'fill' && S.selBox) answerBlank(id);
         else if (k === 'mix' && S.selBox && S.selBox.mix !== undefined) answerBlank(id);
     });
+    // 第99轮回归：常数空提交校验（正确 → 回填绿字；错误 → 清空缓冲可重输，不扣分）
+    function submitNum(lv) {
+        const mx = S.mix[lv];
+        const st = mx.steps[S.selBox.mix];
+        const b = st.blanks[S.selBox.idx];
+        if (b.done) return;
+        if (!S.numStr) { setMsg('请先点数字，再点确认。', '#ffd93d'); render(); return; }
+        if (S.numStr === b.num) {
+            b.done = true; b.picked = 'num-' + S.numStr;
+            S.numStr = null; S.selBox = null;
+            const gain = Math.round(b.rem);
+            if (gain > 0) { addScore(gain); setMsg('正确，得 ' + gain + ' 分。', '#34d399'); say('回答正确，获得' + gain + '分。'); }
+            else { setMsg('正确。', '#34d399'); say('回答正确。'); }
+            if (st.blanks.every(x => x.done)) addT(() => mixFillDone(lv), 1400);
+            render();
+        } else {
+            setMsg('常数不对，请重新输入。', '#fb7185'); say('常数不对，请重新输入。');
+            S.numStr = '';
+            render();
+        }
+    }
     function answerBlank(id) {
         const i = S.selBox.level, bi = S.selBox.idx;
         const c = LEVELS[i].cfg;
@@ -3234,6 +3370,7 @@
         // 注意：不同组不加限制（R_B2 在分子与分母中各出现一次，属正常）
         const sibs = isMix ? st.blanks : S.fill[i];
         const dup = !!spec.grp && sibs.some((x, xi) => xi !== bi && x.done && x.grp === spec.grp && x.picked === id);
+        if (spec.num) { setMsg('该空请点面板里的数字按钮填写。', '#ffd93d'); render(); return; }
         if (!dup && spec.ansIds.indexOf(id) >= 0) {
             b.done = true;
             b.picked = id;
@@ -3283,13 +3420,25 @@
         say('恭喜你，完成全部关卡！最终得分' + S.score + '分。');
         render();
     }
+    // 第116轮：结算得分项左对齐基准——量最长行宽，使整块在面板内居中、各行左缘统一
+    function doneLeftX(arr) {
+        let wMax = 0;
+        arr.forEach(t => {
+            const p = mkText(0, -400, 25, t, { bold: false });
+            gameUI.appendChild(p);
+            wMax = Math.max(wMax, p.getBBox().width);
+            gameUI.removeChild(p);
+        });
+        return Math.round(Math.max(LX + 20, LCX - wMax / 2));
+    }
     function renderDone() {
         gameUI.appendChild(mkText(1260, 342, 42, '🎉 闯关完成！', { anchor: 'middle', fill: '#ffd93d' }));
         gameUI.appendChild(mkText(1260, 428, 48, '最终得分：' + S.score + ' / 100', { anchor: 'middle', fill: '#ffd93d' }));
-        LEVELS.forEach((L, i) => {
-            gameUI.appendChild(mkText(1260, 476 + i * 30, 25,
-                (i + 1) + '. ' + L.cfg.short + '（' + L.phaseName + '）：' + Math.round(S.levelScore[i]) + ' 分',
-                { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
+        // 第116轮：得分项左对齐（按最长行宽把整块在面板内居中，各行左缘统一）
+        const lsTxt = LEVELS.map((L, i) => (i + 1) + '. ' + L.cfg.short + '（' + L.phaseName + '）：' + Math.round(S.levelScore[i]) + ' 分');
+        const lsX = doneLeftX(lsTxt);
+        lsTxt.forEach((t, i) => {
+            gameUI.appendChild(mkText(lsX, 476 + i * 30, 25, t, { anchor: 'start', fill: 'rgba(255,255,255,0.85)', bold: false }));
         });
         // ★ 面板内宽约 520px、26px 中文字宽≈26px/字，单行上限约 19 字，超出会被面板右缘裁切
         const ev = S.score >= 90 ? '优秀！双电源共射静动态掌握扎实。'

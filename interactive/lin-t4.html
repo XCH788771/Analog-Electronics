@@ -172,69 +172,69 @@
 
         <!-- 输入端子 Vᵢ -->
         <g class="interactive" data-id="comp-vi" data-name="输入信号 Vᵢ">
-            <circle class="hot" cx="90" cy="290" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
-            <text class="hot-label" x="90" y="252" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">i</tspan></text>
+            <circle class="hot" cx="90" cy="300" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label" x="90" y="262" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">i</tspan></text>
         </g>
         <!-- 输入导线（端子→R3） -->
         <g class="interactive" data-id="wire-in1" data-name="输入导线">
-            <path class="hot" d="M 98 290 H 140" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 98 300 H 143.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 第一级平衡电阻 R3 -->
         <g class="interactive" data-id="comp-r3" data-name="第一级平衡电阻 R3">
-            <rect class="hot" x="140" y="276" width="60" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="170" y="252" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">3</tspan></text>
+            <rect class="hot" x="143.5" y="286.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="170" y="262" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">3</tspan></text>
         </g>
         <!-- 输入导线（R3→同相端） -->
         <g class="interactive" data-id="wire-in2" data-name="输入导线（至同相端）">
-            <path class="hot" d="M 200 290 H 340" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 196.5 300 H 340" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 第一级运放 A1 -->
         <g class="interactive" data-id="comp-opamp1" data-name="运放 A1（第一级·同相比例）">
-            <polygon class="hot" points="340,220 340,460 480,340" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <polygon class="hot" points="340,255 340,425 480,340" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="395" y="352" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">A<tspan class="sub">1</tspan></text>
         </g>
         <!-- A1 同相输入端（+） -->
         <g class="interactive" data-id="comp-input-pos1" data-name="A1 同相输入端（+）">
-            <circle cx="362" cy="290" r="26" fill="transparent" pointer-events="all"/>
-            <text x="362" y="303" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <circle cx="362" cy="300" r="26" fill="transparent" pointer-events="all"/>
+            <text x="362" y="311" fill="#ffe66d" font-size="32" font-weight="bold" text-anchor="middle">＋</text>
         </g>
         <!-- A1 反相输入端（−） -->
         <g class="interactive" data-id="comp-input-neg1" data-name="A1 反相输入端（−）">
-            <circle cx="362" cy="390" r="26" fill="transparent" pointer-events="all"/>
-            <text x="362" y="401" fill="#9bd4ff" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <circle cx="362" cy="380" r="26" fill="transparent" pointer-events="all"/>
+            <text x="362" y="390" fill="#9bd4ff" font-size="32" font-weight="bold" text-anchor="middle">－</text>
         </g>
 
         <!-- 反相端引线（− → 分压节点） -->
         <g class="interactive" data-id="wire-neg1" data-name="反相端引线">
-            <path class="hot" d="M 340 390 H 290 V 510" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 340 380 H 290 V 510" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <circle cx="290" cy="510" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <!-- R1 接地电阻（竖放） -->
         <g class="interactive" data-id="comp-r1" data-name="接地电阻 R1">
-            <path class="hot" d="M 290 510 V 550" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <rect class="hot" x="276" y="550" width="28" height="70" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 290 510 V 558.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="276.5" y="558.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="255" y="598" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">1</tspan></text>
         </g>
         <!-- 接地符号（第一级） -->
         <g class="interactive" data-id="comp-gnd1" data-name="接地（电位参考点）">
-            <path class="hot" d="M 290 620 V 645" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 290 611.5 V 645" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="262" y1="645" x2="318" y2="645" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="272" y1="653" x2="308" y2="653" stroke="#ffffff" stroke-width="3"/>
             <line class="hot" x1="282" y1="661" x2="298" y2="661" stroke="#ffffff" stroke-width="2.5"/>
         </g>
         <!-- 反馈通路导线（节点→R2） -->
         <g class="interactive" data-id="wire-r2a" data-name="反馈通路导线">
-            <path class="hot" d="M 290 510 H 355" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 290 510 H 363.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- R2 反馈电阻 -->
         <g class="interactive" data-id="comp-r2" data-name="反馈电阻 R2">
-            <rect class="hot" x="355" y="496" width="70" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="363.5" y="496.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="390" y="562" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">2</tspan></text>
         </g>
         <!-- 反馈通路导线（R2→输出节点） -->
         <g class="interactive" data-id="wire-r2b" data-name="反馈通路导线（至输出）">
-            <path class="hot" d="M 425 510 H 530 V 340" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 416.5 510 H 530 V 340" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 第一级输出导线（A1→节点） -->
         <g class="interactive" data-id="wire-out1" data-name="第一级输出导线">
@@ -244,64 +244,64 @@
 
         <!-- 级间耦合导线（输出节点→R4） -->
         <g class="interactive" data-id="wire-link" data-name="级间耦合导线">
-            <path class="hot" d="M 530 340 H 600" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 530 340 H 606" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- R4 级间电阻 -->
         <g class="interactive" data-id="comp-r4" data-name="级间电阻 R4">
-            <rect class="hot" x="600" y="326" width="65" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="606" y="326.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="632" y="302" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">4</tspan></text>
         </g>
         <!-- 级间耦合导线（R4→A2 反相端） -->
         <g class="interactive" data-id="wire-link2" data-name="级间耦合导线（至A2反相端）">
-            <path class="hot" d="M 665 340 H 750" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 659 340 H 750" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 第二级运放 A2 -->
         <g class="interactive" data-id="comp-opamp2" data-name="运放 A2（第二级·反相比例）">
-            <polygon class="hot" points="750,270 750,510 890,390" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="805" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">A<tspan class="sub">2</tspan></text>
+            <polygon class="hot" points="750,295 750,465 890,380" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="805" y="392" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">A<tspan class="sub">2</tspan></text>
         </g>
         <!-- A2 反相输入端（−） -->
         <g class="interactive" data-id="comp-input-neg2" data-name="A2 反相输入端（−）">
             <circle cx="772" cy="340" r="26" fill="transparent" pointer-events="all"/>
-            <text x="772" y="351" fill="#9bd4ff" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <text x="772" y="360" fill="#9bd4ff" font-size="32" font-weight="bold" text-anchor="middle">－</text>
         </g>
         <!-- A2 同相输入端（+） -->
         <g class="interactive" data-id="comp-input-pos2" data-name="A2 同相输入端（+）">
-            <circle cx="772" cy="440" r="26" fill="transparent" pointer-events="all"/>
-            <text x="772" y="453" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <circle cx="772" cy="420" r="26" fill="transparent" pointer-events="all"/>
+            <text x="772" y="431" fill="#ffe66d" font-size="32" font-weight="bold" text-anchor="middle">＋</text>
         </g>
 
         <!-- R5 反馈通路（反相端→上方→输出） -->
         <g class="interactive" data-id="wire-r5a" data-name="第二级反馈通路导线">
-            <path class="hot" d="M 720 340 V 230 H 750" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 720 340 V 230 H 758.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <circle cx="720" cy="340" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <g class="interactive" data-id="comp-r5" data-name="反馈电阻 R5">
-            <rect class="hot" x="750" y="216" width="70" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="758.5" y="216.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="785" y="192" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">5</tspan></text>
         </g>
         <g class="interactive" data-id="wire-r5b" data-name="第二级反馈通路导线（至输出）">
-            <path class="hot" d="M 820 230 H 930 V 390" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 811.5 230 H 930 V 380" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 第二级输出导线（A2→Vᵒ 端子） -->
         <g class="interactive" data-id="wire-out2" data-name="输出导线">
-            <path class="hot" d="M 890 390 H 975" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <circle cx="930" cy="390" r="7" fill="#ffffff" pointer-events="none"/>
+            <path class="hot" d="M 890 380 H 975" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <circle cx="930" cy="380" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <!-- 输出端子 Vᵒ -->
         <g class="interactive" data-id="comp-vo" data-name="输出电压 Vᵒ">
-            <circle class="hot" cx="983" cy="390" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
-            <text class="hot-label" x="983" y="352" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <circle class="hot" cx="983" cy="380" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label" x="983" y="342" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">o</tspan></text>
         </g>
 
         <!-- R6 平衡电阻（A2 同相端接地） -->
         <g class="interactive" data-id="comp-r6" data-name="第二级平衡电阻 R6">
-            <path class="hot" d="M 750 440 H 700 V 505" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <rect class="hot" x="686" y="505" width="28" height="70" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 750 420 H 700 V 513.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="686.5" y="513.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="665" y="553" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">6</tspan></text>
-            <path class="hot" d="M 700 575 V 600" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 700 566.5 V 600" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="672" y1="600" x2="728" y2="600" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="682" y1="608" x2="718" y2="608" stroke="#ffffff" stroke-width="3"/>
             <line class="hot" x1="692" y1="616" x2="708" y2="616" stroke="#ffffff" stroke-width="2.5"/>
@@ -332,8 +332,8 @@
 
         <!-- ====== ② 计算演示图层（信号流程箭头，pointer-events="none"） ====== -->
         <g id="calc-arr1" style="visibility:hidden" pointer-events="none">
-            <path d="M 105 290 H 322" fill="none" stroke="#ffd93d" stroke-width="4.5" stroke-linecap="round"/>
-            <polygon points="322,281 322,299 338,290" fill="#ffd93d"/>
+            <path d="M 105 300 H 322" fill="none" stroke="#ffd93d" stroke-width="4.5" stroke-linecap="round"/>
+            <polygon points="322,291 322,309 338,300" fill="#ffd93d"/>
             <text x="215" y="272" fill="#ffd93d" font-size="26" font-weight="bold" text-anchor="middle">①</text>
         </g>
         <g id="calc-arr2" style="visibility:hidden" pointer-events="none">

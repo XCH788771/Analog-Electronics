@@ -131,12 +131,14 @@
                             {
                                 type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 表达式',
                                 // 7 空 7 分：首位 I_EQ（先算 I_EQ → 点发射极标注 q-ieq）；V_EE 由 2 分降为 1 分配平
-                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
+                                numPad: true,   // 第99轮：常数 1 改为数字方框（0-9 按钮两行点选填写）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
                                 blanks: [
                                     { ansIds: ['q-ieq'], label: [tk('I', 'EQ')], pts: 1 },
                                     { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
                                     { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
                                     { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { num: '1', label: [tk('1')], pts: 0 },   // 第99轮：(1+β) 的常数 1
                                     { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
                                     { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
                                       labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
@@ -250,12 +252,14 @@
                                 type: 'fill', name: 'I<tspan class="sub">CQ</tspan>≈□ 表达式',
                                 // 7 空 7 分：首位 I_EQ（点发射极标注 q-ieq）；分子 V_EE（点 comp-vee，1 分——偏置电源为主项）、V_BE（点 q-vbe / 晶体管）；
                                 //   分母 R_B/(1+β)（R_B 点 comp-rb、β 点 q-beta / 晶体管）+ R_e1 + R_e2（可交换）
-                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [tk('1'), tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
+                                numPad: true,   // 第99轮：常数 1 改为数字方框（0-9 按钮两行点选填写）
+                                fullExpr: [[tk('I', 'CQ'), tk('≈'), { box: 1 }, tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [fr([{ box: 1 }], [{ box: 1 }, tk('+'), { box: 1 }]), tk('+'), { box: 1 }, tk('+'), { box: 1 }])]],
                                 blanks: [
                                     { ansIds: ['q-ieq'], label: [tk('I', 'EQ')], pts: 1 },
                                     { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
                                     { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
                                     { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { num: '1', label: [tk('1')], pts: 0 },   // 第99轮：(1+β) 的常数 1
                                     { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
                                     { ansIds: ['comp-re1', 'comp-re2'], grp: 'ieq-den',
                                       labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
@@ -368,11 +372,13 @@
                             {
                                 type: 'fill', name: 'I<tspan class="sub">BQ</tspan> 表达式', blk: 'ibq',
                                 // 6 空 6 分：分子 V_EE、V_BE；分母 R_B + (1+β)(R_e1+R_e2)
-                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), tk('1'), tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])]],
+                                numPad: true,   // 第99轮：常数 1 改为数字方框（0-9 按钮两行点选填写）
+                                fullExpr: [[tk('I', 'BQ'), tk('='), fr([{ box: 1 }, tk('−'), { box: 1 }], [{ box: 1 }, tk('+'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')'), tk('('), { box: 1 }, tk('+'), { box: 1 }, tk(')')])]],
                                 blanks: [
                                     { ansIds: ['comp-vee'], label: [tk('V', 'EE')], pts: 1 },
                                     { ansIds: ['q-vbe', 'comp-t'], label: [tk('V', 'BE')], pts: 1 },
                                     { ansIds: ['comp-rb'], label: [tk('R', 'B')], pts: 1 },
+                                    { num: '1', label: [tk('1')], pts: 0 },   // 第99轮：(1+β) 的常数 1
                                     { ansIds: ['q-beta', 'comp-t'], label: [tk('β')], pts: 1 },
                                     { ansIds: ['comp-re1', 'comp-re2'], grp: 'ibq-den',
                                       labels: { 'comp-re1': [tk('R', 'E1')], 'comp-re2': [tk('R', 'E2')] },
@@ -625,7 +631,7 @@
                                 ]
                             }
                         ],
-                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共21分。',
+                        announce: '进入第五关，逐个完成动态性能指标的计算。每个指标先选择表达式框架，再填写表达式，顺序是电压放大倍数、输入电阻、输出电阻，共28分。',
                         extra: '框架答对后进入该指标的表达式填空；表达式先点虚线框，再点电路中对应的元件。',
                         doneSay: '动态指标电压放大倍数、输入电阻、输出电阻的框架与表达式全部完成，全部关卡结束。'
                     }

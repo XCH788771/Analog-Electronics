@@ -266,65 +266,65 @@
         </g>
         <!-- 输入导线（Vᵢ₁→R₁） -->
         <g class="interactive" data-id="wire-in1a" data-name="输入导线">
-            <path class="hot" d="M 98 160 H 140" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 98 160 H 148.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 第一路输入电阻 R₁ -->
         <g class="interactive" data-id="comp-r1" data-name="输入电阻 R₁">
-            <rect class="hot" x="140" y="146" width="70" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="148.5" y="146.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="175" y="118" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">1</tspan></text>
         </g>
         <!-- 输入导线（R₁→求和节点） -->
         <g class="interactive" data-id="wire-in1b" data-name="输入导线（至求和节点）">
-            <path class="hot" d="M 210 160 H 280" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 201.5 160 H 280" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 输入端子 Vᵢ₂（下路，与反相输入端横向对齐） -->
         <g class="interactive" data-id="comp-vi2" data-name="输入信号 Vᵢ₂">
-            <circle class="hot" cx="90" cy="290" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
-            <text class="hot-label" x="90" y="252" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">i2</tspan></text>
+            <circle class="hot" cx="90" cy="300" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label" x="90" y="262" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">i2</tspan></text>
         </g>
         <!-- 输入导线（Vᵢ₂→R₂） -->
         <g class="interactive" data-id="wire-in2a" data-name="输入导线">
-            <path class="hot" d="M 98 290 H 140" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 98 300 H 148.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 第二路输入电阻 R₂ -->
         <g class="interactive" data-id="comp-r2" data-name="输入电阻 R₂">
-            <rect class="hot" x="140" y="276" width="70" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="175" y="248" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">2</tspan></text>
+            <rect class="hot" x="148.5" y="286.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="175" y="258" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">2</tspan></text>
         </g>
         <!-- 输入导线（R₂→求和节点） -->
         <g class="interactive" data-id="wire-in2b" data-name="输入导线（至求和节点）">
-            <path class="hot" d="M 210 290 H 280" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 201.5 300 H 280" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 求和节点竖线（R₁、R₂ 汇合，接反相端与反馈） -->
         <g class="interactive" data-id="wire-join" data-name="求和节点竖线">
-            <path class="hot" d="M 280 160 V 290" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 280 160 V 300" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <circle cx="280" cy="160" r="7" fill="#ffffff" pointer-events="none"/>
             <circle cx="280" cy="290" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <!-- 求和节点→反相端引线 -->
         <g class="interactive" data-id="wire-neg1" data-name="反相端引线">
-            <path class="hot" d="M 280 290 H 370" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 280 300 H 370" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 第一级运放 A1 -->
         <g class="interactive" data-id="comp-opamp1" data-name="运放 A1（第一级·反相求和）">
-            <polygon class="hot" points="370,220 370,460 510,340" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <polygon class="hot" points="370,255 370,425 510,340" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="425" y="352" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">A<tspan class="sub">1</tspan></text>
         </g>
         <!-- A1 反相输入端（−） -->
         <g class="interactive" data-id="comp-input-neg1" data-name="A1 反相输入端（−）">
-            <circle cx="392" cy="290" r="26" fill="transparent" pointer-events="all"/>
-            <text x="392" y="301" fill="#9bd4ff" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <circle cx="392" cy="300" r="26" fill="transparent" pointer-events="all"/>
+            <text x="392" y="310" fill="#9bd4ff" font-size="32" font-weight="bold" text-anchor="middle">－</text>
         </g>
         <!-- A1 同相输入端（+） -->
         <g class="interactive" data-id="comp-input-pos1" data-name="A1 同相输入端（+）">
-            <circle cx="392" cy="390" r="26" fill="transparent" pointer-events="all"/>
-            <text x="392" y="403" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <circle cx="392" cy="380" r="26" fill="transparent" pointer-events="all"/>
+            <text x="392" y="391" fill="#ffe66d" font-size="32" font-weight="bold" text-anchor="middle">＋</text>
         </g>
         <!-- 接地符号（A1 同相端直接接地） -->
         <g class="interactive" data-id="comp-gnd1" data-name="接地（电位参考点）">
-            <path class="hot" d="M 370 390 H 325 V 515" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 370 380 H 325 V 515" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="297" y1="515" x2="353" y2="515" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="307" y1="523" x2="343" y2="523" stroke="#ffffff" stroke-width="3"/>
             <line class="hot" x1="317" y1="531" x2="333" y2="531" stroke="#ffffff" stroke-width="2.5"/>
@@ -332,76 +332,76 @@
 
         <!-- 反馈通路导线（求和节点→R₃，与 R₁ 输入线共线） -->
         <g class="interactive" data-id="wire-fb1a" data-name="第一级反馈通路导线">
-            <path class="hot" d="M 280 160 H 382" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 280 160 H 390.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- R₃ 反馈电阻 -->
         <g class="interactive" data-id="comp-r3" data-name="反馈电阻 R₃">
-            <rect class="hot" x="382" y="146" width="70" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="390.5" y="146.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="417" y="118" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R<tspan class="sub">3</tspan></text>
         </g>
         <!-- 反馈通路导线（R₃→输出节点） -->
         <g class="interactive" data-id="wire-fb1b" data-name="第一级反馈通路导线（至输出）">
-            <path class="hot" d="M 452 160 H 555 V 340" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 443.5 160 H 555 V 340" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- 第一级输出导线（A1→R4，反馈在此节点汇合） -->
         <g class="interactive" data-id="wire-out1" data-name="第一级输出导线">
-            <path class="hot" d="M 510 340 H 600" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 510 340 H 606" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <circle cx="555" cy="340" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
 
         <!-- 第二级输入电阻 R（级间） -->
         <g class="interactive" data-id="comp-r4" data-name="第二级输入电阻 R">
-            <rect class="hot" x="600" y="326" width="65" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="606" y="326.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="632" y="312" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R</text>
         </g>
         <!-- 级间耦合导线（R→A2 反相端） -->
         <g class="interactive" data-id="wire-link2" data-name="级间耦合导线（至A2反相端）">
-            <path class="hot" d="M 665 340 H 775" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 659 340 H 775" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 第二级运放 A2 -->
         <g class="interactive" data-id="comp-opamp2" data-name="运放 A2（第二级·反相放大）">
-            <polygon class="hot" points="775,270 775,510 915,390" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="830" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">A<tspan class="sub">2</tspan></text>
+            <polygon class="hot" points="775,295 775,465 915,380" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="830" y="392" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">A<tspan class="sub">2</tspan></text>
         </g>
         <!-- A2 反相输入端（−） -->
         <g class="interactive" data-id="comp-input-neg2" data-name="A2 反相输入端（−）">
             <circle cx="797" cy="340" r="26" fill="transparent" pointer-events="all"/>
-            <text x="797" y="351" fill="#9bd4ff" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+            <text x="797" y="360" fill="#9bd4ff" font-size="32" font-weight="bold" text-anchor="middle">－</text>
         </g>
         <!-- A2 同相输入端（+） -->
         <g class="interactive" data-id="comp-input-pos2" data-name="A2 同相输入端（+）">
-            <circle cx="797" cy="440" r="26" fill="transparent" pointer-events="all"/>
-            <text x="797" y="453" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <circle cx="797" cy="420" r="26" fill="transparent" pointer-events="all"/>
+            <text x="797" y="431" fill="#ffe66d" font-size="32" font-weight="bold" text-anchor="middle">＋</text>
         </g>
 
         <!-- 第二级反馈通路（反相端→上方→输出） -->
         <g class="interactive" data-id="wire-r5a" data-name="第二级反馈通路导线">
-            <path class="hot" d="M 720 340 V 210 H 790" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 720 340 V 210 H 798.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <circle cx="720" cy="340" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <g class="interactive" data-id="comp-r5" data-name="第二级反馈电阻 R">
-            <rect class="hot" x="790" y="196" width="70" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="798.5" y="196.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="825" y="182" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R</text>
         </g>
         <g class="interactive" data-id="wire-r5b" data-name="第二级反馈通路导线（至输出）">
-            <path class="hot" d="M 860 210 H 930 V 390" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 851.5 210 H 930 V 380" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
 
         <!-- 第二级输出导线（A2→Vᵒ 端子） -->
         <g class="interactive" data-id="wire-out2" data-name="输出导线">
-            <path class="hot" d="M 915 390 H 975" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <circle cx="930" cy="390" r="7" fill="#ffffff" pointer-events="none"/>
+            <path class="hot" d="M 915 380 H 975" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <circle cx="930" cy="380" r="7" fill="#ffffff" pointer-events="none"/>
         </g>
         <!-- 输出端子 Vᵒ -->
         <g class="interactive" data-id="comp-vo" data-name="输出电压 Vᵒ">
-            <circle class="hot" cx="983" cy="390" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
-            <text class="hot-label" x="983" y="352" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <circle class="hot" cx="983" cy="380" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label" x="983" y="342" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">V<tspan class="sub">o</tspan></text>
         </g>
 
         <!-- A2 同相端接地（直接接地，无平衡电阻） -->
         <g class="interactive" data-id="comp-gnd2" data-name="接地（电位参考点）">
-            <path class="hot" d="M 775 440 H 730 V 515" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 775 420 H 730 V 515" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="702" y1="515" x2="758" y2="515" stroke="#ffffff" stroke-width="3.5"/>
             <line class="hot" x1="712" y1="523" x2="748" y2="523" stroke="#ffffff" stroke-width="3"/>
             <line class="hot" x1="722" y1="531" x2="738" y2="531" stroke="#ffffff" stroke-width="2.5"/>
@@ -1376,14 +1376,28 @@
         say('恭喜你，完成全部关卡！最终得分' + S.score + '分。');
         render();
     }
+    // 第116轮：结算得分项左对齐基准——量最长行宽，使整块在面板内居中、各行左缘统一
+    function doneLeftX(arr) {
+        let wMax = 0;
+        arr.forEach(t => {
+            const p = mkText(0, -400, 25, t, { bold: false });
+            gameUI.appendChild(p);
+            wMax = Math.max(wMax, p.getBBox().width);
+            gameUI.removeChild(p);
+        });
+        return Math.round(Math.max(LX + 20, LCX - wMax / 2));
+    }
     function renderDone() {
         const b = scoreBreakdown();
         gameUI.appendChild(mkText(LCX, 342, 42, '🎉 闯关完成！', { anchor: 'middle', fill: '#ffd93d' }));
         gameUI.appendChild(mkText(LCX, 428, 48, '最终得分：' + S.score + ' / ' + TOTAL_PTS, { anchor: 'middle', fill: '#ffd93d' }));
-        gameUI.appendChild(mkText(LCX, 492, 25, '第1关 判类型：' + b[0] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
-        gameUI.appendChild(mkText(LCX, 530, 25, '第2关 选框架：' + b[1] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
-        gameUI.appendChild(mkText(LCX, 568, 25, '第2关 填表达式：' + b[2] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
-        if (HAS_AV) gameUI.appendChild(mkText(LCX, 606, 25, (GAME_CONFIG.av.doneLabel || '第4关 求总Aᵥ') + '：' + b[3] + ' 分', { anchor: 'middle', fill: 'rgba(255,255,255,0.85)', bold: false }));
+        // 第116轮：得分项左对齐（按最长行宽把整块在面板内居中，各行左缘统一）
+        const lsTxt = ['第1关 判类型：' + b[0] + ' 分', '第2关 选框架：' + b[1] + ' 分', '第2关 填表达式：' + b[2] + ' 分'];
+        if (HAS_AV) lsTxt.push((GAME_CONFIG.av.doneLabel || '第4关 求总Aᵥ') + '：' + b[3] + ' 分');
+        const lsX = doneLeftX(lsTxt);
+        lsTxt.forEach((t, i) => {
+            gameUI.appendChild(mkText(lsX, 492 + i * 38, 25, t, { anchor: 'start', fill: 'rgba(255,255,255,0.85)', bold: false }));
+        });
         const ev = S.score >= 90 ? '优秀！两级电路的分析已经掌握得很扎实。'
                  : S.score >= 75 ? '良好！再巩固一下表达式框架就更棒了。'
                  : S.score >= 60 ? '及格。建议回到"计算训练"再听一遍分级讲解。'

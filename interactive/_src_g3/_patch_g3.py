@@ -19,12 +19,16 @@ if MARK in s:
 
 REPS = [
 # ---------- 1. resetCircuit：清零清单换成新 fx/state id ----------
+# 第99轮：并行会话已将第114轮 hit-off 补丁合入模板——old 改为模板现状（保留其新增段）
 ("""        ['fx-c1', 'fx-c2', 'fx-ce', 'fx-vi', 'fx-vcc', 'fx-vs', 'fx-re', 'fx-tmodel', 'rarr-rb1', 'rarr-rc',
          'fx-t-rbe', 'fx-t-src', 'fx-t-ib', 'fx-t-ic', 'fx-dot-b', 'fx-dot-c', 'fx-dot-e',
          'eq-layer', 'eq-rb1', 'eq-rb2'].forEach(id => {
             const f = document.getElementById(id);
             if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; }
         });
+        // 第114轮：复位后等效模型回到隐藏态，恢复命中隔离（class 形式不随上面的 inline 清理自动恢复）
+        const tm = document.getElementById('fx-tmodel');
+        if (tm) tm.classList.add('hit-off');
         document.querySelectorAll('.vcc-label, .rb2-label').forEach(t => { t.style.opacity = ''; t.style.visibility = ''; });""",
  """        ['fx-c1', 'fx-c2', 'fx-ce', 'fx-vcc', 'fx-vee', 'fx-vs', 'fx-re2', 'fx-gnd-rc', 'fx-gnd-e',
          'fx-gnd-rail', 'fx-gnd-jct', 'fx-re2-wire',
@@ -44,7 +48,10 @@ REPS = [
         ['fx-tidy-lines', 'fx-tidy-rc', 'fx-tidy-ce', 'fx-tidy-vee'].forEach(id => {
             const f = document.getElementById(id);
             if (f) { f.style.opacity = '0'; f.style.pointerEvents = ''; }
-        });"""),
+        });
+        // 第114轮（并行会话合入模板，此处保留）：复位后等效模型回到隐藏态，恢复命中隔离
+        const tm = document.getElementById('fx-tmodel');
+        if (tm) tm.classList.add('hit-off');"""),
 
 # ---------- 2. nextHint：CAPS/RES 换成本案例清单 ----------
 ("""    // 正确作答后的追加提示语：按当前进度决定下一句该做什么（无提示返回 ''）
@@ -582,6 +589,155 @@ REPS = [
             case 'vee-gnd':  showFx('fx-vee', true); break;""",
  """            // −V_EE 置零接地：画接地符号并隐藏 −V_EE 文字（第92轮用户要求；71轮「保留文字」作废）
             case 'vee-gnd':  showFx('fx-vee', true); hideVccLabelOnly('vee'); break;"""),
+
+# ---------- 第99轮：numPad 数字键盘回归（并行会话新模板已移除；源：Temp/cj-g4.before-r118.html 第112-114轮设计） ----------
+# ① CSS
+("""    #circuit-wrap .stage-purple .color-blink text { fill: var(--blink-color); }""",
+ """    #circuit-wrap .stage-purple .color-blink text { fill: var(--blink-color); }
+    /* 第99轮回归：常数数字键盘（含「确认」按钮）与电量按钮样式 */
+    .num-key { cursor: pointer; }
+    .num-key rect { fill: rgba(139,92,246,0.20); stroke: #a78bfa; stroke-width: 2; transition: all 0.18s ease; }
+    .num-key text { fill: #ffffff; }
+    .num-key:hover rect { fill: rgba(167,139,250,0.42); stroke: #ffd93d; }
+    .pick-key { cursor: pointer; }
+    .pick-key rect { fill: rgba(52,211,153,0.16); stroke: #34d399; stroke-width: 2; transition: all 0.18s ease; }
+    .pick-key text { fill: #ffffff; }
+    .pick-key:hover rect { fill: rgba(52,211,153,0.34); stroke: #ffd93d; }"""),
+# ② S 状态：numStr 输入缓冲
+("""            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0, route: null, qPicked: [],""",
+ """            score: 0, level: 1, msg: null, finished: false, selBox: null, levelStart: 0, route: null, qPicked: [], numStr: null,"""),
+# ③ blanks map 保留 num 字段
+("""            : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, full: b.pts, rem: b.pts, done: false })) };""",
+ """            : { type: 'fill', blanks: sb.blanks.map(b => ({ ansIds: b.ansIds, label: b.label, labels: b.labels, grp: b.grp, num: b.num, full: b.pts, rem: b.pts, done: false })) };"""),
+# ④ mix fill 渲染：numPad 按钮区（0-9 两行 + 电量按钮 + 确认）与表达式下移
+("""        gameUI.appendChild(mkText(1010, BODY_TOP + 40, 26, '表达式：', { fill: '#ffd93d' }));
+        const es = 42;   // 文字标准（lin-g 系列）：填空表达式 42，超宽自动缩排
+        const eTop = BODY_TOP + 96, eSpan = BODY_BOT - eTop;""",
+ """        gameUI.appendChild(mkText(1010, BODY_TOP + 40, 26, '表达式：', { fill: '#ffd93d' }));
+        // 第99轮回归：常数数字键盘（含「确认」）——点虚线框 → 点数字逐位输入 → 点「确认」校验（常数空 pts:0）
+        if (sb.numPad) {
+            gameUI.appendChild(mkText(LX, BODY_TOP + 64, 21, '常数：先点虚线框，再点数字；其他空点电路中对应元件', { fill: 'rgba(255,255,255,0.72)', bold: false }));
+            // 键盘 6 列×2 行——第 1 行 0~4 + 电量按钮（第 6 列），第 2 行 5~9 + 「确认」（第 6 列）
+            const nkW = 79, nkH = 50, nkGap = 6, nkY0 = BODY_TOP + 80;
+            '0123456789'.split('').forEach((d, di) => {
+                const x = LX + 6 + (di % 5) * (nkW + nkGap);
+                const y = nkY0 + Math.floor(di / 5) * (nkH + nkGap);
+                const g = mkBtn(x, y, nkW, nkH, 'num-key');
+                g.setAttribute('data-digit', d);
+                g.appendChild(mkText(x + nkW / 2, y + nkH / 2 + 10, 30, d, { anchor: 'middle' }));
+                gameUI.appendChild(g);
+            });
+            const colX = LX + 6 + 5 * (nkW + nkGap), colW = LW - 12 - 5 * (nkW + nkGap);
+            // 第 6 列上行：电量按钮（点击＝选中该空并按 ansIds 作答，已填变暗）
+            const qBtns = st.blanks.map((b, bi) => ({ b: b, bi: bi })).filter(x => !x.b.num && (x.b.ansIds || []).indexOf('q-beta') < 0);
+            if (qBtns.length) {
+                const xb = qBtns[0];
+                const gq = mkBtn(colX, nkY0, colW, nkH, xb.b.done ? 'pick-key dim' : 'pick-key');
+                gq.setAttribute('data-blank-idx', xb.bi);
+                gq.setAttribute('data-ans', (xb.b.ansIds || [])[0] || '');
+                const tap = (xb.b.label && xb.b.label[0]) ? xb.b.label[0] : { main: '?' };
+                gq.appendChild(mkText(colX + colW / 2, nkY0 + nkH / 2 + 10, 27, markupOf(tap), { anchor: 'middle' }));
+                gameUI.appendChild(gq);
+            }
+            // 第 6 列下行：「确认」
+            const okY = nkY0 + nkH + nkGap;
+            const okG = mkBtn(colX, okY, colW, nkH, 'num-key');
+            okG.setAttribute('data-digit', 'ok');
+            okG.appendChild(mkText(colX + colW / 2, okY + nkH / 2 + 9, 24, '确认', { anchor: 'middle' }));
+            gameUI.appendChild(okG);
+        }
+        const es = 42;   // 文字标准（lin-g 系列）：填空表达式 42，超宽自动缩排
+        const eTop = sb.numPad ? BODY_TOP + 196 : BODY_TOP + 96, eSpan = BODY_BOT - eTop;   // numPad 关表达式下移到按钮区下方"""),
+# ⑤ selBox 高亮 + 常数输入缓冲实时回显（黄字挂 rect 父组）
+("""        if (S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
+            const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
+            if (r) r.classList.add('sel');
+        }
+        renderMsg(1010, 752, 26);""",
+ """        if (S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
+            const r = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
+            if (r) r.classList.add('sel');
+        }
+        // 第99轮回归：常数输入缓冲实时回显（选中框内黄字，挂 rect 父组局部坐标）
+        if (S.numStr && S.selBox && S.selBox.level === i && S.selBox.mix === mx.si) {
+            const r2 = gameUI.querySelector('.blank-box[data-blank-level="' + i + '"][data-blank-idx="' + S.selBox.idx + '"]');
+            if (r2) {
+                const bx2 = parseFloat(r2.getAttribute('x')) + parseFloat(r2.getAttribute('width')) / 2;
+                const by2 = parseFloat(r2.getAttribute('y')) + parseFloat(r2.getAttribute('height')) / 2;
+                r2.parentNode.appendChild(mkText(bx2, by2 + 9, 27, S.numStr, { fill: '#ffd93d', anchor: 'middle' }));
+            }
+        }
+        renderMsg(1010, 752, 26);"""),
+# ⑥ gameUI 点击委托：num-key / pick-key 处理（插在 .blank-box 判定之前）
+("""    gameUI.addEventListener('click', e => {
+        const r = e.target.closest ? e.target.closest('.blank-box') : null;""",
+ """    gameUI.addEventListener('click', e => {
+        // 第99轮回归：数字键盘——点数字逐位追加到选中的常数框；「确认」提交校验（submitNum）
+        const nk = e.target.closest ? e.target.closest('.num-key') : null;
+        if (nk) {
+            if (S.finished) return;
+            const d = nk.getAttribute('data-digit');
+            const k = cur().kind;
+            if (k !== 'mix' || !S.selBox || S.selBox.mix === undefined) { setMsg('请先点表达式里的虚线框，再点数字。', '#ffd93d'); render(); return; }
+            const st = S.mix[S.selBox.level].steps[S.selBox.mix];
+            const spec = st.blanks[S.selBox.idx];
+            if (spec.done) return;
+            if (!spec.num) { setMsg('该空请点击电路中的对应元件作答。', '#ffd93d'); render(); return; }
+            if (d === 'ok') { submitNum(S.selBox.level); return; }
+            if (S.numStr === null || S.numStr === undefined) S.numStr = '';
+            if (S.numStr.length >= 4) { setMsg('位数已够，请点「确认」提交。', '#ffd93d'); render(); return; }
+            S.numStr += d;
+            render();
+            return;
+        }
+        // 第99轮回归：电量按钮——选中对应空并按 ansIds 作答
+        const pk = e.target.closest ? e.target.closest('.pick-key') : null;
+        if (pk) {
+            if (S.finished) return;
+            if (cur().kind !== 'mix') return;
+            const mxp = S.mix[S.level - 1];
+            if (!mxp || mxp.steps[mxp.si].type !== 'fill') return;
+            const bip = parseInt(pk.getAttribute('data-blank-idx'), 10);
+            const bp = mxp.steps[mxp.si].blanks[bip];
+            if (bp.done) { setMsg('该空已填好。', '#ffd93d'); render(); return; }
+            S.selBox = { level: S.level - 1, mix: mxp.si, idx: bip };
+            S.numStr = bp.num ? '' : null;
+            answerBlank(pk.getAttribute('data-ans'));
+            return;
+        }
+        const r = e.target.closest ? e.target.closest('.blank-box') : null;"""),
+# ⑦ blank-box 点选：常数空清空输入缓冲
+("""            S.selBox = { level: lv, mix: mx.si, idx: idx };""",
+ """            S.selBox = { level: lv, mix: mx.si, idx: idx };
+            S.numStr = mx.steps[mx.si].blanks[idx].num ? '' : null;   // 第99轮回归：常数空清空输入缓冲"""),
+# ⑧ submitNum 函数（插在 answerBlank 定义前）
+("""    function answerBlank(id) {""",
+ """    // 第99轮回归：常数空提交校验（正确 → 回填绿字；错误 → 清空缓冲可重输，不扣分）
+    function submitNum(lv) {
+        const mx = S.mix[lv];
+        const st = mx.steps[S.selBox.mix];
+        const b = st.blanks[S.selBox.idx];
+        if (b.done) return;
+        if (!S.numStr) { setMsg('请先点数字，再点确认。', '#ffd93d'); render(); return; }
+        if (S.numStr === b.num) {
+            b.done = true; b.picked = 'num-' + S.numStr;
+            S.numStr = null; S.selBox = null;
+            const gain = Math.round(b.rem);
+            if (gain > 0) { addScore(gain); setMsg('正确，得 ' + gain + ' 分。', '#34d399'); say('回答正确，获得' + gain + '分。'); }
+            else { setMsg('正确。', '#34d399'); say('回答正确。'); }
+            if (st.blanks.every(x => x.done)) addT(() => mixFillDone(lv), 1400);
+            render();
+        } else {
+            setMsg('常数不对，请重新输入。', '#fb7185'); say('常数不对，请重新输入。');
+            S.numStr = '';
+            render();
+        }
+    }
+    function answerBlank(id) {"""),
+# ⑨ answerBlank：常数空不接受电路元件点击（防误触扣分）
+("""        if (!dup && spec.ansIds.indexOf(id) >= 0) {""",
+ """        if (spec.num) { setMsg('该空请点面板里的数字按钮填写。', '#ffd93d'); render(); return; }
+        if (!dup && spec.ansIds.indexOf(id) >= 0) {"""),
 ]
 miss = []; dup = []
 for a, b in REPS:

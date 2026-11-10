@@ -183,30 +183,30 @@
 
         <!-- 导线（每条独立可交互） -->
         <g class="interactive" data-id="wire-1" data-name="输入导线（信号源→R3）">
-            <path class="hot" d="M 150 330 H 270" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 150 340 H 298.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-2" data-name="输入导线（R3→同相端）">
-            <path class="hot" d="M 380 330 H 500" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 351.5 340 H 500" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <!-- R3 短路演示线（悬停平衡电阻时出现） -->
-        <line id="r3-short" x1="270" y1="330" x2="380" y2="330" stroke="#ffe66d" stroke-width="3.5" style="visibility:hidden" pointer-events="none"/>
+        <line id="r3-short" x1="298.5" y1="330" x2="351.5" y2="330" stroke="#ffe66d" stroke-width="3.5" style="visibility:hidden" pointer-events="none"/>
         <g class="interactive" data-id="wire-3" data-name="信号源接地导线">
-            <path class="hot" d="M 120 360 V 430" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 120 370 V 440" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-6" data-name="反相输入导线">
-            <path class="hot" d="M 500 470 H 387" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 500 460 H 387" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-7" data-name="R1 支路导线（反相端→R1）">
-            <path class="hot" d="M 387 470 V 610" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 387 460 V 618.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-8" data-name="R1 接地导线">
-            <path class="hot" d="M 387 680 V 745" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 387 671.5 V 745" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-9" data-name="反馈导线（连接点→R3 左侧）">
-            <path class="hot" d="M 387 580 H 520" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 387 580 H 548.5" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-10" data-name="反馈导线（R3→输出节点）">
-            <path class="hot" d="M 630 580 H 760 V 400" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 601.5 580 H 760 V 400" fill="none" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="wire-11" data-name="输出导线">
             <path class="hot" d="M 680 400 H 841" fill="none" stroke="#ffffff" stroke-width="3.5"/>
@@ -214,45 +214,45 @@
 
         <!-- 信号源 V1 -->
         <g class="interactive" data-id="comp-v1" data-name="输入信号源 Vi（V1）">
-            <circle class="hot" cx="120" cy="330" r="30" fill="#f1c40f" stroke="#ffffff" stroke-width="3.5"/>
-            <path d="M 104 330 Q 112 314 120 330 Q 128 346 136 330" fill="none" stroke="#0a3d20" stroke-width="3" pointer-events="none"/>
-            <text class="hot-label" x="120" y="262" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">Vᵢ</text>
+            <circle class="hot" cx="120" cy="340" r="30" fill="#f1c40f" stroke="#ffffff" stroke-width="3.5"/>
+            <path d="M 104 340 Q 112 324 120 340 Q 128 356 136 340" fill="none" stroke="#0a3d20" stroke-width="3" pointer-events="none"/>
+            <text class="hot-label" x="120" y="272" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">Vᵢ</text>
         </g>
 
         <!-- 平衡电阻 R3（串联在信号源与同相输入端之间，居中） -->
         <g class="interactive" data-id="comp-r3" data-name="平衡电阻 R3">
-            <rect class="hot" x="270" y="316" width="110" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
-            <text class="hot-label" x="325" y="292" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R₃</text>
+            <rect class="hot" x="298.5" y="326.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="325" y="302" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R₃</text>
         </g>
 
         <!-- 接地电阻 R1（反馈线下方，紧凑居中） -->
         <g class="interactive" data-id="comp-r1" data-name="接地电阻 R1">
-            <rect class="hot" x="373" y="610" width="28" height="70" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="373.5" y="618.5" width="27" height="53" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="355" y="655" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R₁</text>
         </g>
 
         <!-- 反馈电阻 R2（Rf，运放正下方） -->
         <g class="interactive" data-id="comp-r2" data-name="反馈电阻 R2（Rf）">
-            <rect class="hot" x="520" y="566" width="110" height="28" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <rect class="hot" x="548.5" y="566.5" width="53" height="27" fill="none" stroke="#ffffff" stroke-width="3.5"/>
             <text class="hot-label" x="575" y="640" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">R₂（Rf）</text>
         </g>
 
         <!-- 集成运放（本体） -->
         <g class="interactive" data-id="comp-opamp" data-name="集成运算放大器 A">
-            <polygon class="hot" points="500,280 500,520 680,400" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <polygon class="hot" points="500,305 500,495 680,400" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
             <text x="560" y="412" fill="rgba(255,255,255,0.85)" font-size="28" font-style="italic" text-anchor="middle" pointer-events="none">A</text>
         </g>
 
         <!-- 同相输入端 +（独立交互单元，带隐形热区） -->
         <g class="interactive" data-id="comp-input-pos" data-name="同相输入端（+）">
-            <circle cx="526" cy="330" r="26" fill="transparent" pointer-events="all"/>
-            <text id="plus-sign" class="hot-label" x="525" y="343" fill="#ffe66d" font-size="37" font-weight="bold" pointer-events="none">+</text>
+            <circle cx="526" cy="340" r="26" fill="transparent" pointer-events="all"/>
+            <text id="plus-sign" class="hot-label" x="525" y="351" fill="#ffe66d" font-size="32" font-weight="bold" pointer-events="none">+</text>
         </g>
 
         <!-- 反相输入端 −（独立交互单元，带隐形热区） -->
         <g class="interactive" data-id="comp-input-neg" data-name="反相输入端（−）">
-            <circle cx="524" cy="470" r="26" fill="transparent" pointer-events="all"/>
-            <text class="hot-label" x="522" y="483" fill="#7ec8ff" font-size="37" font-weight="bold" pointer-events="none">−</text>
+            <circle cx="524" cy="460" r="26" fill="transparent" pointer-events="all"/>
+            <text class="hot-label" x="522" y="466" fill="#7ec8ff" font-size="32" font-weight="bold" pointer-events="none">−</text>
         </g>
 
         <!-- 输出端 -->
@@ -263,9 +263,9 @@
 
         <!-- 接地符号（3处） -->
         <g class="interactive" data-id="comp-gnd-src" data-name="信号源接地">
-            <line class="hot" x1="94" y1="430" x2="146" y2="430" stroke="#ffffff" stroke-width="3.5"/>
-            <line class="hot" x1="105" y1="442" x2="135" y2="442" stroke="#ffffff" stroke-width="3.5"/>
-            <line class="hot" x1="114" y1="454" x2="126" y2="454" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="94" y1="440" x2="146" y2="440" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="105" y1="452" x2="135" y2="452" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="114" y1="464" x2="126" y2="464" stroke="#ffffff" stroke-width="3.5"/>
         </g>
         <g class="interactive" data-id="comp-gnd-r1" data-name="R1 接地">
             <line class="hot" x1="361" y1="745" x2="413" y2="745" stroke="#ffffff" stroke-width="3.5"/>
@@ -302,8 +302,8 @@
 
         <!-- ====== 计算过程演示图层（不拦截鼠标） ====== -->
         <g id="calc-vp" style="visibility:hidden" pointer-events="none">
-            <circle cx="440" cy="330" r="9" fill="#ff5252"/>
-            <text x="440" y="288" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">V<tspan class="sub">p</tspan></text>
+            <circle cx="440" cy="340" r="9" fill="#ff5252"/>
+            <text x="440" y="298" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">V<tspan class="sub">p</tspan></text>
         </g>
         <g id="calc-ip" style="visibility:hidden" pointer-events="none">
             <line x1="285" y1="244" x2="350" y2="244" stroke="#ff5252" stroke-width="4"/>
@@ -311,12 +311,12 @@
             <text x="308" y="208" fill="#ff5252" font-size="28" font-weight="bold">I<tspan class="sub">p</tspan></text>
         </g>
         <g id="calc-vn" style="visibility:hidden" pointer-events="none">
-            <circle cx="440" cy="470" r="9" fill="#4da3ff"/>
-            <text x="440" y="428" fill="#4da3ff" font-size="28" font-weight="bold" text-anchor="middle">V<tspan class="sub">n</tspan></text>
+            <circle cx="440" cy="460" r="9" fill="#4da3ff"/>
+            <text x="440" y="418" fill="#4da3ff" font-size="28" font-weight="bold" text-anchor="middle">V<tspan class="sub">n</tspan></text>
         </g>
         <g id="calc-in" style="visibility:hidden" pointer-events="none">
-            <line x1="405" y1="535" x2="405" y2="490" stroke="#4da3ff" stroke-width="4"/>
-            <polygon points="397,490 405,470 413,490" fill="#4da3ff"/>
+            <line x1="405" y1="535" x2="405" y2="480" stroke="#4da3ff" stroke-width="4"/>
+            <polygon points="397,480 405,460 413,480" fill="#4da3ff"/>
             <text x="424" y="560" fill="#4da3ff" font-size="28" font-weight="bold" text-anchor="start">I<tspan class="sub">n</tspan></text>
         </g>
         <g id="calc-i1" style="visibility:hidden" pointer-events="none">
@@ -335,7 +335,7 @@
 
         <!-- Ri 演示：输入电阻看进去范围（黄色虚线圆角框；框左边输入端口短线略探出框外） -->
         <g id="calc-ri-box" style="visibility:hidden" pointer-events="none">
-            <line x1="190" y1="330" x2="270" y2="330" stroke="#ffffff" stroke-width="3.5"/>
+            <line x1="190" y1="340" x2="298.5" y2="340" stroke="#ffffff" stroke-width="3.5"/>
             <rect x="210" y="240" width="590" height="550" rx="18" fill="none" stroke="#ffe66d" stroke-width="3" stroke-dasharray="12 8"/>
         </g>
         <!-- Ri 演示：框左外侧向上右拐黄色箭头 + Ri 标注（擦除显示动画） -->
@@ -356,7 +356,7 @@
         </g>
         <!-- Ro 演示：输入端口直接接地（独立源置零） -->
         <g id="calc-ro-gnd" style="visibility:hidden" pointer-events="none">
-            <line x1="190" y1="330" x2="190" y2="368" stroke="#ffffff" stroke-width="3.5"/>
+            <line x1="190" y1="340" x2="190" y2="368" stroke="#ffffff" stroke-width="3.5"/>
             <line x1="165" y1="368" x2="215" y2="368" stroke="#ffffff" stroke-width="3.5"/>
             <line x1="173" y1="380" x2="207" y2="380" stroke="#ffffff" stroke-width="3.5"/>
             <line x1="181" y1="392" x2="199" y2="392" stroke="#ffffff" stroke-width="3.5"/>

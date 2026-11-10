@@ -154,12 +154,21 @@ const SEQIDX = { eq: 0, eqs: 1, cq: 2, cqs: 3, base: 4, bvci: 5 };
       if (bi < 0) return { type: 'wait' };
       const b = stp.blanks[bi];
       const sibs = stp.blanks.filter((x, i) => b.grp && x.grp === b.grp && i !== bi && x.done).map(x => x.picked);
-      return { type: 'fill', boxIdx: bi, ans: b.ansIds.slice(), grp: b.grp || null, sibs };
+      return { type: 'fill', boxIdx: bi, num: b.num || null, ans: (b.ansIds || []).slice(), grp: b.grp || null, sibs };
     });
     if (info.type === 'fw') { await pickMixOpt(info.idx); continue; }
     if (info.type === 'wait') { await page.waitForTimeout(900); continue; }
     await page.locator(`.blank-box[data-blank-level="2"][data-blank-idx="${info.boxIdx}"]`).first().click({ force: true });
     await page.waitForTimeout(160);
+    if (info.num) {
+      for (const ch of String(info.num)) {
+        await page.locator(`.num-key[data-digit="${ch}"]`).first().click({ force: true });
+        await page.waitForTimeout(90);
+      }
+      await page.locator('.num-key[data-digit="ok"]').first().click({ force: true });
+      await page.waitForTimeout(220);
+      continue;
+    }
     let pick = info.ans[0];
     if (info.grp && info.sibs.includes(pick)) pick = info.ans.find(a => !info.sibs.includes(a)) || info.ans[0];
     await clickUnit(pick);
@@ -202,12 +211,21 @@ const SEQIDX = { eq: 0, eqs: 1, cq: 2, cqs: 3, base: 4, bvci: 5 };
       if (bi < 0) return { type: 'wait' };
       const b = stp.blanks[bi];
       const sibs = stp.blanks.filter((x, i) => b.grp && x.grp === b.grp && i !== bi && x.done).map(x => x.picked);
-      return { type: 'fill', boxIdx: bi, ans: b.ansIds.slice(), grp: b.grp || null, sibs };
+      return { type: 'fill', boxIdx: bi, num: b.num || null, ans: (b.ansIds || []).slice(), grp: b.grp || null, sibs };
     });
     if (info.type === 'fw') { await pickMixOpt(info.idx); continue; }
     if (info.type === 'wait') { await page.waitForTimeout(900); continue; }
     await page.locator(`.blank-box[data-blank-level="4"][data-blank-idx="${info.boxIdx}"]`).first().click({ force: true });
     await page.waitForTimeout(160);
+    if (info.num) {
+      for (const ch of String(info.num)) {
+        await page.locator(`.num-key[data-digit="${ch}"]`).first().click({ force: true });
+        await page.waitForTimeout(90);
+      }
+      await page.locator('.num-key[data-digit="ok"]').first().click({ force: true });
+      await page.waitForTimeout(220);
+      continue;
+    }
     let pick = info.ans[0];
     if (info.grp && info.sibs.includes(pick)) pick = info.ans.find(a => !info.sibs.includes(a)) || info.ans[0];
     await clickUnit(pick);

@@ -1,0 +1,485 @@
+        <!-- ▼▼▼ 替换区 B：本案例电路 SVG（<g id="circuit-wrap"> 整块；含 fx-layer 特效/电量标注/整理/等效层；
+             元件/导线须为 g.interactive[data-id]，id 与区 C/D 一一对应；共射类案例可改造本示例） ▼▼▼ -->
+        <!-- ====== ① 电路区：双电源共射放大电路（+V_CC — R_C — T 集电极；C_C 耦合输出带 R_L ∥ V_o；
+             输入 V_s + R_S — C_B — 基极，R_B 基极接地（故 V_BQ≈0）；
+             发射极 R_e1 + R_e2 串联接 −V_EE，C_E 只旁路 R_e2（部分旁路）；
+             基电路各接地符号独立；第 4 关等效态由 eq-layer 的公共地轨统一表达） ====== -->
+        <g id="circuit-wrap" transform="translate(18, 199) scale(1)">
+        <!-- 电源端 +V_CC（右上端子；交流分析中置零接地） -->
+        <g class="interactive" data-id="comp-vcc" data-name="直流电源端 +V_CC（交流分析中置零接地）">
+            <circle class="hot" cx="805" cy="33" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label vcc-label" x="805" y="82" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋V<tspan class="sub">CC</tspan></text>
+        </g>
+        <!-- 顶部电源导轨（R_C 上端 → +V_CC 端子，止于端子圆圈外缘 797） -->
+        <g class="interactive" data-id="wire-vcc-rail" data-name="电源导线（R_C 上端 → +V_CC 端子）">
+            <path class="hot" d="M 486 33 H 797" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+
+        <!-- 集电极支路：R_C 上端 → 下端 → 集电极节点 → C_C -->
+        <g class="interactive" data-id="wire-rc-top" data-name="R_C 上端接线（→ 电源轨）">
+            <path class="hot" d="M 486 33 V 77" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rc" data-name="集电极电阻 R_C（把集电极电流的变化转换成电压变化输出）">
+            <rect class="hot" x="468" y="77" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="454" y="113" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">C</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rc-a" data-name="R_C 下端接线（R_C→集电极导线）">
+            <path class="hot" d="M 486 132 V 176" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <!-- 集电极短接线（第48轮拆出）：T 集电极→集电极导线。R_C 下移（与 R_L 并联）时 wire-rc-a 整段收起，
+             但晶体管仍在电路中，此段必须保留，否则集电极与 R_C/R_L 支路断开；晶体管等效移除时随 showEquiv 收起 -->
+        <g class="interactive" data-id="wire-c-stub" data-name="集电极接线（集电极导线→T 集电极，R_C 下移后仍保留）">
+            <path class="hot" d="M 486 176 V 211" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g id="node-collector" data-id="node-collector" data-name="集电极节点（T 集电极—R_C—C_C 的交汇点）">
+            <circle cx="486" cy="176" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+        <g class="interactive" data-id="wire-collector" data-name="集电极导线（集电极节点 → C_C 左板）">
+            <path class="hot" d="M 486 176 H 670" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-c2" data-name="输出耦合电容 C_C（隔直通交）">
+            <line class="hot" x1="670" y1="154" x2="670" y2="198" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="684" y1="154" x2="684" y2="198" stroke="#ffffff" stroke-width="3.5"/>
+            <!-- 标注移到电容下方（第72轮）：上方条带让给 I_CQ≈I_EQ 文字（箭头中间位）；
+                 墨迹 652~702 × 213~246，与极板底 198 净隙 15px、与整理态 R_C 标注(311 起)净隙 65px -->
+                <text class="hot-label" x="677" y="240" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">C<tspan class="sub">C</tspan></text>
+        </g>
+
+        <!-- 输出回路：C_C → R_L（各自接地）∥ 输出电压 V_o -->
+        <g class="interactive" data-id="wire-c2-out" data-name="输出导线（C_C → R_L / 输出节点）">
+            <path class="hot" d="M 684 176 H 800" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="wire-rl-a" data-name="R_L 上端接线（输出节点 → R_L）">
+            <path class="hot" d="M 800 176 V 323" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rl" data-name="负载电阻 R_L">
+            <rect class="hot" x="782" y="323" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="770" y="359" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">L</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rl-b" data-name="R_L 下端接线（→ 接地符号）">
+            <path class="hot" d="M 800 378 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-gnd-rl" data-name="R_L 接地符号（电位参考点 0V）">
+            <line class="hot" x1="800" y1="525" x2="800" y2="543" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="772" y1="543" x2="828" y2="543" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="782" y1="551" x2="818" y2="551" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="790" y1="559" x2="810" y2="559" stroke="#ffffff" stroke-width="2.5"/>
+        </g>
+        <g class="interactive" data-id="comp-vo" data-name="输出电压 V_o（取自 R_L 两端，与输入反相）">
+            <rect class="hot" x="836" y="334" width="44" height="70" fill="none" stroke="none"/>
+            <text class="hot-label" x="858" y="332" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="858" y="378" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">o</tspan></text>
+            <text class="hot-label" x="858" y="449" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+        </g>
+
+        <!-- 晶体管 T（NPN）：基极条 + 集电极斜线 + 发射极斜线（带箭头），B/C/E 电极标注 -->
+        <g class="interactive" data-id="comp-t" data-name="晶体管 T（NPN，微变等效中换成 r_be 与受控源）">
+            <rect class="hot" x="390" y="200" width="140" height="135" fill="none" stroke="none"/>
+            <line class="hot" x1="420" y1="229" x2="420" y2="301" stroke="#ffffff" stroke-width="10"/>
+            <path class="hot" d="M 420 253 L 486 211" fill="none" stroke="#ffffff" stroke-width="7"/>
+            <path class="hot" d="M 420 277 L 486 319" fill="none" stroke="#ffffff" stroke-width="7"/>
+            <polygon class="hot-fill" points="486,319 457,312 468,296" fill="#ffffff" stroke="none"/>
+            <text class="hot-label" x="398" y="312" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">B</text>
+            <text class="hot-label" x="511" y="230" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">C</text>
+            <text class="hot-label" x="511" y="319" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">E</text>
+        </g>
+
+        <!-- 基极节点导线（R_B 下端 / C_B 右板 / 基极 三线交汇） -->
+        <g class="interactive" data-id="wire-base" data-name="基极节点导线（偏置节点 → 基极；R_B 在此下接）">
+            <path class="hot" d="M 320 260 H 420" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g id="node-base" data-id="node-base" data-name="基极节点（R_B 下端—C_B 右板—基极的交汇点）">
+            <circle cx="320" cy="260" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+        <g class="interactive" data-id="wire-base-in" data-name="基极节点导线·C_B 段（C_B 右板 → 基极节点）">
+            <path class="hot" d="M 220 260 H 320" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+
+        <!-- 基极偏置电阻 R_B（基极节点 → 接地；I_BQ 很小故 V_BQ ≈ 0，是本电路稳 Q 的关键） -->
+        <g class="interactive" data-id="wire-rb-a" data-name="R_B 上端接线（基极节点 → R_B）">
+            <path class="hot" d="M 320 260 V 362" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rb" data-name="基极偏置电阻 R_B（把基极钳在 0V 附近，故 V_BQ≈0 —— 双电源电路稳 Q 的关键）">
+            <rect class="hot" x="302" y="362" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="288" y="398" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rb-b" data-name="R_B 下端接线（→ 接地符号）">
+            <path class="hot" d="M 320 417 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-gnd-rb" data-name="R_B 接地符号（电位参考点 0V）">
+            <line class="hot" x1="320" y1="525" x2="320" y2="543" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="292" y1="543" x2="348" y2="543" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="302" y1="551" x2="338" y2="551" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="310" y1="559" x2="330" y2="559" stroke="#ffffff" stroke-width="2.5"/>
+        </g>
+
+        <!-- 输入回路：信号源 V_s（+R_S 内阻）→ 输入端口 V_i → C_B 耦合 → 基极 -->
+        <g class="interactive" data-id="wire-vi-top" data-name="输入导线（信号源 — 端口 — C_B）">
+            <path class="hot" d="M 90 260 H 206" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="wire-rs-top" data-name="R_S 上端接线（→ 输入导线）">
+            <path class="hot" d="M 90 260 V 316" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-rs" data-name="信号源内阻 R_S">
+            <rect class="hot" x="72" y="316" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="58" y="351" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-rs-bot" data-name="R_S 下端接线（→ 信号源）">
+            <path class="hot" d="M 90 371 V 443" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-src" data-name="信号源 V_s（与 R_S 构成实际信号源）">
+            <circle class="hot" cx="90" cy="465" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+            <path class="hot" d="M 76 465 Q 83 455 90 465 T 104 465" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+            <text class="hot-label" x="40" y="445" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="40" y="483" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
+            <text class="hot-label" x="40" y="521" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+        </g>
+        <g class="interactive" data-id="wire-vi-gnd" data-name="信号源接地接线（负端 → 接地符号）">
+            <path class="hot" d="M 90 487 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-gnd-src" data-name="信号源接地符号（电位参考点 0V）">
+            <line class="hot" x1="90" y1="525" x2="90" y2="543" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="62" y1="543" x2="118" y2="543" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="72" y1="551" x2="108" y2="551" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="80" y1="559" x2="100" y2="559" stroke="#ffffff" stroke-width="2.5"/>
+        </g>
+        <g class="interactive" data-id="comp-vi" data-name="输入端口 V_i（放大电路输入电压）">
+            <circle class="hot" cx="150" cy="260" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <!-- 下端子圆已删：信号源接地导线现直接下到接地符号，不再右折接 V_i 下端子（第65轮） -->
+            <text class="hot-label" x="150" y="320" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+            <text class="hot-label" x="150" y="432" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
+            <text class="hot-label" x="150" y="543" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+        </g>
+        <g class="interactive" data-id="comp-c1" data-name="输入耦合电容 C_B（隔直通交）">
+            <line class="hot" x1="206" y1="238" x2="206" y2="282" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="220" y1="238" x2="220" y2="282" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="213" y="220" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="middle">C<tspan class="sub">B</tspan></text>
+        </g>
+
+        <!-- 发射极支路（本电路关键）：T 发射极 → R_e1 → 节点 → R_e2 → −V_EE -->
+        <g class="interactive" data-id="wire-emitter" data-name="发射极接线（T 发射极 → RE1 上端）">
+            <path class="hot" d="M 486 319 V 367" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-re1" data-name="发射极电阻 RE1（未被 C_E 旁路，交流时仍计入 A_v 分母）">
+            <rect class="hot" x="468" y="367" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="454" y="402" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">E1</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-re1-b" data-name="RE1 下端接线（→ 发射极节点）">
+            <path class="hot" d="M 486 422 V 470" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g id="node-re" data-id="node-re" data-name="发射极节点（RE1 下端—RE2 上端—C_E 左端的三线交汇点）">
+            <circle cx="486" cy="470" r="7" fill="#ffffff" pointer-events="none"/>
+        </g>
+        <g class="interactive" data-id="wire-ce-a" data-name="C_E 上端接线（发射极节点 → C_E）">
+            <path class="hot" d="M 486 470 H 598 V 495" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-ce" data-name="发射极旁路电容 C_E（只旁路 RE2，RE1 保留 —— 部分旁路）">
+            <line class="hot" x1="576" y1="495" x2="620" y2="495" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="576" y1="511" x2="620" y2="511" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="626" y="512" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">C<tspan class="sub">E</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-ce-b" data-name="C_E 下端接线（→ 接地符号）">
+            <path class="hot" d="M 598 511 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-gnd-ce" data-name="C_E 接地符号（电位参考点 0V）">
+            <line class="hot" x1="598" y1="525" x2="598" y2="543" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="570" y1="543" x2="626" y2="543" stroke="#ffffff" stroke-width="3.5"/>
+            <line class="hot" x1="580" y1="551" x2="616" y2="551" stroke="#ffffff" stroke-width="3"/>
+            <line class="hot" x1="588" y1="559" x2="608" y2="559" stroke="#ffffff" stroke-width="2.5"/>
+        </g>
+        <g class="interactive" data-id="wire-re2-a" data-name="RE2 上端接线（发射极节点 → RE2）">
+            <path class="hot" d="M 486 470 V 506" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-re2" data-name="发射极电阻 RE2（被 C_E 完全旁路，交流时被短路）">
+            <rect class="hot" x="468" y="506" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            <text class="hot-label" x="454" y="541" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">E2</tspan></text>
+        </g>
+        <g class="interactive" data-id="wire-ree-b" data-name="RE2 下端接线（→ −V_EE 端子）">
+            <path class="hot" d="M 486 561 V 596" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+        </g>
+        <g class="interactive" data-id="comp-vee" data-name="直流电源端 −V_EE（交流分析中置零接地）">
+            <circle class="hot" cx="486" cy="604" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+            <text class="hot-label vee-label" x="505" y="617" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="start">－V<tspan class="sub">EE</tspan></text>
+        </g>
+
+        <!-- ====== 关卡特效层（绘制关的变换动画；默认隐藏，引擎控制显隐） ====== -->
+        <g id="fx-layer" pointer-events="none">
+            <!-- 电容短路桥（交流通路） -->
+            <g id="fx-c1" opacity="0">
+                <line x1="206" y1="260" x2="220" y2="260" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <g id="fx-c2" opacity="0">
+                <line x1="670" y1="176" x2="684" y2="176" stroke="#34d399" stroke-width="7"/>
+            </g>
+            <g id="fx-ce" opacity="0">
+                <line x1="598" y1="495" x2="598" y2="511" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <!-- +V_CC 置零接地（端子下方画接地符号；接地时隐藏 ＋V_CC 标注） -->
+            <g id="fx-vcc" opacity="0">
+                <line x1="805" y1="51" x2="805" y2="67" stroke="#34d399" stroke-width="5"/>
+                <line x1="777" y1="67" x2="833" y2="67" stroke="#34d399" stroke-width="5"/>
+                <line x1="791" y1="79" x2="819" y2="79" stroke="#34d399" stroke-width="4.5"/>
+                <line x1="799" y1="91" x2="811" y2="91" stroke="#34d399" stroke-width="4"/>
+            </g>
+            <!-- −V_EE 置零接地（端子下方画接地符号；接地时隐藏 −V_EE 标注） -->
+            <g id="fx-vee" opacity="0">
+                <line x1="486" y1="592" x2="486" y2="608" stroke="#34d399" stroke-width="5"/>
+                <line x1="458" y1="608" x2="514" y2="608" stroke="#34d399" stroke-width="5"/>
+                <line x1="472" y1="620" x2="500" y2="620" stroke="#34d399" stroke-width="4.5"/>
+                <line x1="480" y1="632" x2="492" y2="632" stroke="#34d399" stroke-width="4"/>
+            </g>
+            <!-- 信号源置零短接桥（V_s 替换成短路线） -->
+            <g id="fx-vs" opacity="0">
+                <line x1="90" y1="443" x2="90" y2="487" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <!-- R_e2 被 C_E 旁路 → 交流短路：原位画短路线（R_e1 不画短路线） -->
+            <g id="fx-re2" opacity="0">
+                <line x1="486" y1="506" x2="486" y2="561" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+            </g>
+            <!-- 整理态 R_C 下挂件的接地符号（x=640）—— 第71轮起由公共地母线 fx-gnd-rail 取代，不再显示
+                 （组保留，以免引擎 resetCircuit 清零清单失配） -->
+            <g id="fx-gnd-rc" opacity="0">
+                <line x1="640" y1="525" x2="640" y2="543" stroke="#ffffff" stroke-width="3"/>
+                <line x1="612" y1="543" x2="668" y2="543" stroke="#ffffff" stroke-width="3.5"/>
+                <line x1="622" y1="551" x2="658" y2="551" stroke="#ffffff" stroke-width="3"/>
+                <line x1="630" y1="559" x2="650" y2="559" stroke="#ffffff" stroke-width="2.5"/>
+            </g>
+            <!-- 等效态 R_e1 下端的接地符号（第66轮随 R_e1 移到 x=490；公共地轨上唯一保留的接地符号） -->
+            <g id="fx-gnd-e" opacity="0">
+                <line x1="450" y1="550" x2="450" y2="568" stroke="#ffffff" stroke-width="3"/>
+                <line x1="422" y1="568" x2="478" y2="568" stroke="#ffffff" stroke-width="3.5"/>
+                <line x1="432" y1="576" x2="468" y2="576" stroke="#ffffff" stroke-width="3"/>
+                <line x1="440" y1="584" x2="460" y2="584" stroke="#ffffff" stroke-width="2.5"/>
+            </g>
+
+            <!-- 整理态公共地母线（第71轮）：第一个整理动作（RE2 移除 / RE1 保留 / R_C 下移 任一）时启用 ——
+                 底部只保留 −V_EE 端子下方那一处接地符号（fx-vee），其余接地符号收起，各接地端经本母线连到该地。
+                 母线 y=573 从 R_e2 体(506~561)下方 12px 处绕过，与 −V_EE 标注墨迹(≈583)净隙 14px；
+                 486 处由 R_e2 下端引线(wire-ree-b 561→596)贯通 → 与 −V_EE 端子/接地符号同电位。 -->
+            <g id="fx-gnd-rail" opacity="0">
+                <path d="M 90 525 V 573" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 320 525 V 573" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 800 525 V 573" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 90 573 H 800" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- 节点圆（第90轮）：V_i 负极(150) 空心圆，与 + 极上方端子圆(150,260) 垂直同轴；R_B(320) / RE2 下端—−V_EE 端子(486) T 结 -->
+                <circle cx="150" cy="573" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+                <circle cx="320" cy="573" r="7" fill="#ffffff"/>
+                <circle cx="486" cy="573" r="7" fill="#ffffff"/>
+            </g>
+            <!-- R_C 母线引下线（第74轮改）：R_C 下挂线(640)自母线行(525)直落公共地母线(573)，与 rarr-rc 下挂线
+                 成一条直线（无 T 结，(640,525) 不补节点圆）；C_E 支路第74轮左移到 590 列、
+                 第75轮再右移 8px 至 598 列（为把 C_E 标注从 640 竖线右侧 654 收回到极板左侧紧贴腾出让位空间），两列相距 42px 不再并线。
+                 ensureGndRail 不亮它；moveCompDown(comp-rc) 点亮；showEquiv 收起 -->
+            <g id="fx-gnd-jct" opacity="0">
+                <path d="M 640 525 V 573" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="640" cy="573" r="7" fill="#ffffff"/>
+            </g>
+            <!-- C_E 母线引下线（第74轮新增）：C_E 支路仍在电路中（RE2 未移除）且公共地母线已启用时，
+                 其下端(598,525)经此段直落母线 —— RE2 移除后 C_E 支路整体收起，此段随之收起（ceGone 条件，防悬空残段）。
+                 ensureGndRail / moveCompDown 按 ceGone 条件点亮；showEquiv 收起 -->
+            <g id="fx-ce-tail" opacity="0">
+                <path d="M 598 525 V 573" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="598" cy="573" r="7" fill="#ffffff"/>
+            </g>
+            <!-- RE2 移除后的替代导线（第71轮）：RE1 下端（发射极节点 486,470）直接下接到 −V_EE 端子(596)，
+                 其下 fx-vee 即整理态唯一保留的接地符号（等价于 C_E 那条短路线左移到 RE1 下端）。
+                 等效态由 eq-layer 重建发射极支路，此线随 showEquiv 收起 -->
+            <g id="fx-re2-wire" opacity="0">
+                <line x1="486" y1="455" x2="486" y2="596" stroke="#ffffff" stroke-width="3.5"/>
+            </g>
+
+            <!-- ====== Q点电量标注层（第 2 关显示、第 3 关保留：I_BQ / I_CQ / I_EQ / V_CEQ，另含已知量 V_BE、β；点击作答） ====== -->
+            <g id="qlabel-layer" opacity="0" pointer-events="none">
+                <!-- I_BQ：基极电流（自地经 R_B 向上流入基极；箭头沿 R_B 支路左侧空白处向上，标注置于箭头左侧） -->
+                <g class="interactive" data-id="q-ibq" data-name="基极电流 I_BQ">
+                    <rect class="hot" x="226" y="280" width="88" height="72" fill="none" stroke="none"/>
+                    <line class="hot" x1="300" y1="346" x2="300" y2="300" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="300,286 292,301 308,301" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label" x="284" y="322" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="end">I<tspan class="sub">BQ</tspan></text>
+                </g>
+                <!-- I_CQ：集电极电流。第76轮拆分：原「I_CQ≈I_EQ」合并标注拆成集电极 I_CQ 与发射极 I_EQ 两个独立标注
+                     （第2关计算顺序新增「先算 I_EQ」选项，两个量须能分别点击）。箭头沿集电极支路向下。
+                     第72轮文字下移到箭头中间（基线 101）；第74轮 β 移入 C/E 之间后箭头/热区/文字左移回位（530/546/522） -->
+                <g class="interactive" data-id="q-icq" data-name="集电极电流 I_CQ">
+                    <rect class="hot" x="507" y="61" width="90" height="90" fill="none" stroke="none"/>
+                    <line class="hot" x1="525" y1="75" x2="525" y2="127" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="525,141 517,126 533,126" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label" x="531" y="118" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">I<tspan class="sub">CQ</tspan></text>
+                </g>
+                <!-- I_EQ：发射极电流（第76轮新增）。自集电极经基区流向发射极并流出 → 箭头沿发射极支路向下。
+                     置于 R_E1 支路左侧（与 I_BQ 同侧风格），箭头区间与 R_E1 体(367~422) 相同 = 「电流流过 R_E1」，
+                     与 I_CQ 标注在 R_C 体旁的画法一致。文字 anchor=end x=426（墨迹 397.6~426 × 378.4~407.3）：
+                     与 q-V_BE 墨迹底 352.3 净隙 26、与 R_E1 体左缘 468 净隙 42、与发射极支路导线(486) 净隙 60。
+                     热区 396~466 × 368~426（右缘 466 < R_E1 体 468，避免遮挡元件本身的可点区域） -->
+                <g class="interactive" data-id="q-ieq" data-name="发射极电流 I_EQ">
+                    <rect class="hot" x="513" y="363" width="72" height="78" fill="none" stroke="none"/>
+                    <line class="hot" x1="525" y1="363" x2="525" y2="421" stroke="#ff5252" stroke-width="5"/>
+                    <polygon class="hot-fill" points="525,435 517,420 533,420" fill="#ff5252" stroke="none"/>
+                    <text class="hot-label" x="531" y="399" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">I<tspan class="sub">EQ</tspan></text>
+                </g>
+                <!-- V_CEQ：管压降（C—E 之间的空白处，＋/− 极性标注） -->
+                <g class="interactive" data-id="q-vceq" data-name="管压降 V_CEQ">
+                    <rect class="hot" x="517" y="228" width="84" height="116" fill="none" stroke="none"/>
+                    <text class="hot-label" x="560" y="248" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">＋</text>
+                    <text class="hot-label" x="560" y="290" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">CEQ</tspan></text>
+                    <text class="hot-label" x="560" y="332" fill="#ff5252" font-size="28" font-weight="bold" text-anchor="middle">－</text>
+                </g>
+                <!-- V_BE：发射结电压（基极条下方口袋位；第 3 关填空点它作答，点晶体管同样认可） -->
+                <g class="interactive" data-id="q-vbe" data-name="发射结电压 V_BE">
+                    <rect class="hot" x="348" y="320" width="76" height="30" fill="none" stroke="none"/>
+                    <text class="hot-label" x="386" y="345" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">BE</tspan></text>
+                </g>
+                <!-- β：晶体管电流放大系数（第73轮定稿：标在 BJT 的 C 极(486,211)与 E 极(486,319)之间、与 R_C 矩形垂直中线 x=486 对齐：
+                     文字中线 y≈265（基线 275），C 端标注同步上移 7px（237→230）让出净隙；
+                     第 3 关填空点它作答，点晶体管同样认可） -->
+                <g class="interactive" data-id="q-beta" data-name="晶体管电流放大系数 β">
+                    <rect class="hot" x="468" y="244" width="40" height="48" fill="none" stroke="none"/>
+                    <text class="hot-label" x="486" y="275" fill="#ff5252" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">β</text>
+                </g>
+            </g>
+
+            <!-- ====== 整理电路层（第4关第2步「整理电路」：R_C 翻转下挂到地，与 R_L 并联；
+                 R_e2 已被 C_E 旁路而收起短路标记，R_e1 仍留在发射极支路上） ====== -->
+            <g id="rearr-layer">
+            <g id="rarr-rc" class="interactive" data-id="comp-rc" opacity="0" pointer-events="none">
+                <path class="hot keepw" d="M 640 176 V 323" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect class="hot" x="622" y="323" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path class="hot keepw" d="M 640 378 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="640" cy="176" r="8" fill="#ffffff"/>
+                <!-- 标签放体右侧、与电阻垂直居中（第71轮用户指定）：基线 = 体中线 329.5 + 8 ≈ 338，
+                     与 R_L 标注同基线（R_L 体亦 302..357，第72轮全站电阻统一 36×55）；两者墨迹约 670~715 / 727~770，净隙 12px -->
+                <text class="hot-label" x="670" y="359" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">C</tspan></text>
+            </g>
+            <!-- 第93轮：整理态接缝补线拆为 4 组，按各自连接对象条件点亮（连接对象一旦收起，
+                 对应补线段必须同步收，否则成悬空残线——第92/93轮用户两次反馈的根因）：
+                 · fx-tidy-lines（无条件，整理态全程）：信号源接地(90) / R_B 下端(320) / R_L 下端(800)
+                 · fx-tidy-rc：R_C 下端(640) —— moveCompDown(comp-rc) 时亮（先整理 RE 时 rarr-rc 未出）
+                 · fx-tidy-ce：C_E 支路下端(598) —— !ceGone 时亮，re2-remove 收
+                 · fx-tidy-vee：R_E2 下端 → −V_EE 端子(486, 581→596) —— !ceGone 时亮，re2-remove 收 -->
+            <g id="fx-tidy-lines" opacity="0">
+                <path d="M 90 510 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 320 510 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 800 510 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            </g>
+            <g id="fx-tidy-rc" opacity="0">
+                <path d="M 640 510 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            </g>
+            <g id="fx-tidy-ce" opacity="0">
+                <path d="M 598 510 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            </g>
+            <g id="fx-tidy-vee" opacity="0">
+                <path d="M 486 581 V 596" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+            </g>
+            </g>
+
+            <!-- ===== 交流等效最终态层（第4关第3步「等效晶体管」时启用，与默认/整理态互斥） =====
+                 基极输入线上升到 y=176 与集电极导线对齐；V_s / R_s / R_B 随之上移；
+                 r_be 自 B 节点下挂到发射极节点；受控源与 r_be 垂直居中对齐（菱形中心 y=308），下端经导线接发射极横线（y=400；第72轮 r_be/eq-re1 随全站统一 36×55）；
+                 R_e1 自横线中点(x=490)下挂；底部一根公共地轨（V_s 负极 → R_L 下端，y=525）替代各独立接地符号，
+                 仅 R_e1 下端保留接地符号（第66轮） -->
+            <g id="eq-layer" opacity="0" pointer-events="none" transform="translate(0,25)">
+                <!-- 基极输入主线（与集电极导线同高 y=176） -->
+                <path d="M 90 176 H 380" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- C_B 短接桥（随线上移） -->
+                <line x1="206" y1="176" x2="220" y2="176" stroke="#34d399" stroke-width="7" stroke-linecap="round"/>
+                <!-- 集电极横导线：左端即交流等效的 C 节点 x=560（受控源支路挂点）；
+                     右端 670 处由 fx-c2 的 C_C 短接桥接续到输出导线 -->
+                <path d="M 520 176 H 670" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- 输入端口 Vi（上端子随线上移；下端子由接地符号表达，不再画端子圆） -->
+                <circle cx="150" cy="176" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+                <text x="150" y="245" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+                <text x="150" y="370" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">i</tspan></text>
+                <text x="150" y="495" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+                <!-- R_s + V_s 列（上移：引线 70/68 上下匀称） -->
+                <path d="M 90 176 V 272" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <rect x="72" y="272" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <text x="58" y="307" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">S</tspan></text>
+                <path d="M 90 327 V 388" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="90" cy="410" r="22" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+                <path d="M 76 410 Q 83 400 90 410 T 104 410" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+                <text x="40" y="370" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">＋</text>
+                <text x="40" y="408" fill="#ffe66d" font-size="37" font-weight="bold" font-style="italic" text-anchor="middle">V<tspan class="sub">s</tspan></text>
+                <text x="40" y="446" fill="#ffe66d" font-size="37" font-weight="bold" text-anchor="middle">－</text>
+                <path d="M 90 432 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- R_B（上移：体 280-360，引线 90/165；标签放体左侧避开 r_be） -->
+                <g id="eq-rb" class="interactive hit-off" data-id="comp-rb">
+                    <path class="hot keepw" d="M 280 176 V 292" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="262" y="292" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <path class="hot keepw" d="M 280 347 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <circle cx="280" cy="176" r="7" fill="#ffffff"/>
+                    <text class="hot-label" x="248" y="328" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="end">R<tspan class="sub">B</tspan></text>
+                </g>
+                <!-- R_e1（等效态：自发射极横线中点 x=490 下挂接地；C_E 只旁路 R_e2，R_e1 必须保留。
+                     第66轮自 r_be 正下方(420)移到横线 420→560 的中点，与 r_be / 受控源两列拉开） -->
+                <g id="eq-re1" class="interactive hit-off" data-id="comp-re1">
+                    <path class="hot keepw" d="M 450 370 V 420" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="432" y="420" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <path class="hot keepw" d="M 450 475 V 525" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <!-- 上端 T 结（横线中点）节点圆 -->
+                    <circle cx="450" cy="370" r="7" fill="#ffffff"/>
+                    <text class="hot-label" x="482" y="455" fill="#ffffff" font-size="37" font-weight="bold" text-anchor="start">R<tspan class="sub">E1</tspan></text>
+                </g>
+                <!-- 发射极节点横线：r_be 下端 → 受控源支路（R_e1 在中点 x=490 下挂；第1问揭示 r_be 时同亮） -->
+                <path d="M 380 370 H 520" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- 公共地轨（第66轮）：V_s 负极(90) → V_o 负极(R_L 下端 800) 一根导线，替代各自独立的接地符号 -->
+                <path d="M 90 525 H 800" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                <!-- 第91轮：V_i 负极下方圆圈必须绘在地轨横线之后——深绿填充遮住穿过圆心的线段（与 + 极上方圆同效） -->
+                <circle cx="150" cy="525" r="8" fill="#0a3d20" stroke="#ffffff" stroke-width="3"/>
+                <!-- 地轨 T 结节点圆：R_B(320) / R_e1(490) / R_C(640) 三处下挂点（规范：分支挂接点补 r7 圆） -->
+                <circle cx="280" cy="525" r="7" fill="#ffffff"/>
+                <circle cx="450" cy="525" r="7" fill="#ffffff"/>
+                <circle cx="640" cy="525" r="7" fill="#ffffff"/>
+                <!-- 第91轮：删第90轮补线——等效态保留件由引擎 tidyShift('keep',25) 整体平移，直接与地轨/集电极横线相接 -->
+            </g>
+
+            <!-- 晶体管微变等效模型（r_be + 受控电流源 CCCS + i_b / βi_b 及箭头）；
+                 逐问显示：B–E 之间 r_be（第1问）、B–C 开路（不画）、C–E 受控源（第3问）、
+                 i_b 箭头（第4问）、βi_b 箭头（第5问）。完成后可点击（r_be 填空作答） -->
+            <g id="fx-tmodel" class="interactive" data-id="comp-t-model" opacity="0" pointer-events="none" transform="translate(0,25)">
+                <g id="fx-t-rbe" opacity="0">
+                    <line class="hot keepw" x1="380" y1="176" x2="380" y2="265" stroke="#ffffff" stroke-width="3.5"/>
+                    <rect class="hot" x="362" y="265" width="36" height="55" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                    <line class="hot keepw" x1="380" y1="320" x2="380" y2="370" stroke="#ffffff" stroke-width="3.5"/>
+                    <!-- r_be 下端 (420,400) 为 L 拐角（发射极横线自 420 起向右），非 T 结 —— 第 56 轮补的
+                         节点圆已于第 71 轮移除（第 66 轮 R_e1 移到 x=490 后此处只剩两条线）；问询红点 fx-dot-e 另绘 -->
+                    <!-- 标签放电阻体右侧（x=452 = 体右缘 438+14），基线 315 与体中线 307.5 相差 7.5（第72轮体 280..335） -->
+                    <text class="hot-label" x="412" y="300" fill="#ffe66d" font-size="28" font-weight="bold" font-style="italic" text-anchor="start">r<tspan class="sub">be</tspan></text>
+                </g>
+                <g id="fx-t-src" opacity="0">
+                    <!-- 受控源支路挂点：集电极导线（C 节点右侧同电位点）x=560；
+                         第66轮菱形上移与 r_be 垂直居中对齐（菱形中心 y=308 ≈ r_be 体中心 307.5） -->
+                    <line class="hot" x1="520" y1="176" x2="520" y2="263" stroke="#ffffff" stroke-width="3.5"/>
+                    <!-- 流控电流源（CCCS）：菱形符号；下端经导线接到发射极节点横线 y=420 -->
+                    <path class="hot" d="M 520 263 L 544 293 L 520 323 L 496 293 Z" fill="rgba(255,255,255,0.10)" stroke="#ffffff" stroke-width="3.5"/>
+                    <line class="hot" x1="496" y1="293" x2="544" y2="293" stroke="#ffffff" stroke-width="3"/>
+                    <line class="hot" x1="520" y1="323" x2="520" y2="370" stroke="#ffffff" stroke-width="3.5"/>
+                </g>
+                <!-- i_b：基极支路电流（自 B 节点向下流经 r_be）——箭头方向问作答后画出 -->
+                <g id="fx-t-ib" opacity="0">
+                    <line x1="380" y1="206" x2="380" y2="236" stroke="#ff5252" stroke-width="5"/>
+                    <polygon points="380,250 372,235 388,235" fill="#ff5252" stroke="none"/>
+                    <text x="364" y="239" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="end">i<tspan class="sub">b</tspan></text>
+                </g>
+                <!-- βi_b：受控源支路电流（自 C 节点向下流经受控源到发射极节点）——箭头方向问作答后画出 -->
+                <g id="fx-t-ic" opacity="0">
+                    <line x1="520" y1="206" x2="520" y2="236" stroke="#ff5252" stroke-width="5"/>
+                    <polygon points="520,250 512,235 528,235" fill="#ff5252" stroke="none"/>
+                    <text x="504" y="239" fill="#ff5252" font-size="28" font-weight="bold" font-style="italic" text-anchor="end">βi<tspan class="sub">b</tspan></text>
+                </g>
+            </g>
+
+            <!-- 晶体管等效五连问的端点红点（B/C/E，持续闪烁；引擎按问显隐）。
+                 放在 fx-layer 最末：保证红点画在 eq-layer 导线之上不被遮挡 -->
+            <g id="fx-dot-b" opacity="0">
+                <circle class="qdot" cx="380" cy="201" r="8" fill="#ff5252"/>
+            </g>
+            <g id="fx-dot-c" opacity="0">
+                <circle class="qdot" cx="520" cy="201" r="8" fill="#ff5252"/>
+            </g>
+            <g id="fx-dot-e" opacity="0">
+                <circle class="qdot" cx="380" cy="395" r="8" fill="#ff5252"/>
+            </g>
+        </g>
+
+</g>
+        <!-- ▲▲▲ 替换区 B 结束 ▲▲▲ -->

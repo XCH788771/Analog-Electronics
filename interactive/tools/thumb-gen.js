@@ -51,10 +51,13 @@ const argv = process.argv.slice(2);
 const flags = new Set(argv.filter(a => a.startsWith('--')));
 const waitIdx = argv.indexOf('--wait');
 const WAIT = waitIdx > -1 ? parseInt(argv[waitIdx + 1], 10) : DEFAULT_WAIT;
+const waitVal = waitIdx > -1 ? argv[waitIdx + 1] : null;
 const DRY = flags.has('--dry');
 const ALL = flags.has('--all');
 const NO_BUMP = flags.has('--no-bump');
-const IDS_ARG = argv.filter(a => !a.startsWith('--') && a !== argv[waitIdx + 1]);
+// 注意：仅当 --wait 存在时才排除其后紧跟的值；否则 waitIdx=-1 → argv[waitIdx+1]=argv[0]
+// 会把第一个位置参数（id）误删，导致只传一个 id 时 IDS_ARG 变空、回退到刷新所有过期图。
+const IDS_ARG = argv.filter(a => !a.startsWith('--') && a !== waitVal);
 
 // ---------- 从 data.js 解析 thumbImg 清单 ----------
 function parseThumbs() {
