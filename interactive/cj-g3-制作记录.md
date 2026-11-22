@@ -699,3 +699,13 @@
 - **顺手补存量缺陷**：`showTQuizMenu(d)` 补 `if (!q) return;` 竞态护栏（其余 4 页第112轮已加，本页被并行会话回退时丢失），
   消除全部答完后 900ms 延时回调读 `TQUIZ[-1].dots` 抛出的 pageerror；**关卡结构一律不动**（本页仍 5 关 `[12,6,36,18,28]`，与其余 4 页 6 关不同，属并行会话现状）。
 - 备份：`.workbuddy/archive/bak-r119/cj-g3.html`；工具：`.workbuddy/patch_r119.py`、`.workbuddy/verify_r119.js`。
+
+## ★ 第120轮（2026-11-10）：常数填空「点另一个框＝自动确认」＋ 回显文字穿透
+- **需求**：r_be 表达式填常数时，输入数字（如 200）后不点「确认」、直接点另一个虚线框，应自动结束输入、提交判分、保留正确输入并进入下一个框输入。
+- **根因**：本页 `.blank-box` 事件委托切换选中框时无条件 `S.numStr = ''`，丢弃未提交数字；复现：输入 200 后点另一框 → `numStr=''`、`done=false`、`picked=null`、无绿字。
+- **改法**：mix 分支先算 `same`（level/mix/idx 全等）；仅当 `!same` 且当前框有 `S.numStr` 时调用 `submitNum(lv)`（与点「确认」同一路径：对→`b.picked='num-'+值` + 绿字回填 + 计分/语音；错→提示「常数不对」+ 清空缓冲 + 不扣分），随后选中新框并初始化 `S.numStr`（常数空 `''` / 电量空 `null`）。三条护栏：同框保留「清空重填」、空缓冲不提交、全部填满或 finished 时 `return` 防与 `mixFillDone` 竞态。
+- **顺手修复**：黄色即时回显 `<text>` 未设 `pointer-events` 会拦截虚线框点击（「点回原框重填」点不中），改为创建 `echo` 后 `setAttribute('pointer-events','none')` 再 append。
+- **验收**：`verify_r120.js` 本页 6 组真实鼠标场景断言全 PASS（正确自动提交/连续切换/错误判错不扣分且可重填/显式确认回归/同框清空/空缓冲不误提交）；`flow_cj109.js` 通关 100/100、0 pageerror；`svg-layout-check.py` EXIT=0；`deliver_check_116.js` 双通道 DELIVER_OK。
+- **版本**：`cj-g3.html?v=51→52`；index `data.js?v=12.44→12.45`；首屏未变 → thumbImg 不动。
+- **numPad 位置**：第 3 关第 2 子步（fill，8 空，仅 idx4 常数 1）—— 本页为并行会话的 5 关结构，`?lvl=3&ms=2`。备份 `.workbuddy/archive/bak-r120/cj-g3.html`（及 `pre-r120b/`）。
+

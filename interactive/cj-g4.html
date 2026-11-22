@@ -2833,7 +2833,9 @@
             if (r2) {
                 const bx2 = parseFloat(r2.getAttribute('x')) + parseFloat(r2.getAttribute('width')) / 2;
                 const by2 = parseFloat(r2.getAttribute('y')) + parseFloat(r2.getAttribute('height')) / 2;
-                r2.parentNode.appendChild(mkText(bx2, by2 + 9, 27, S.numStr, { fill: '#ffd93d', anchor: 'middle' }));   // 第113轮：挂 rect 父组（局部坐标），修回显落在视口外
+                const echo = mkText(bx2, by2 + 9, 27, S.numStr, { fill: '#ffd93d', anchor: 'middle' });
+                echo.setAttribute('pointer-events', 'none');   // 第120轮：回显数字不拦截虚线框点击（否则点回原框被文字挡住）
+                r2.parentNode.appendChild(echo);
             }
         }
         renderMsg(1010, 752, 26);
@@ -2953,8 +2955,15 @@
         if (k === 'mix') {
             const mx = S.mix[lv];
             if (mx.steps[mx.si].type !== 'fill') return;
+            // 第120轮：点另一个虚线框＝把当前常数框未提交的输入自动「确认」（保留数字、判分并锁定），
+            // 再选中新框开始下一次输入；点同一个框仍沿用原「清空重填」行为，空缓冲不触发提交。
+            const same = S.selBox && S.selBox.level === lv && S.selBox.mix === mx.si && S.selBox.idx === idx;
+            if (!same && S.selBox && S.selBox.level === lv && S.selBox.mix === mx.si && S.numStr) {
+                submitNum(lv);
+                if (S.finished || mx.steps[mx.si].blanks.every(x => x.done)) return;   // 全部填满后推进已排队，勿再改选
+            }
             S.selBox = { level: lv, mix: mx.si, idx: idx };
-            S.numStr = mx.steps[mx.si].blanks[idx].num ? '' : null;   // 第112轮：常数空清空输入缓冲
+            S.numStr = mx.steps[mx.si].blanks[idx].num ? '' : null;
         } else {
             S.selBox = { level: lv, idx: idx };
             S.numStr = null;
@@ -3016,7 +3025,7 @@
         }
     }
 
-    // 第112轮：常数空提交（numPad「确认」）：比对该空 num 值；对→计分（常数空 0 分）并推进；错→提示清空重填（不扣分）
+    // 第112轮：常数空提交（numPad「确认」）；第120轮：切换虚线框自动提交也走本函数。比对该空 num 值；对→计分（常数空 0 分）并推进；错→提示清空重填（不扣分）
     function submitNum(lv) {
         const mx = S.mix[lv];
         const st = mx.steps[S.selBox.mix];

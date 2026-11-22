@@ -16,6 +16,7 @@
   ⑤ 导线非端点交叉
   ⑥ 越出右侧面板 / 顶部 / 底部安全线
   ⑦ 元件间距均匀性 : 最近邻净间隙 < MIN_PITCH → 错误(拥挤) ; > LOOSE_PITCH → 提示(松散)
+                      （只比不同 data-id 元件组；同组内装饰子形状如恒流源+方向箭头不参与）
   ⑧ 两端导线均衡   : 两终端导线长度比 > LEAD_RATIO → 警告(一端贴死一端拖长)
   ⑨ 下标尺寸一致性 : 页面 tspan.sub 的 font-size 百分比须与 SUB_SCALE 一致
 
@@ -39,6 +40,7 @@ PANEL_GAP = 5.0       # 元素右缘与面板左缘的最小间距
 TOP_LIMIT = 20.0      # inner 顶部安全线
 BOTTOM_LIMIT = 790.0  # inner 底部安全线(底部品牌字样/提示 之上)
 SUB_SCALE = 0.75      # tspan.sub 下标相对父字号比例（须与页面 CSS font-size 百分比一致；2026-10-07 下标缩小1/4）
+SUBSM_SCALE = 0.5     # r153：tspan.subsm（Vi / r_O 下标）相对父字号比例，缩小 1/3
 LABEL_GAP = 8.0       # 标签墨迹与元件的最小净间隙
 NEAR_GAP = 6.0        # 净间隙低于此值 → ③c 警告
 MIN_PITCH = 15.0      # 元件最近邻净间隙下限（低于 → 拥挤错误）
@@ -81,7 +83,8 @@ def measure_text(inner, size):
     for m in re.finditer(r'<tspan([^>]*)>(.*?)</tspan>', inner, re.S):
         total += _tw(_clean(inner[pos:m.start()]), size)
         sub = ('sub' in m.group(1))
-        total += _tw(_clean(m.group(2)), size * (SUB_SCALE if sub else 1.0))
+        scale = SUBSM_SCALE if 'subsm' in m.group(1) else (SUB_SCALE if sub else 1.0)
+        total += _tw(_clean(m.group(2)), size * scale)
         pos = m.end()
     total += _tw(_clean(inner[pos:]), size)
     return total
@@ -569,6 +572,10 @@ def main():
         for j, d in enumerate(real):
             if i == j:
                 continue
+            # 同一 data-id 元件组内的子形状（如恒流源圆 + 它自己的方向箭头）属同一个符号，
+            # 不算「两个元件」，其 8~10px 的贴身净隙是设计间距（r132）。⑦ 只比不同元件组。
+            if c.owner == d.owner:
+                continue
             g = gap(c.bbox, d.bbox)
             if g < best:
                 best, who = g, d.owner
@@ -614,7 +621,11 @@ def main():
     uniq = sorted(set(pct))
     if uniq and (len(uniq) > 1 or abs(int(uniq[0]) - SUB_SCALE * 100) > 0.5):
         warnings.append('下标字号 %s%% 与自检 SUB_SCALE=%s 不一致（须统一，见规范第五节）' % ('/'.join(uniq), SUB_SCALE))
-    print('[⑨ 下标比例] %s' % ('/'.join('%s%%' % u for u in uniq) or '未声明'))
+    sm = re.findall(r'\.subsm\s*\{[^}]*font-size:\s*(\d+)%', svg)
+    if sm and any(abs(int(x) - SUBSM_SCALE * 100) > 0.5 for x in sm):
+        warnings.append('subsm 下标字号 %s%% 与自检 SUBSM_SCALE=%s 不一致' % ('/'.join(sm), SUBSM_SCALE))
+    print('[⑨ 下标比例] %s%s' % ('/'.join('%s%%' % u for u in uniq) or '未声明',
+          (' / subsm ' + '/'.join('%s%%' % x for x in sm)) if sm else ''))
 
     print('-' * 74)
     if warnings:

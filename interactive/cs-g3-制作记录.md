@@ -425,3 +425,8 @@
 - renderDone 得分项由居中改为左对齐：新增 doneLeftX(arr)（量最长行宽→整块在面板内居中→各行 anchor:start 左缘统一），
   行距与行序不变。回归 align_done_test 断言 PASS（各行左缘一致、右缘不溢出、0 pageerror）；deliver_check 双通道 ok。
 - 版本：lab ?v= 递增（data.js 同步）、index data.js?v=12.39；缩略图不动（结算页非首屏）。
+
+## ★ 第154轮（2026-11-22）：导航归位（仅 data.js，页面本体未改）
+- 游戏闯关「共源放大」3 张分支卡片改为「栅极分压式 / 带双电源 / 带恒流源」三类。本页按「单电源 +VDD 栅极 R_G1/R_G2 分压 + R_G」归入 **`cs-b1` 栅极分压式放大电路 → 案例3**。
+- 本页的 `lab` / `thumbImg` / `name` / `desc` 一律未改；组内首条补回 `cs-g1`（曾与本页内容互换，本轮恢复双页各有入口）。
+- 验收 `verify_r154.js` **42/42**；index `data.js?v=12.83→12.84`。详见 `制作规范.md` 第154轮。

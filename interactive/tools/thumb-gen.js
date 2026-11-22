@@ -50,7 +50,9 @@ const DEFAULT_WAIT = 2800;   // 校徽粒子动画 ≈2.5s + 余量（制作规�
 const argv = process.argv.slice(2);
 const flags = new Set(argv.filter(a => a.startsWith('--')));
 const waitIdx = argv.indexOf('--wait');
-const WAIT = waitIdx > -1 ? parseInt(argv[waitIdx + 1], 10) : DEFAULT_WAIT;
+// 裸 --wait（未跟毫秒数）时 parseInt(undefined)=NaN，会让 waitForTimeout(NaN) 立刻返回、截到入场动画中间态；
+// r146 补护栏：无有效数值一律回退 DEFAULT_WAIT。
+const WAIT = waitIdx > -1 ? (parseInt(argv[waitIdx + 1], 10) || DEFAULT_WAIT) : DEFAULT_WAIT;
 const waitVal = waitIdx > -1 ? argv[waitIdx + 1] : null;
 const DRY = flags.has('--dry');
 const ALL = flags.has('--all');
